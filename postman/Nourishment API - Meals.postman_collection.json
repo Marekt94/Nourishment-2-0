@@ -1,0 +1,138 @@
+{
+	"info": {
+		"_postman_id": "a367953c-04fb-43db-bf7c-40293dfa7e92",
+		"name": "Nourishment API - Meals",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "30215534",
+		"_collection_link": "https://mt5555-7028.postman.co/workspace/Nourishment-2-0~ac3be09c-bd04-4d0e-9bbb-2ca1ab0efff3/collection/30215534-a367953c-04fb-43db-bf7c-40293dfa7e92?action=share&source=collection_link&creator=30215534"
+	},
+	"item": [
+		{
+			"name": "Get all meals",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{http}}://{{ip}}:{{port}}/meals",
+					"protocol": "{{http}}",
+					"host": [
+						"{{ip}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"meals"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get meal by ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{http}}://{{ip}}:{{port}}/meals/{{id}}",
+					"protocol": "{{http}}",
+					"host": [
+						"{{ip}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"meals",
+						"{{id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create meal",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"id\", pm.response.json().id);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Test meal\",\n  \"recipe\": \"Opis przepisu\",\n  \"productsInMeal\": []\n}"
+				},
+				"url": {
+					"raw": "{{http}}://{{ip}}:{{port}}/meals",
+					"protocol": "{{http}}",
+					"host": [
+						"{{ip}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"meals"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update meal",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"id\": {{id}},\n  \"name\": \"Zmieniona nazwa\",\n  \"recipe\": \"Nowy opis\",\n  \"productsInMeal\": []\n}"
+				},
+				"url": {
+					"raw": "{{http}}://{{ip}}:{{port}}/meals",
+					"protocol": "{{http}}",
+					"host": [
+						"{{ip}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"meals"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete meal",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{http}}://{{ip}}:{{port}}/meals/{{id}}",
+					"protocol": "{{http}}",
+					"host": [
+						"{{ip}}"
+					],
+					"port": "{{port}}",
+					"path": [
+						"meals",
+						"{{id}}"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
