@@ -7,6 +7,6 @@ import (
 )
 
 func DefaultReq(c *gin.Context){
-	str := "{\"status\": \"ok\"}";
+	str := "{\"status\": \"ok\"}" // [AI REFACTOR]
 	c.IndentedJSON(http.StatusOK, str)
 }

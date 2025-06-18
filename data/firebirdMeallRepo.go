@@ -70,8 +70,8 @@ func generateGetMealsQuery() string{
 							ProductPrefix + `.` + PRODUCT_CATEGORY)
 }
 
-func ConvertToMeals(m []MealDb) []meal{
-	var res []meal
+func ConvertToMeals(m []MealDb) []Meal { // [AI] poprawka: []Meal zamiast []meal
+	var res []Meal
 	if len(m) < 1 {
 		return nil
 	}
@@ -94,15 +94,15 @@ func ConvertToMeals(m []MealDb) []meal{
 	return res
 }
 
-func ConvertToMeal(m []MealDb) meal {
-	var meal meal
+func ConvertToMeal(m []MealDb) Meal { // [AI] poprawka: Meal zamiast meal
+	var meal Meal
 	log.Println(`start converting db to meal`)
 	meal.Id = NullInt64ToInt(&m[0].Id)
 	meal.Name = NullStringToString(&m[0].Name)
 	meal.Recipe = NullStringToString(&m[0].Recipe)
 	for _, pml := range m {
 		if pml.ProductInMeal.Id.Valid{
-			var pm productInMeal
+			var pm ProductInMeal
 			pm.Id = NullInt64ToInt(&pml.ProductInMeal.Id)
 			pm.Weight = NullFloat64ToFloat(&pml.ProductInMeal.Weight)
 			pml.ProductInMeal.Product.ConvertToProduct(&pm.Product)
@@ -113,9 +113,9 @@ func ConvertToMeal(m []MealDb) meal {
 	return meal
 }
 
-func (mr *FirebirdRepoAccess) GetMeal(i int) meal {
-	sqlStr := generateGetMealsQuery();
-	sqlStr = fmt.Sprintf(sqlStr + ` WHERE %s = ?`, MealPrefix + `.` + MEAL_ID)
+func (mr *FirebirdRepoAccess) GetMeal(i int) Meal { // [AI] poprawka: Meal zamiast meal
+	sqlStr := generateGetMealsQuery()
+	sqlStr = fmt.Sprintf(sqlStr+` WHERE %s = ?`, MealPrefix+`.`+MEAL_ID)
 	log.Println(`SQL: ` + sqlStr)
 
 	var meals []MealDb
@@ -123,11 +123,11 @@ func (mr *FirebirdRepoAccess) GetMeal(i int) meal {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	for rows.Next(){
+	for rows.Next() {
 		var meal MealDb
 		err := rows.Scan(returnMealFieldsForDbRetriving(&meal))
 		log.Println(meal)
-		if err == nil{
+		if err == nil {
 			meals = append(meals, meal)
 		} else {
 			log.Fatal(err)
@@ -138,16 +138,16 @@ func (mr *FirebirdRepoAccess) GetMeal(i int) meal {
 	return res
 }
 
-func (mr *FirebirdRepoAccess) GetMeals() []meal {
-	var meals []meal
-	sqlStr := generateGetMealsQuery();
-	sqlStr = fmt.Sprintf(sqlStr + ` ORDER BY %s`, MealPrefix + `.` + MEAL_ID)
+func (mr *FirebirdRepoAccess) GetMeals() []Meal { // [AI] poprawka: []Meal zamiast []meal
+	var meals []Meal
+	sqlStr := generateGetMealsQuery()
+	sqlStr = fmt.Sprintf(sqlStr+` ORDER BY %s`, MealPrefix+`.`+MEAL_ID)
 	rows, err := mr.DbEngine.Query(sqlStr)
 	if err != nil {
 		log.Fatal(err)
 	} else {
 		var mealsDb []MealDb
-		for rows.Next(){
+		for rows.Next() {
 			var mealDb MealDb
 			if err := rows.Scan(returnMealFieldsForDbRetriving(&mealDb)); err == nil {
 				mealsDb = append(mealsDb, mealDb)
@@ -157,7 +157,7 @@ func (mr *FirebirdRepoAccess) GetMeals() []meal {
 		}
 		meals = ConvertToMeals(mealsDb)
 	}
-	for i, meal := range meals{
+	for i, meal := range meals {
 		log.Printf(`%d: %v\n`, i, meal)
 	}
 	return meals
@@ -174,65 +174,65 @@ func (mr *FirebirdRepoAccess)	DeleteMeal(i int) bool {
 	return !row.Next();
 }
 
-func (mr *FirebirdRepoAccess) updateProductsInMeal(m* meal, r ProductsRepo){
-		for i, prod := range m.ProductsInMeal{
-			if (prod.Product.Id <= 0) {
-				id := r.CreateProduct(&prod.Product)
-				prod.Product.Id = int(id)
-				m.ProductsInMeal[i].Product.Id = int(id)
-			} else {
-				r.UpdateProduct(&prod.Product)
-			}
-			
-			if (prod.Id <= 0){
-				prodInMealDb := productInMealDb{Product: productDb{Id: sql.NullInt64{Valid: true, Int64: int64(prod.Product.Id)}},
-				                                Weight: sql.NullFloat64{Float64: prod.Weight, Valid: true}}
-				prodInDbTabs := []string{PRODUCTS_IN_MEAL_PRODUCT_ID, PRODUCTS_IN_MEAL_MEAL_ID, PRODUCTS_IN_MEAL_WEIGHT}
-			    sql := fmt.Sprintf(`INSERT INTO %s (%s) VALUES (%s)`, PRODUCTS_IN_MEAL_TAB,
-				                                                      strings.Join(prodInDbTabs[:], `, `),
-																	  QuestionMarks(len(prodInDbTabs)))
-				_, err := mr.DbEngine.Exec(sql, &prodInMealDb.Product.Id, m.Id, prodInMealDb.Weight)
-				if (err != nil){
-					log.Fatalln(err)
-				}
-
-				sql = fmt.Sprintf(`SELECT MAX(%s) FROM ` + PRODUCTS_IN_MEAL_TAB, PRODUCTS_IN_MEAL_ID)
-				row := mr.DbEngine.QueryRow(sql)
-				var id int
-				row.Scan(&id)
-				prod.Id = id
-				m.ProductsInMeal[i].Id = id
-			}
+func (mr *FirebirdRepoAccess) updateProductsInMeal(m *Meal, r ProductsRepo) { // [AI] poprawka: *Meal zamiast *meal
+	for i, prod := range m.ProductsInMeal {
+		if prod.Product.Id <= 0 {
+			id := r.CreateProduct(&prod.Product)
+			prod.Product.Id = int(id)
+			m.ProductsInMeal[i].Product.Id = int(id)
+		} else {
+			r.UpdateProduct(&prod.Product)
 		}
 
-		//delete producte from db
-		tabs := []string{PRODUCTS_IN_MEAL_ID, PRODUCTS_IN_MEAL_PRODUCT_ID}
-		res, err := mr.DbEngine.Query(`SELECT ` + strings.Join(tabs, ", ") + ` FROM ` + PRODUCTS_IN_MEAL_TAB + ` WHERE ` + PRODUCTS_IN_MEAL_MEAL_ID + ` = ?`, m.Id)
-		if err != nil{
-			log.Fatalln(err)
-		}
-
-		prodInMealIds := make(map[int]int)
-		var key, value sql.NullInt64
-		for res.Next(){
-			err := res.Scan(&value, &key)
+		if prod.Id <= 0 {
+			prodInMealDb := productInMealDb{Product: productDb{Id: sql.NullInt64{Valid: true, Int64: int64(prod.Product.Id)}},
+				Weight: sql.NullFloat64{Float64: prod.Weight, Valid: true}}
+			prodInDbTabs := []string{PRODUCTS_IN_MEAL_PRODUCT_ID, PRODUCTS_IN_MEAL_MEAL_ID, PRODUCTS_IN_MEAL_WEIGHT}
+			sql := fmt.Sprintf(`INSERT INTO %s (%s) VALUES (%s)`, PRODUCTS_IN_MEAL_TAB,
+				strings.Join(prodInDbTabs[:], `, `),
+				QuestionMarks(len(prodInDbTabs)))
+			_, err := mr.DbEngine.Exec(sql, &prodInMealDb.Product.Id, m.Id, prodInMealDb.Weight)
 			if err != nil {
 				log.Fatalln(err)
 			}
-			prodInMealIds[int(key.Int64)] = int(value.Int64)
-		}
-		for _, el := range m.ProductsInMeal{
-			if _, ok := prodInMealIds[el.Product.Id]; ok {
-				delete(prodInMealIds, el.Product.Id)
-			}
-		}
 
-		for _, v := range prodInMealIds {
-			mr.DbEngine.Exec(`DELETE FROM ` + PRODUCTS_IN_MEAL_TAB + ` WHERE ` + PRODUCTS_IN_MEAL_ID + ` = ?`, v)
+			sql = fmt.Sprintf(`SELECT MAX(%s) FROM `+PRODUCTS_IN_MEAL_TAB, PRODUCTS_IN_MEAL_ID)
+			row := mr.DbEngine.QueryRow(sql)
+			var id int
+			row.Scan(&id)
+			prod.Id = id
+			m.ProductsInMeal[i].Id = id
 		}
+	}
+
+	//delete producte from db
+	tabs := []string{PRODUCTS_IN_MEAL_ID, PRODUCTS_IN_MEAL_PRODUCT_ID}
+	res, err := mr.DbEngine.Query(`SELECT `+strings.Join(tabs, ", ")+` FROM `+PRODUCTS_IN_MEAL_TAB+` WHERE `+PRODUCTS_IN_MEAL_MEAL_ID+` = ?`, m.Id)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	prodInMealIds := make(map[int]int)
+	var key, value sql.NullInt64
+	for res.Next() {
+		err := res.Scan(&value, &key)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		prodInMealIds[int(key.Int64)] = int(value.Int64)
+	}
+	for _, el := range m.ProductsInMeal {
+		if _, ok := prodInMealIds[el.Product.Id]; ok {
+			delete(prodInMealIds, el.Product.Id)
+		}
+	}
+
+	for _, v := range prodInMealIds {
+		mr.DbEngine.Exec(`DELETE FROM `+PRODUCTS_IN_MEAL_TAB+` WHERE `+PRODUCTS_IN_MEAL_ID+` = ?`, v)
+	}
 }
 
-func (mr *FirebirdRepoAccess)	CreateMeal(m *meal) int64 {
+func (mr *FirebirdRepoAccess)	CreateMeal(m *Meal) int64 { // [AI] poprawka: *Meal zamiast *meal
 	if _, err := mr.DbEngine.Exec(`INSERT INTO ` + MEAL_TAB + ` (` + MEAL_NAME + `, ` + MEAL_RECIPE + `) ` + `VALUES (?, ?)`, m.Name, m.Recipe); err != nil {
 		log.Fatalln(err)
   	} else {
@@ -249,13 +249,13 @@ func (mr *FirebirdRepoAccess)	CreateMeal(m *meal) int64 {
 	return -1
 }
 
-func (mr *FirebirdRepoAccess) UpdateMeal(m *meal){
+func (mr *FirebirdRepoAccess) UpdateMeal(m *Meal) { // [AI] poprawka: *Meal zamiast *meal
 	sql := fmt.Sprintf(`UPDATE %s SET %s=?, %s=? WHERE ID=?`, MEAL_TAB, MEAL_NAME, MEAL_RECIPE)
 	log.Println(sql)
 
 	_, err := mr.DbEngine.Exec(sql, m.Name, m.Recipe, m.Id)
 	if err == nil {
-		r, supp := interface{}(mr).(ProductsRepo);
+		r, supp := interface{}(mr).(ProductsRepo)
 		if !supp{
 			log.Fatalf(`object does not support ProductRepo interface`)	
 		}

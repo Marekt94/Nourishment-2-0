@@ -46,15 +46,15 @@ func ReturnProductFieldsForDbRetriving(p *productDb) (*sql.NullInt64, *sql.NullS
 		&p.SugarAndCarbo, &p.Fiber, &p.Salt, &p.Unit, id, name
 }
 
-func serializeDBToProduct(r *sql.Rows) product{
+func serializeDBToProduct(r *sql.Rows) Product { // [AI REFACTOR]
 	var p productDb
 	r.Scan(ReturnProductFieldsForDbRetriving(&p))
-		prod := product{}
-		p.ConvertToProduct(&prod)
+	prod := Product{} // [AI REFACTOR]
+	p.ConvertToProduct(&prod)
 	return prod
 }
 
-func (s *productDb) ConvertToProduct(p * product){
+func (s *productDb) ConvertToProduct(p *Product) { // [AI REFACTOR]
 	p.Id = NullInt64ToInt(&s.Id)
 	p.Name = NullStringToString(&s.Name)
 	p.KcalPer100 = NullFloat64ToFloat(&s.KcalPer100)
@@ -78,10 +78,10 @@ func (mr *FirebirdRepoAccess) createSQLForProducts() string{
 	return fmt.Sprintf(sqltempl, tabs, PRODUCT_TAB + ` ` + productSQLPrefix, CATEGORY_TAB + ` ` + categorySQLPrefix, categorySQLPrefix + `.` + CATEGORY_ID, productSQLPrefix + `.` + PRODUCT_CATEGORY)	
 }
 
-func (mr *FirebirdRepoAccess) GetProduct(i int) product {
-	var prod product
+func (mr *FirebirdRepoAccess) GetProduct(i int) Product { // [AI REFACTOR]
+	var prod Product // [AI REFACTOR]
 
-	sql := mr.createSQLForProducts();
+	sql := mr.createSQLForProducts()
 	sql = sql + ` WHERE ` + productSQLPrefix + `.ID = ?`
 
 	row, err := mr.DbEngine.Query(sql, i)
@@ -95,8 +95,8 @@ func (mr *FirebirdRepoAccess) GetProduct(i int) product {
 	return prod
 }
 
-func (mr *FirebirdRepoAccess) GetProducts() []product {
-	prods := []product{}
+func (mr *FirebirdRepoAccess) GetProducts() []Product { // [AI REFACTOR]
+	prods := []Product{} // [AI REFACTOR]
 
 	sql := mr.createSQLForProducts()
 	rows, err := mr.DbEngine.Query(sql)
@@ -110,7 +110,7 @@ func (mr *FirebirdRepoAccess) GetProducts() []product {
 	return prods
 }
 
-func (mr *FirebirdRepoAccess) CreateProduct(p *product) int64 {
+func (mr *FirebirdRepoAccess) CreateProduct(p *Product) int64 { // [AI REFACTOR]
 	insertTabs := append(ProductTabs[1:], PRODUCT_CATEGORY)
 	sql := fmt.Sprintf(`INSERT INTO %s (%s) VALUES (%s)`, PRODUCT_TAB, strings.Join(insertTabs[:], `, `), QuestionMarks(len(insertTabs)))
 	if _, err := mr.DbEngine.Exec(sql, &p.Name, &p.KcalPer100, &p.UnitWeight, &p.Proteins, &p.Fat, &p.Sugar, &p.Carbohydrates, 
@@ -138,7 +138,7 @@ func (mr *FirebirdRepoAccess) DeleteProduct(i int) bool {
 	return !row.Next();
 }
 
-func (mr *FirebirdRepoAccess) UpdateProduct(p *product) {
+func (mr *FirebirdRepoAccess) UpdateProduct(p *Product) { // [AI REFACTOR]
 	sql := fmt.Sprintf(`UPDATE %s SET %s WHERE ID=?`, PRODUCT_TAB, UpdateValues(append(ProductTabs[1:], PRODUCT_CATEGORY)))
 	_, err := mr.DbEngine.Exec(sql, &p.Name, &p.KcalPer100, &p.UnitWeight, &p.Proteins, &p.Fat, &p.Sugar, &p.Carbohydrates, 
 		&p.SugarAndCarbo, &p.Fiber, &p.Salt, &p.Unit, &p.Category.Id, &p.Id)

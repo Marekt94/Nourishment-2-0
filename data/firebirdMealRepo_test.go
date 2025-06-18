@@ -22,25 +22,25 @@ func initMealRepo() MealsRepo {
 	return &FirebirdRepoAccess{DbEngine: engine}
 }
 
-func createMeal() meal{
+func createMeal() Meal { // [API GEN]
 	repo := initMealRepo()
-	products := []productInMeal{
-		productInMeal{
-			Product: product{
+	products := []ProductInMeal{
+		ProductInMeal{
+			Product: Product{
 				Name: PROD_NAME_1,
 				Proteins: 12,
 			},
 			Weight: 12,
 		},
-		productInMeal{
-			Product: product{
+		ProductInMeal{
+			Product: Product{
 				Name: PROD_NAME_2,
 				Proteins: 15,
 			},
 			Weight: 12,
 		},
 	}
-	meal := meal{Name: "test meal", Recipe: "test recipe", ProductsInMeal: products}
+	meal := Meal{Name: "test meal", Recipe: "test recipe", ProductsInMeal: products}
 	id := repo.CreateMeal(&meal)
 	meal.Id = int(id)
 	return meal
@@ -66,7 +66,7 @@ func TestGetMeal(t *testing.T) {
 }
 
 func TestCreateMeal(t *testing.T){
-	var meal meal
+	var meal Meal // [AI REFACTOR]
 	if meal = createMeal(); meal.Id < 0 {
 		t.Error(`meal creation error`)
 	}
@@ -116,7 +116,7 @@ func TestUpdateMealWhenOneDeletedAndOneAdded(t *testing.T){
 	const prodName3 = `test prod 3`
 	meal := createMeal()
 	repo := initMealRepo()
-	newProd := productInMeal{Product: product{Name: prodName3, Proteins: 31}}
+	newProd := ProductInMeal{Product: Product{Name: prodName3, Proteins: 31}} // [API GEN]
 	meal.ProductsInMeal = append(meal.ProductsInMeal, newProd)
 	idToDel := -1
 	for i, prod := range meal.ProductsInMeal{
@@ -184,10 +184,10 @@ func TestConvertToMealWhenMealsDBEmpty(t *testing.T){
 }
 
 func TestConvertToMealWhenMealsDBWithOneMeal(t *testing.T){
-	mealDB := []MealDb{MealDb{Name: sql.NullString{`meal_1`, true},
-							  ProductInMeal: productInMealDb{Id: sql.NullInt64{412, true},
-															 Weight: sql.NullFloat64{100, true},
-															 Product: productDb{Name: sql.NullString{`test_prod_1`, true}}}}} 
+	mealDB := []MealDb{MealDb{Name: sql.NullString{String: `meal_1`, Valid: true}, // [AI REFACTOR]
+		ProductInMeal: productInMealDb{Id: sql.NullInt64{Int64: 412, Valid: true}, // [AI REFACTOR]
+			Weight: sql.NullFloat64{Float64: 100, Valid: true}, // [AI REFACTOR]
+			Product: productDb{Name: sql.NullString{String: `test_prod_1`, Valid: true}}}}} // [AI REFACTOR]
 	meals := ConvertToMeals(mealDB)
 	if len(meals) != 1 {
 		t.Error(`too many meals`)
@@ -198,7 +198,7 @@ func TestConvertToMealWhenMealsDBWithOneMeal(t *testing.T){
 }
 
 func TestConvertToMealWhenNoProducts(t *testing.T){
-	mealDB := []MealDb{MealDb{Name: sql.NullString{`meal_1`, true}}} 
+	mealDB := []MealDb{MealDb{Name: sql.NullString{String: `meal_1`, Valid: true}}} // [AI REFACTOR]
 	meals := ConvertToMeals(mealDB)
 	if len(meals) != 1 {
 		t.Error(`too many meals`)

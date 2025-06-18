@@ -1,34 +1,34 @@
 package database
 
 type MealsRepo interface {
-	GetMeal(i int) meal
-	GetMeals() []meal
+	GetMeal(i int) Meal
+	GetMeals() []Meal
 	DeleteMeal(i int) bool
-	CreateMeal(m *meal) int64
-	UpdateMeal(m *meal)
+	CreateMeal(m *Meal) int64
+	UpdateMeal(m *Meal)
 }
 
-type meal struct {
+type Meal struct { // [AI REFACTOR]
 	Id             int             `json:"id"`
 	Name           string          `json:"name"`
 	Recipe         string          `json:"recipe"`
-	ProductsInMeal []productInMeal `json:"productsInMeal"`
+	ProductsInMeal []ProductInMeal `json:"productsInMeal"`
 }
 
 type ProductsRepo interface {
-	GetProduct(i int) product
-	GetProducts() []product
-	CreateProduct(p *product) int64
+	GetProduct(i int) Product
+	GetProducts() []Product
+	CreateProduct(p *Product) int64
 	DeleteProduct(i int) bool
-	UpdateProduct(p *product)
+	UpdateProduct(p *Product)
 }
 
-type category struct {
+type Category struct { // [AI REFACTOR]
 	Id   int    `json:"id"`
 	Name string `json:"name"`
 }
 
-type product struct {
+type Product struct { // [AI REFACTOR]
 	Id            int      `json:"id"`
 	Name          string   `json:"name"`
 	KcalPer100    float64  `json:"kcalPer100"`
@@ -41,11 +41,11 @@ type product struct {
 	Fiber         float64  `json:"fiber"`
 	Salt          float64  `json:"salt"`
 	Unit          string   `json:"unit"`
-	Category      category `json:"category"`
+	Category      Category `json:"category"`
 }
 
-type productInMeal struct {
+type ProductInMeal struct { // [AI REFACTOR]
 	Id      int     `json:"id"`
-	Product product `json:"product"`
+	Product Product `json:"product"`
 	Weight  float64 `json:"weight"`
 }

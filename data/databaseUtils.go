@@ -6,36 +6,36 @@ import (
 	"strings"
 )
 
-func NullStringToString(n *sql.NullString) string{
-	if n.Valid{
+func NullStringToString(n *sql.NullString) string { // [AI REFACTOR]
+	if n.Valid {
 		return n.String
 	}
 	return ""
 }	
 
-func NullInt64ToInt(n *sql.NullInt64) int{
-	if n.Valid{
+func NullInt64ToInt(n *sql.NullInt64) int { // [AI REFACTOR]
+	if n.Valid {
 		return int(n.Int64)
 	}
 	return 0
 }
 
-func NullFloat64ToFloat(n *sql.NullFloat64) float64{
-	if n.Valid{
+func NullFloat64ToFloat(n *sql.NullFloat64) float64 { // [AI REFACTOR]
+	if n.Valid {
 		return n.Float64
 	}
 	return 0
 }
 
-func QuestionMarks(n int) string {
-    if n <= 0 {
-        return ""
-    }
-    marks := make([]string, n)
-    for i := range marks {
-        marks[i] = "?"
-    }
-    return strings.Join(marks, ", ")
+func QuestionMarks(n int) string { // [AI REFACTOR]
+	if n <= 0 {
+		return ""
+	}
+	marks := make([]string, n)
+	for i := range marks {
+		marks[i] = "?"
+	}
+	return strings.Join(marks, ", ")
 }
 
 func UpdateValues(v []string) string {

@@ -18,9 +18,9 @@ func initProductRepo() ProductsRepo {
 	return &FirebirdRepoAccess{DbEngine: engine}
 }
 
-func createProduct() product{
+func createProduct() Product { // [API GEN]
 	repo := initProductRepo()
-	prod := product{Name: TEST_PROD_NAME, KcalPer100: 7, UnitWeight: 15, Proteins: 7, Fat: 7, Sugar: 7, Carbohydrates: 7, Fiber: 7, Salt: 1, Unit: `kg`, Category: category{Id: 1, Name: `no category`}}
+	prod := Product{Name: TEST_PROD_NAME, KcalPer100: 7, UnitWeight: 15, Proteins: 7, Fat: 7, Sugar: 7, Carbohydrates: 7, Fiber: 7, Salt: 1, Unit: `kg`, Category: Category{Id: 1, Name: `no category`}}
 	i := int(repo.CreateProduct(&prod))
 	prod.Id = i
 	return prod
