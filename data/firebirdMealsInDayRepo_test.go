@@ -17,7 +17,7 @@ func TestFirebirdMealsInDayRepo(t *testing.T) {
 		Dinner: meal,
 		Supper: meal,
 		AfternoonSnack: meal,
-		For5Days: sql.NullBool{Bool: true, Valid: true},
+		For5Days: sql.NullString{String: `1`, Valid: true},
 		FactorBreakfast: sql.NullFloat64{Float64: 1.0, Valid: true},
 		FactorSecondBreakfast: sql.NullFloat64{Float64: 1.0, Valid: true},
 		FactorLunch: sql.NullFloat64{Float64: 1.0, Valid: true},
@@ -26,6 +26,7 @@ func TestFirebirdMealsInDayRepo(t *testing.T) {
 		FactorAfternoonSnack: sql.NullFloat64{Float64: 1.0, Valid: true},
 		Name: sql.NullString{String: "test day", Valid: true},
 	}
+	//TODO: wydzielić do osobnego
 	id := repo.CreateMealInDay(&mealInDay)
 	if id <= 0 {
 		t.Error("CreateMealInDay failed")

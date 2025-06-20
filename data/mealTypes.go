@@ -49,3 +49,13 @@ type ProductInMeal struct { // [AI REFACTOR]
 	Product Product `json:"product"`
 	Weight  float64 `json:"weight"`
 }
+
+// [API GEN] Interfejs MealsInDayRepo
+
+type MealsInDayRepo interface {
+	CreateMealInDay(m *MealInDayDb) int64
+	GetMealInDay(id int) MealInDayDb
+	GetMealsInDay() []MealInDayDb
+	DeleteMealInDay(id int) bool
+	UpdateMealInDay(m *MealInDayDb)
+}
