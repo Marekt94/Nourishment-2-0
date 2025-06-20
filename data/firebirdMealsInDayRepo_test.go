@@ -5,90 +5,11 @@ import (
 	"testing"
 )
 
-// [API GEN] Test inicjalizacji struktury MealInDayDb
-func TestCreateMealInDayDb(t *testing.T) {
-	meal := MealDb{Id: sql.NullInt64{Int64: 1, Valid: true}, Name: sql.NullString{String: "test meal", Valid: true}}
-	mealInDay := MealInDayDb{
-		Id: sql.NullInt64{Int64: 10, Valid: true},
-		Breakfast: meal,
-		SecondBreakfast: meal,
-		Lunch: meal,
-		Dinner: meal,
-		Supper: meal,
-		AfternoonSnack: meal,
-		For5Days: sql.NullBool{Bool: true, Valid: true},
-		FactorBreakfast: sql.NullFloat64{Float64: 1.0, Valid: true},
-		FactorSecondBreakfast: sql.NullFloat64{Float64: 1.0, Valid: true},
-		FactorLunch: sql.NullFloat64{Float64: 1.0, Valid: true},
-		FactorDinner: sql.NullFloat64{Float64: 1.0, Valid: true},
-		FactorSupper: sql.NullFloat64{Float64: 1.0, Valid: true},
-		FactorAfternoonSnack: sql.NullFloat64{Float64: 1.0, Valid: true},
-		Name: sql.NullString{String: "test day", Valid: true},
-	}
-
-	if !mealInDay.Id.Valid || mealInDay.Id.Int64 != 10 {
-		t.Error("MealInDayDb.Id not set correctly")
-	}
-	if mealInDay.Breakfast.Name.String != "test meal" {
-		t.Error("MealInDayDb.Breakfast not set correctly")
-	}
-	if !mealInDay.For5Days.Bool {
-		t.Error("MealInDayDb.For5Days not set correctly")
-	}
-	if mealInDay.Name.String != "test day" {
-		t.Error("MealInDayDb.Name not set correctly")
-	}
-}
-
-// [API GEN] Zaslepka repozytorium MealsInDayRepo
-// Usunięto interfejs MealsInDayRepo z testu, zostaje tylko FakeMealsInDayRepo
-
-type FakeMealsInDayRepo struct { // [API GEN]
-	store map[int]MealInDayDb
-	nextId int
-}
-
-func NewFakeMealsInDayRepo() *FakeMealsInDayRepo {
-	return &FakeMealsInDayRepo{store: make(map[int]MealInDayDb), nextId: 1}
-}
-
-func (r *FakeMealsInDayRepo) CreateMealInDay(m *MealInDayDb) int64 {
-	m.Id = sql.NullInt64{Int64: int64(r.nextId), Valid: true}
-	r.store[r.nextId] = *m
-	r.nextId++
-	return m.Id.Int64
-}
-
-func (r *FakeMealsInDayRepo) GetMealInDay(id int) MealInDayDb {
-	return r.store[id]
-}
-
-func (r *FakeMealsInDayRepo) GetMealsInDay() []MealInDayDb {
-	res := []MealInDayDb{}
-	for _, v := range r.store {
-		res = append(res, v)
-	}
-	return res
-}
-
-func (r *FakeMealsInDayRepo) DeleteMealInDay(id int) bool {
-	if _, ok := r.store[id]; ok {
-		delete(r.store, id)
-		return true
-	}
-	return false
-}
-
-func (r *FakeMealsInDayRepo) UpdateMealInDay(m *MealInDayDb) {
-	if m.Id.Valid {
-		r.store[int(m.Id.Int64)] = *m
-	}
-}
-
-// [API GEN] Testy CRUD dla MealsInDayRepo
-func TestFakeMealsInDayRepo_CRUD(t *testing.T) {
-	repo := NewFakeMealsInDayRepo()
-	meal := MealDb{Id: sql.NullInt64{Int64: 1, Valid: true}, Name: sql.NullString{String: "test meal", Valid: true}}
+func TestFirebirdMealsInDayRepo(t *testing.T) {
+	repo := initMealsInDayRepo()
+	mealApi := Meal{Name: "test meal", Recipe: "przepis"}
+	mealId := repo.MealRepo.CreateMeal(&mealApi)
+	meal := repo.MealRepo.GetMealDb(int(mealId))
 	mealInDay := MealInDayDb{
 		Breakfast: meal,
 		SecondBreakfast: meal,
@@ -127,4 +48,17 @@ func TestFakeMealsInDayRepo_CRUD(t *testing.T) {
 	if !ok || len(repo.GetMealsInDay()) != 0 {
 		t.Error("DeleteMealInDay failed")
 	}
+}
+
+func initMealsInDayRepo() *FirebirdMealsInDayRepo {
+	var conf DBConf
+	conf.User = `sysdba`
+	conf.Password = `masterkey`
+	conf.Address = `localhost:3050`
+	conf.PathOrName = `C:/Users/marek/Documents/nourishment_backup_db/NOURISHMENT.FDB`
+
+	fDbEngine := FBDBEngine{BaseEngineIntf: &BaseEngine{}}
+	engine := fDbEngine.Connect(&conf)
+	mealRepo := &FirebirdRepoAccess{DbEngine: engine}
+	return &FirebirdMealsInDayRepo{DbEngine: engine, MealRepo: mealRepo}
 }
