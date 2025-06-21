@@ -50,12 +50,31 @@ type ProductInMeal struct { // [AI REFACTOR]
 	Weight  float64 `json:"weight"`
 }
 
-// [API GEN] Interfejs MealsInDayRepo
+// [API GEN] DTO do API (mapowanie z MealInDayDb)
+type MealInDay struct {
+	Id                    int
+	Breakfast             Meal
+	SecondBreakfast       Meal
+	Lunch                 Meal
+	Dinner                Meal
+	Supper                Meal
+	AfternoonSnack        Meal
+	For5Days              bool // mapowane z CHAR(1) '1' lub '0'
+	FactorBreakfast       float64
+	FactorSecondBreakfast float64
+	FactorLunch           float64
+	FactorDinner          float64
+	FactorSupper          float64
+	FactorAfternoonSnack  float64
+	Name                  string
+}
 
+// [API GEN] Interfejs MealsInDayRepo
+// TODO interfejs powinien zwracac obiekty niebazodanowe
 type MealsInDayRepo interface {
-	CreateMealInDay(m *MealInDayDb) int64
-	GetMealInDay(id int) MealInDayDb
-	GetMealsInDay() []MealInDayDb
+	CreateMealInDay(m *MealInDay) int64
+	GetMealInDay(id int) MealInDay
+	GetMealsInDay() []MealInDay
 	DeleteMealInDay(id int) bool
-	UpdateMealInDay(m *MealInDayDb)
+	UpdateMealInDay(m *MealInDay)
 }

@@ -264,15 +264,3 @@ func (mr *FirebirdRepoAccess) UpdateMeal(m *Meal) { // [AI] poprawka: *Meal zami
 		log.Fatalln(err)
 	}
 }
-
-// TODO: do usunięcia w przyszłości - metoda pomocnicza tylko dla MealsInDayRepo
-func (mr *FirebirdRepoAccess) GetMealDb(i int) MealDb {
-	sqlStr := "SELECT ID, NAZWA, PRZEPIS FROM " + MEAL_TAB + " WHERE " + MEAL_ID + " = ?"
-	row := mr.DbEngine.QueryRow(sqlStr, i)
-	var m MealDb
-	err := row.Scan(&m.Id, &m.Name, &m.Recipe)
-	if err != nil {
-		log.Println("GetMealDb error:", err)
-	}
-	return m
-}

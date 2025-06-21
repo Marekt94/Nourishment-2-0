@@ -1,48 +1,49 @@
 package database
 
 import (
-	"database/sql"
 	"testing"
 )
 
 func TestFirebirdMealsInDayRepo(t *testing.T) {
 	repo := initMealsInDayRepo()
 	mealApi := Meal{Name: "test meal", Recipe: "przepis"}
-	mealId := repo.MealRepo.CreateMeal(&mealApi)
-	meal := repo.MealRepo.GetMealDb(int(mealId))
-	mealInDay := MealInDayDb{
-		Breakfast: meal,
-		SecondBreakfast: meal,
-		Lunch: meal,
-		Dinner: meal,
-		Supper: meal,
-		AfternoonSnack: meal,
-		For5Days: sql.NullString{String: `1`, Valid: true},
-		FactorBreakfast: sql.NullFloat64{Float64: 1.0, Valid: true},
-		FactorSecondBreakfast: sql.NullFloat64{Float64: 1.0, Valid: true},
-		FactorLunch: sql.NullFloat64{Float64: 1.0, Valid: true},
-		FactorDinner: sql.NullFloat64{Float64: 1.0, Valid: true},
-		FactorSupper: sql.NullFloat64{Float64: 1.0, Valid: true},
-		FactorAfternoonSnack: sql.NullFloat64{Float64: 1.0, Valid: true},
-		Name: sql.NullString{String: "test day", Valid: true},
+	res, supp := interface{}(repo).(MealsRepo)
+	if !supp {
+		t.Fatal("MealsInDayRepo does not support MealsRepo interface")
 	}
-	//TODO: wydzielić do osobnego
+	mealId := res.CreateMeal(&mealApi)
+	mealInDay := MealInDay{
+		Breakfast: Meal{Id: int(mealId)},
+		SecondBreakfast: Meal{Id: int(mealId)},
+		Lunch: Meal{Id: int(mealId)},
+		Dinner: Meal{Id: int(mealId)},
+		Supper: Meal{Id: int(mealId)},
+		AfternoonSnack: Meal{Id: int(mealId)},
+		For5Days: true,
+		FactorBreakfast: 1.0,
+		FactorSecondBreakfast: 1.0,
+		FactorLunch: 1.0,
+		FactorDinner: 1.0,
+		FactorSupper: 1.0,
+		FactorAfternoonSnack: 1.0,
+		Name: "test day",
+	}
 	id := repo.CreateMealInDay(&mealInDay)
 	if id <= 0 {
 		t.Error("CreateMealInDay failed")
 	}
 	got := repo.GetMealInDay(int(id))
-	if got.Name.String != "test day" {
+	if got.Name != "test day" {
 		t.Error("GetMealInDay failed")
 	}
 	all := repo.GetMealsInDay()
 	if len(all) != 1 {
 		t.Error("GetMealsInDay failed")
 	}
-	mealInDay.Name = sql.NullString{String: "updated", Valid: true}
+	mealInDay.Name = "updated"
 	repo.UpdateMealInDay(&mealInDay)
 	got2 := repo.GetMealInDay(int(id))
-	if got2.Name.String != "updated" {
+	if got2.Name != "updated" {
 		t.Error("UpdateMealInDay failed")
 	}
 	ok := repo.DeleteMealInDay(int(id))
@@ -51,7 +52,7 @@ func TestFirebirdMealsInDayRepo(t *testing.T) {
 	}
 }
 
-func initMealsInDayRepo() *FirebirdMealsInDayRepo {
+func initMealsInDayRepo() MealsInDayRepo {
 	var conf DBConf
 	conf.User = `sysdba`
 	conf.Password = `masterkey`
@@ -60,6 +61,5 @@ func initMealsInDayRepo() *FirebirdMealsInDayRepo {
 
 	fDbEngine := FBDBEngine{BaseEngineIntf: &BaseEngine{}}
 	engine := fDbEngine.Connect(&conf)
-	mealRepo := &FirebirdRepoAccess{DbEngine: engine}
-	return &FirebirdMealsInDayRepo{DbEngine: engine, MealRepo: mealRepo}
+	return &FirebirdRepoAccess{DbEngine: engine}
 }
