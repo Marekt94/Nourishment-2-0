@@ -4,14 +4,13 @@ import (
 	"testing"
 )
 
-func TestFirebirdMealsInDayRepo(t *testing.T) {
-	repo := initMealsInDayRepo()
+func createTestMealInDay(repo MealsInDayRepo) (MealInDay, int) {
 	mealApi := Meal{Name: "test meal", Recipe: "przepis"}
-	res, supp := interface{}(repo).(MealsRepo)
-	if !supp {
-		t.Fatal("MealsInDayRepo does not support MealsRepo interface")
+	mealsRepo, ok := interface{}(repo).(MealsRepo)
+	if !ok {
+		panic("MealsInDayRepo does not support MealsRepo interface")
 	}
-	mealId := res.CreateMeal(&mealApi)
+	mealId := mealsRepo.CreateMeal(&mealApi)
 	mealInDay := MealInDay{
 		Breakfast: Meal{Id: int(mealId)},
 		SecondBreakfast: Meal{Id: int(mealId)},
@@ -29,25 +28,51 @@ func TestFirebirdMealsInDayRepo(t *testing.T) {
 		Name: "test day",
 	}
 	id := repo.CreateMealInDay(&mealInDay)
+	return mealInDay, int(id)
+}
+
+func TestCreateMealsInDay(t *testing.T) {
+	repo := initMealsInDayRepo()
+	_, id := createTestMealInDay(repo)
 	if id <= 0 {
 		t.Error("CreateMealInDay failed")
 	}
-	got := repo.GetMealInDay(int(id))
-	if got.Name != "test day" {
+}
+
+func TestGetMealsInDay(t *testing.T) {
+	repo := initMealsInDayRepo()
+	mealInDay, id := createTestMealInDay(repo)
+	got := repo.GetMealInDay(id)
+	if got.Name != mealInDay.Name {
 		t.Error("GetMealInDay failed")
 	}
+}
+
+func TestGetMealsInDays(t *testing.T) {
+	repo := initMealsInDayRepo()
+	createTestMealInDay(repo)
 	all := repo.GetMealsInDay()
 	if len(all) != 1 {
 		t.Error("GetMealsInDay failed")
 	}
+}
+
+func TestUpdateMealsInDay(t *testing.T) {
+	repo := initMealsInDayRepo()
+	mealInDay, id := createTestMealInDay(repo)
 	mealInDay.Name = "updated"
 	repo.UpdateMealInDay(&mealInDay)
-	got2 := repo.GetMealInDay(int(id))
+	got2 := repo.GetMealInDay(id)
 	if got2.Name != "updated" {
 		t.Error("UpdateMealInDay failed")
 	}
-	ok := repo.DeleteMealInDay(int(id))
-	if !ok || len(repo.GetMealsInDay()) != 0 {
+}
+
+func TestDeleteMealsInDay(t *testing.T) {
+	repo := initMealsInDayRepo()
+	_, id := createTestMealInDay(repo)
+	ok2 := repo.DeleteMealInDay(id)
+	if !ok2 || len(repo.GetMealsInDay()) != 0 {
 		t.Error("DeleteMealInDay failed")
 	}
 }
