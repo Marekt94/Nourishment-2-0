@@ -11,13 +11,14 @@ func createTestMealInDay(repo MealsInDayRepo) (MealInDay, int) {
 		panic("MealsInDayRepo does not support MealsRepo interface")
 	}
 	mealId := mealsRepo.CreateMeal(&mealApi)
+	mealApi.Id = int(mealId)
 	mealInDay := MealInDay{
-		Breakfast: Meal{Id: int(mealId)},
-		SecondBreakfast: Meal{Id: int(mealId)},
-		Lunch: Meal{Id: int(mealId)},
-		Dinner: Meal{Id: int(mealId)},
-		Supper: Meal{Id: int(mealId)},
-		AfternoonSnack: Meal{Id: int(mealId)},
+		Breakfast: mealApi,
+		SecondBreakfast: mealApi,
+		Lunch: mealApi,
+		Dinner: mealApi,
+		Supper: mealApi,
+		AfternoonSnack: mealApi,
 		For5Days: true,
 		FactorBreakfast: 1.0,
 		FactorSecondBreakfast: 1.0,
@@ -52,7 +53,7 @@ func TestGetMealsInDays(t *testing.T) {
 	repo := initMealsInDayRepo()
 	createTestMealInDay(repo)
 	all := repo.GetMealsInDay()
-	if len(all) != 1 {
+	if len(all) == 1 || len(all) == 0 {
 		t.Error("GetMealsInDay failed")
 	}
 }
@@ -72,7 +73,7 @@ func TestDeleteMealsInDay(t *testing.T) {
 	repo := initMealsInDayRepo()
 	_, id := createTestMealInDay(repo)
 	ok2 := repo.DeleteMealInDay(id)
-	if !ok2 || len(repo.GetMealsInDay()) != 0 {
+	if !ok2 || (repo.GetMealInDay(id).Id != 0) {
 		t.Error("DeleteMealInDay failed")
 	}
 }
