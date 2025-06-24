@@ -81,7 +81,7 @@ func GetMealInDay(c *gin.Context) {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	meal := repo.GetMealInDay(id)
+	meal := repo.GetMealsInDay(id)
 	if meal.Id == 0 {
 		c.Status(http.StatusNotFound)
 		return
@@ -91,7 +91,7 @@ func GetMealInDay(c *gin.Context) {
 
 func GetMealsInDay(c *gin.Context) {
 	repo := getRepo().(db.MealsInDayRepo)
-	meals := repo.GetMealsInDay()
+	meals := repo.GetMealsInDays()
 	c.IndentedJSON(http.StatusOK, meals)
 }
 
@@ -102,7 +102,7 @@ func CreateMealInDay(c *gin.Context) {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	id := repo.CreateMealInDay(&m)
+	id := repo.CreateMealsInDay(&m)
 	if id <= 0 {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "CreateMealInDay failed"})
 		return
@@ -117,7 +117,7 @@ func UpdateMealInDay(c *gin.Context) {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	repo.UpdateMealInDay(&m)
+	repo.UpdateMealsInDay(&m)
 	c.Status(http.StatusOK)
 }
 
@@ -128,7 +128,7 @@ func DeleteMealInDay(c *gin.Context) {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	ok := repo.DeleteMealInDay(id)
+	ok := repo.DeleteMealsInDay(id)
 	if ok {
 		c.Status(http.StatusOK)
 	} else {

@@ -28,7 +28,7 @@ func createTestMealInDay(repo MealsInDayRepo) (MealInDay, int) {
 		FactorAfternoonSnack: 1.0,
 		Name: "test day",
 	}
-	id := repo.CreateMealInDay(&mealInDay)
+	id := repo.CreateMealsInDay(&mealInDay)
 	return mealInDay, int(id)
 }
 
@@ -43,7 +43,7 @@ func TestCreateMealsInDay(t *testing.T) {
 func TestGetMealsInDay(t *testing.T) {
 	repo := initMealsInDayRepo()
 	mealInDay, id := createTestMealInDay(repo)
-	got := repo.GetMealInDay(id)
+	got := repo.GetMealsInDay(id)
 	if got.Name != mealInDay.Name {
 		t.Error("GetMealInDay failed")
 	}
@@ -52,7 +52,7 @@ func TestGetMealsInDay(t *testing.T) {
 func TestGetMealsInDays(t *testing.T) {
 	repo := initMealsInDayRepo()
 	createTestMealInDay(repo)
-	all := repo.GetMealsInDay()
+	all := repo.GetMealsInDays()
 	if len(all) == 1 || len(all) == 0 {
 		t.Error("GetMealsInDay failed")
 	}
@@ -62,8 +62,8 @@ func TestUpdateMealsInDay(t *testing.T) {
 	repo := initMealsInDayRepo()
 	mealInDay, id := createTestMealInDay(repo)
 	mealInDay.Name = "updated"
-	repo.UpdateMealInDay(&mealInDay)
-	got2 := repo.GetMealInDay(id)
+	repo.UpdateMealsInDay(&mealInDay)
+	got2 := repo.GetMealsInDay(id)
 	if got2.Name != "updated" {
 		t.Error("UpdateMealInDay failed")
 	}
@@ -72,8 +72,8 @@ func TestUpdateMealsInDay(t *testing.T) {
 func TestDeleteMealsInDay(t *testing.T) {
 	repo := initMealsInDayRepo()
 	_, id := createTestMealInDay(repo)
-	ok2 := repo.DeleteMealInDay(id)
-	if !ok2 || (repo.GetMealInDay(id).Id != 0) {
+	ok2 := repo.DeleteMealsInDay(id)
+	if !ok2 || (repo.GetMealsInDay(id).Id != 0) {
 		t.Error("DeleteMealInDay failed")
 	}
 }
