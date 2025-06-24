@@ -1,138 +1,216 @@
 {
-	"info": {
-		"_postman_id": "a367953c-04fb-43db-bf7c-40293dfa7e92",
-		"name": "Nourishment API - Meals",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "30215534",
-		"_collection_link": "https://mt5555-7028.postman.co/workspace/Nourishment-2-0~ac3be09c-bd04-4d0e-9bbb-2ca1ab0efff3/collection/30215534-a367953c-04fb-43db-bf7c-40293dfa7e92?action=share&source=collection_link&creator=30215534"
-	},
-	"item": [
-		{
-			"name": "Get all meals",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{http}}://{{ip}}:{{port}}/meals",
-					"protocol": "{{http}}",
-					"host": [
-						"{{ip}}"
-					],
-					"port": "{{port}}",
-					"path": [
-						"meals"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get meal by ID",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{http}}://{{ip}}:{{port}}/meals/{{id}}",
-					"protocol": "{{http}}",
-					"host": [
-						"{{ip}}"
-					],
-					"port": "{{port}}",
-					"path": [
-						"meals",
-						"{{id}}"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Create meal",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"pm.environment.set(\"id\", pm.response.json().id);"
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n  \"name\": \"Test meal\",\n  \"recipe\": \"Opis przepisu\",\n  \"productsInMeal\": []\n}"
-				},
-				"url": {
-					"raw": "{{http}}://{{ip}}:{{port}}/meals",
-					"protocol": "{{http}}",
-					"host": [
-						"{{ip}}"
-					],
-					"port": "{{port}}",
-					"path": [
-						"meals"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Update meal",
-			"request": {
-				"method": "PUT",
-				"header": [
-					{
-						"key": "Content-Type",
-						"value": "application/json"
-					}
-				],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n  \"id\": {{id}},\n  \"name\": \"Zmieniona nazwa\",\n  \"recipe\": \"Nowy opis\",\n  \"productsInMeal\": []\n}"
-				},
-				"url": {
-					"raw": "{{http}}://{{ip}}:{{port}}/meals",
-					"protocol": "{{http}}",
-					"host": [
-						"{{ip}}"
-					],
-					"port": "{{port}}",
-					"path": [
-						"meals"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Delete meal",
-			"request": {
-				"method": "DELETE",
-				"header": [],
-				"url": {
-					"raw": "{{http}}://{{ip}}:{{port}}/meals/{{id}}",
-					"protocol": "{{http}}",
-					"host": [
-						"{{ip}}"
-					],
-					"port": "{{port}}",
-					"path": [
-						"meals",
-						"{{id}}"
-					]
-				}
-			},
-			"response": []
-		}
-	]
+  "info": {
+    "_postman_id": "a367953c-04fb-43db-bf7c-40293dfa7e92",
+    "name": "Nourishment API - Meals",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "30215534",
+    "_collection_link": "https://mt5555-7028.postman.co/workspace/Nourishment-2-0~ac3be09c-bd04-4d0e-9bbb-2ca1ab0efff3/collection/30215534-a367953c-04fb-43db-bf7c-40293dfa7e92?action=share&source=collection_link&creator=30215534"
+  },
+  "item": [
+    {
+      "name": "Get all meals",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{http}}://{{ip}}:{{port}}/meals",
+          "protocol": "{{http}}",
+          "host": ["{{ip}}"],
+          "port": "{{port}}",
+          "path": ["meals"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get meal by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{http}}://{{ip}}:{{port}}/meals/{{id}}",
+          "protocol": "{{http}}",
+          "host": ["{{ip}}"],
+          "port": "{{port}}",
+          "path": ["meals", "{{id}}"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create meal",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": ["pm.environment.set(\"id\", pm.response.json().id);"],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Test meal\",\n  \"recipe\": \"Opis przepisu\",\n  \"productsInMeal\": []\n}"
+        },
+        "url": {
+          "raw": "{{http}}://{{ip}}:{{port}}/meals",
+          "protocol": "{{http}}",
+          "host": ["{{ip}}"],
+          "port": "{{port}}",
+          "path": ["meals"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update meal",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": {{id}},\n  \"name\": \"Zmieniona nazwa\",\n  \"recipe\": \"Nowy opis\",\n  \"productsInMeal\": []\n}"
+        },
+        "url": {
+          "raw": "{{http}}://{{ip}}:{{port}}/meals",
+          "protocol": "{{http}}",
+          "host": ["{{ip}}"],
+          "port": "{{port}}",
+          "path": ["meals"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete meal",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{http}}://{{ip}}:{{port}}/meals/{{id}}",
+          "protocol": "{{http}}",
+          "host": ["{{ip}}"],
+          "port": "{{port}}",
+          "path": ["meals", "{{id}}"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get all mealsInDay",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{http}}://{{ip}}:{{port}}/mealsinday",
+          "protocol": "{{http}}",
+          "host": ["{{ip}}"],
+          "port": "{{port}}",
+          "path": ["mealsinday"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get mealsInDay by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{http}}://{{ip}}:{{port}}/mealsinday/{{mealsInDayId}}",
+          "protocol": "{{http}}",
+          "host": ["{{ip}}"],
+          "port": "{{port}}",
+          "path": ["mealsinday", "{{mealsInDayId}}"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create mealsInDay",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": ["pm.environment.set(\"mealsInDayId\", pm.response.json().id);"],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Test day\",\n  \"for5Days\": true,\n  \"factorBreakfast\": 1.0,\n  \"factorSecondBreakfast\": 1.0,\n  \"factorLunch\": 1.0,\n  \"factorDinner\": 1.0,\n  \"factorSupper\": 1.0,\n  \"factorAfternoonSnack\": 1.0,\n  \"breakfast\": {\"id\": 1},\n  \"secondBreakfast\": {\"id\": 1},\n  \"lunch\": {\"id\": 1},\n  \"dinner\": {\"id\": 1},\n  \"supper\": {\"id\": 1},\n  \"afternoonSnack\": {\"id\": 1}\n}"
+        },
+        "url": {
+          "raw": "{{http}}://{{ip}}:{{port}}/mealsinday",
+          "protocol": "{{http}}",
+          "host": ["{{ip}}"],
+          "port": "{{port}}",
+          "path": ["mealsinday"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update mealsInDay",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": {{mealsInDayId}},\n  \"name\": \"Zmieniony dzień\",\n  \"for5Days\": false,\n  \"factorBreakfast\": 1.0,\n  \"factorSecondBreakfast\": 1.0,\n  \"factorLunch\": 1.0,\n  \"factorDinner\": 1.0,\n  \"factorSupper\": 1.0,\n  \"factorAfternoonSnack\": 1.0,\n  \"breakfast\": {\"id\": 1},\n  \"secondBreakfast\": {\"id\": 1},\n  \"lunch\": {\"id\": 1},\n  \"dinner\": {\"id\": 1},\n  \"supper\": {\"id\": 1},\n  \"afternoonSnack\": {\"id\": 1}\n}"
+        },
+        "url": {
+          "raw": "{{http}}://{{ip}}:{{port}}/mealsinday",
+          "protocol": "{{http}}",
+          "host": ["{{ip}}"],
+          "port": "{{port}}",
+          "path": ["mealsinday"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete mealsInDay",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{http}}://{{ip}}:{{port}}/mealsinday/{{mealsInDayId}}",
+          "protocol": "{{http}}",
+          "host": ["{{ip}}"],
+          "port": "{{port}}",
+          "path": ["mealsinday", "{{mealsInDayId}}"]
+        }
+      },
+      "response": []
+    }
+  ]
 }
