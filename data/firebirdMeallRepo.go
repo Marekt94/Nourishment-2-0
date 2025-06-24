@@ -222,9 +222,7 @@ func (mr *FirebirdRepoAccess) updateProductsInMeal(m *Meal, r ProductsRepo) { //
 		prodInMealIds[int(key.Int64)] = int(value.Int64)
 	}
 	for _, el := range m.ProductsInMeal {
-		if _, ok := prodInMealIds[el.Product.Id]; ok {
-			delete(prodInMealIds, el.Product.Id)
-		}
+		delete(prodInMealIds, el.Product.Id)
 	}
 
 	for _, v := range prodInMealIds {

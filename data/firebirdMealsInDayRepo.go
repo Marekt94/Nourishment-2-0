@@ -11,6 +11,11 @@ import (
 // Odpowiada kolumnom zdefiniowanym w firebirdDatabase.go
 // Każde pole odpowiada jednej kolumnie w bazie
 
+var	cols = []string{
+		MEAL_IN_DAY_BREAKFAST, MEAL_IN_DAY_SECOND_BREAKFAST, MEAL_IN_DAY_LUNCH, MEAL_IN_DAY_DINNER, MEAL_IN_DAY_SUPPER, MEAL_IN_DAY_AFTERNOON_SNACK,
+		MEAL_IN_DAY_FOR_5_DAYS, MEAL_IN_DAY_FACTOR_BREAKFAST, MEAL_IN_DAY_FACTOR_SECOND_BREAKFAST, MEAL_IN_DAY_FACTOR_LUNCH, MEAL_IN_DAY_FACTOR_DINNER, MEAL_IN_DAY_FACTOR_SUPPER, MEAL_IN_DAY_FACTOR_AFTERNOON_SNACK, MEAL_IN_DAY_NAME,
+	}
+
 type MealInDayDb struct { // [API GEN]
 	Id sql.NullInt64
 	BreakfastId sql.NullInt64
@@ -29,6 +34,19 @@ type MealInDayDb struct { // [API GEN]
 	Name sql.NullString
 }
 
+
+func (mr *FirebirdRepoAccess) createOrUpdateMealInDay(m *MealInDay, s string) error {
+	for5DaysChar := sql.NullString{String: "0", Valid: true}
+	if m.For5Days {
+		for5DaysChar.String = "1"
+	}
+	_, err := mr.DbEngine.Exec(s,
+		m.Breakfast.Id, m.SecondBreakfast.Id, m.Lunch.Id, m.Dinner.Id, m.Supper.Id, m.AfternoonSnack.Id,
+		for5DaysChar, m.FactorBreakfast, m.FactorSecondBreakfast, m.FactorLunch, m.FactorDinner, m.FactorSupper,
+		m.FactorAfternoonSnack, m.Name, m.Id)
+	return err
+}
+
 func (mr *FirebirdRepoAccess) CreateMealInDay(m *MealInDay) int64 {
 	mealIds := []int{m.Breakfast.Id, m.SecondBreakfast.Id, m.Lunch.Id, m.Dinner.Id, m.Supper.Id, m.AfternoonSnack.Id}
 	for _, mealId := range mealIds {
@@ -37,19 +55,8 @@ func (mr *FirebirdRepoAccess) CreateMealInDay(m *MealInDay) int64 {
 			return -1
 		}
 	}
-	cols := []string{
-		MEAL_IN_DAY_BREAKFAST, MEAL_IN_DAY_SECOND_BREAKFAST, MEAL_IN_DAY_LUNCH, MEAL_IN_DAY_DINNER, MEAL_IN_DAY_SUPPER, MEAL_IN_DAY_AFTERNOON_SNACK,
-		MEAL_IN_DAY_FOR_5_DAYS, MEAL_IN_DAY_FACTOR_BREAKFAST, MEAL_IN_DAY_FACTOR_SECOND_BREAKFAST, MEAL_IN_DAY_FACTOR_LUNCH, MEAL_IN_DAY_FACTOR_DINNER, MEAL_IN_DAY_FACTOR_SUPPER, MEAL_IN_DAY_FACTOR_AFTERNOON_SNACK, MEAL_IN_DAY_NAME,
-	}
-	placeholders := QuestionMarks(len(cols))
-	sqlStr := fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s)", MEAL_IN_DAY_TAB, strings.Join(cols, ", "), placeholders)
-	for5DaysChar := sql.NullString{String: "0", Valid: true}
-	if m.For5Days {
-		for5DaysChar.String = "1"
-	}
-	_, err := mr.DbEngine.Exec(sqlStr,
-		m.Breakfast.Id, m.SecondBreakfast.Id, m.Lunch.Id, m.Dinner.Id, m.Supper.Id, m.AfternoonSnack.Id,
-		for5DaysChar, m.FactorBreakfast, m.FactorSecondBreakfast, m.FactorLunch, m.FactorDinner, m.FactorSupper, m.FactorAfternoonSnack, m.Name)
+	sqlStr := fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s)", MEAL_IN_DAY_TAB, strings.Join(cols, ", "), QuestionMarks(len(cols)))
+	err := mr.createOrUpdateMealInDay(m, sqlStr)
 	if err != nil {
 		log.Println("CreateMealInDay error:", err)
 		return -1
@@ -64,8 +71,7 @@ func (mr *FirebirdRepoAccess) CreateMealInDay(m *MealInDay) int64 {
 	return id
 }
 
-func (mr *FirebirdRepoAccess) ConvertMealsInDayDbToMealsInDay(m *MealInDayDb) MealInDay {
-	
+func (mr *FirebirdRepoAccess) ConvertMealsInDayDbToMealsInDay(m *MealInDayDb) MealInDay {	
 	mealInDay := MealInDay{
 		Id: int(m.Id.Int64),
 		For5Days: m.For5Days.String == "1",
@@ -98,6 +104,14 @@ func (mr *FirebirdRepoAccess) ConvertMealsInDayDbToMealsInDay(m *MealInDayDb) Me
 	return mealInDay
 }
 
+func returnMealsInDayDbFieldsToRetriveFromDb(m *MealInDayDb) (*sql.NullInt64, *sql.NullInt64, *sql.NullInt64,
+		*sql.NullInt64, *sql.NullInt64, *sql.NullInt64, *sql.NullInt64, *sql.NullString, *sql.NullFloat64,
+		*sql.NullFloat64, *sql.NullFloat64, *sql.NullFloat64, *sql.NullFloat64, *sql.NullFloat64, *sql.NullString) {
+	return &m.Id, &m.BreakfastId, &m.SecondBreakfastId, &m.LunchId, &m.DinnerId, &m.SupperId, &m.AfternoonSnackId,
+		   &m.For5Days, &m.FactorBreakfast, &m.FactorSecondBreakfast, &m.FactorLunch, &m.FactorDinner, &m.FactorSupper,
+		   &m.FactorAfternoonSnack, &m.Name
+}
+
 func (mr *FirebirdRepoAccess) GetMealInDay(id int) MealInDay {
 	cols := []string{
 		MEAL_IN_DAY_ID, MEAL_IN_DAY_BREAKFAST, MEAL_IN_DAY_SECOND_BREAKFAST, MEAL_IN_DAY_LUNCH, MEAL_IN_DAY_DINNER, MEAL_IN_DAY_SUPPER, MEAL_IN_DAY_AFTERNOON_SNACK,
@@ -106,7 +120,7 @@ func (mr *FirebirdRepoAccess) GetMealInDay(id int) MealInDay {
 	sqlStr := fmt.Sprintf("SELECT %s FROM %s WHERE %s = ?", strings.Join(cols, ", "), MEAL_IN_DAY_TAB, MEAL_IN_DAY_ID)
 	row := mr.DbEngine.QueryRow(sqlStr, id)
 	var m MealInDayDb
-	err := row.Scan(&m.Id, &m.BreakfastId, &m.SecondBreakfastId, &m.LunchId, &m.DinnerId, &m.SupperId, &m.AfternoonSnackId, &m.For5Days, &m.FactorBreakfast, &m.FactorSecondBreakfast, &m.FactorLunch, &m.FactorDinner, &m.FactorSupper, &m.FactorAfternoonSnack, &m.Name)
+	err := row.Scan(returnMealsInDayDbFieldsToRetriveFromDb(&m))
 	if err != nil {
 		log.Println("GetMealInDay error:", err)
 		return MealInDay{}
@@ -128,7 +142,7 @@ func (mr *FirebirdRepoAccess) GetMealsInDay() []MealInDay {
 	var res []MealInDay
 	for rows.Next() {
 		var m MealInDayDb
-		err := rows.Scan(&m.Id, &m.BreakfastId, &m.SecondBreakfastId, &m.LunchId, &m.DinnerId, &m.SupperId, &m.AfternoonSnackId, &m.For5Days, &m.FactorBreakfast, &m.FactorSecondBreakfast, &m.FactorLunch, &m.FactorDinner, &m.FactorSupper, &m.FactorAfternoonSnack, &m.Name)
+		err := rows.Scan(returnMealsInDayDbFieldsToRetriveFromDb(&m))
 		if err == nil {
 			mealInDay := mr.ConvertMealsInDayDbToMealsInDay(&m)
 			res = append(res, mealInDay)
@@ -150,22 +164,8 @@ func (mr *FirebirdRepoAccess) DeleteMealInDay(id int) bool {
 }
 
 func (mr *FirebirdRepoAccess) UpdateMealInDay(m *MealInDay) {
-	cols := []string{
-		MEAL_IN_DAY_BREAKFAST, MEAL_IN_DAY_SECOND_BREAKFAST, MEAL_IN_DAY_LUNCH, MEAL_IN_DAY_DINNER, MEAL_IN_DAY_SUPPER, MEAL_IN_DAY_AFTERNOON_SNACK,
-		MEAL_IN_DAY_FOR_5_DAYS, MEAL_IN_DAY_FACTOR_BREAKFAST, MEAL_IN_DAY_FACTOR_SECOND_BREAKFAST, MEAL_IN_DAY_FACTOR_LUNCH, MEAL_IN_DAY_FACTOR_DINNER, MEAL_IN_DAY_FACTOR_SUPPER, MEAL_IN_DAY_FACTOR_AFTERNOON_SNACK, MEAL_IN_DAY_NAME,
-	}
-	setExprs := make([]string, len(cols))
-	for i, col := range cols {
-		setExprs[i] = col + "=?"
-	}
-	sqlStr := fmt.Sprintf("UPDATE %s SET %s WHERE %s=?", MEAL_IN_DAY_TAB, strings.Join(setExprs, ", "), MEAL_IN_DAY_ID)
-	for5DaysChar := sql.NullString{String: "0", Valid: true}
-	if m.For5Days {
-		for5DaysChar.String = "1"
-	}
-	_, err := mr.DbEngine.Exec(sqlStr,
-		m.Breakfast.Id, m.SecondBreakfast.Id, m.Lunch.Id, m.Dinner.Id, m.Supper.Id, m.AfternoonSnack.Id,
-		for5DaysChar, m.FactorBreakfast, m.FactorSecondBreakfast, m.FactorLunch, m.FactorDinner, m.FactorSupper, m.FactorAfternoonSnack, m.Name, m.Id)
+	sqlStr := fmt.Sprintf("UPDATE %s SET %s WHERE %s=?", MEAL_IN_DAY_TAB, QuestionMarks(len(cols)), MEAL_IN_DAY_ID)
+	err := mr.createOrUpdateMealInDay(m, sqlStr)
 	if err != nil {
 		log.Println("UpdateMealInDay error:", err)
 	}
