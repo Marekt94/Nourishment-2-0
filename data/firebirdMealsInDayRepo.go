@@ -159,7 +159,7 @@ func (mr *FirebirdRepoAccess) DeleteMealsInDay(id int) bool {
 }
 
 func (mr *FirebirdRepoAccess) UpdateMealsInDay(m *MealInDay) {
-	sqlStr := fmt.Sprintf("UPDATE %s SET %s WHERE %s=?", MEAL_IN_DAY_TAB, QuestionMarks(len(cols)), MEAL_IN_DAY_ID)
+	sqlStr := fmt.Sprintf("UPDATE %s SET %s WHERE %s=?", MEAL_IN_DAY_TAB, UpdateValues(cols), MEAL_IN_DAY_ID)
 	for5DaysChar := sql.NullString{String: "0", Valid: true}
 	if m.For5Days {
 		for5DaysChar.String = "1"
