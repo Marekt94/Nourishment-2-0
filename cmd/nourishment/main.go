@@ -1,9 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"nourishment_20/internal/api"
-	database "nourishment_20/internal/data"
+	log "nourishment_20/internal/logging"
 
 	"github.com/gin-gonic/gin"
 )
@@ -28,18 +27,6 @@ func StartMealServer() {
 }
 
 func main() {
-	var conf database.DBConf
-	conf.User = `sysdba`
-	conf.Password = `masterkey`
-	conf.Address = `localhost:3050`
-	conf.PathOrName = `C:\Users\marek\Documents\nourishment_backup_db\NOURISHMENT.FDB`
-
-	fDbEngine := database.FBDBEngine{BaseEngineIntf: &database.BaseEngine{}}
-
-	engine := fDbEngine.Connect(&conf)
-
-	var mealsRepo database.MealsRepo = &database.FirebirdRepoAccess{DbEngine: engine}
-	fmt.Println(mealsRepo.GetMeal(88))
-
+	log.SetGlobalLogger(log.NewZerologLogger())
 	StartMealServer() // [AI REFACTOR] uruchom serwer
 }

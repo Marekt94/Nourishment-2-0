@@ -2,7 +2,7 @@ package database
 
 import (
 	"database/sql"
-	"log"
+	"nourishment_20/internal/logging"
 )
 
 type MySQLDBEngine struct {
@@ -10,7 +10,7 @@ type MySQLDBEngine struct {
 }
 
 func (e *MySQLDBEngine) Connect(c *DBConf) *sql.DB {
-	log.Fatalln(`not implemented`)
+	logging.Global.Panicf(`not implemented`)
 	connString := ""
 	return e.BaseEngineIntf.Connect(`mySQL`, connString, c.PathOrName)
 }

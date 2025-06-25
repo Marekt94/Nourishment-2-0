@@ -3,7 +3,7 @@ package database
 import (
 	"database/sql"
 	"fmt"
-	"log"
+	"nourishment_20/internal/logging"
 	"strings"
 )
 
@@ -11,10 +11,10 @@ import (
 // Odpowiada kolumnom zdefiniowanym w firebirdDatabase.go
 // Każde pole odpowiada jednej kolumnie w bazie
 
-var	cols = []string{
-		MEAL_IN_DAY_BREAKFAST, MEAL_IN_DAY_SECOND_BREAKFAST, MEAL_IN_DAY_LUNCH, MEAL_IN_DAY_DINNER, MEAL_IN_DAY_SUPPER, MEAL_IN_DAY_AFTERNOON_SNACK,
-		MEAL_IN_DAY_FOR_5_DAYS, MEAL_IN_DAY_FACTOR_BREAKFAST, MEAL_IN_DAY_FACTOR_SECOND_BREAKFAST, MEAL_IN_DAY_FACTOR_LUNCH, MEAL_IN_DAY_FACTOR_DINNER, MEAL_IN_DAY_FACTOR_SUPPER, MEAL_IN_DAY_FACTOR_AFTERNOON_SNACK, MEAL_IN_DAY_NAME,
-	}
+var cols = []string{
+	MEAL_IN_DAY_BREAKFAST, MEAL_IN_DAY_SECOND_BREAKFAST, MEAL_IN_DAY_LUNCH, MEAL_IN_DAY_DINNER, MEAL_IN_DAY_SUPPER, MEAL_IN_DAY_AFTERNOON_SNACK,
+	MEAL_IN_DAY_FOR_5_DAYS, MEAL_IN_DAY_FACTOR_BREAKFAST, MEAL_IN_DAY_FACTOR_SECOND_BREAKFAST, MEAL_IN_DAY_FACTOR_LUNCH, MEAL_IN_DAY_FACTOR_DINNER, MEAL_IN_DAY_FACTOR_SUPPER, MEAL_IN_DAY_FACTOR_AFTERNOON_SNACK, MEAL_IN_DAY_NAME,
+}
 
 type MealInDayDb struct { // [API GEN]
 	Id sql.NullInt64
@@ -39,7 +39,7 @@ func (mr *FirebirdRepoAccess) CreateMealsInDay(m *MealInDay) int64 {
 	mealIds := []int{m.Breakfast.Id, m.SecondBreakfast.Id, m.Lunch.Id, m.Dinner.Id, m.Supper.Id, m.AfternoonSnack.Id}
 	for _, mealId := range mealIds {
 		if mealId > 0 && mr.GetMeal(mealId).Id == 0 {
-			log.Println("CreateMealInDay error: referenced meal does not exist, id:", mealId)
+			logging.Global.Debugf("CreateMealInDay error: referenced meal does not exist, id: %v", mealId)
 			return -1
 		}
 	}
@@ -53,13 +53,13 @@ func (mr *FirebirdRepoAccess) CreateMealsInDay(m *MealInDay) int64 {
 		for5DaysChar, m.FactorBreakfast, m.FactorSecondBreakfast, m.FactorLunch, m.FactorDinner, m.FactorSupper,
 		m.FactorAfternoonSnack, m.Name)
 	if err != nil {
-		log.Println("CreateMealInDay error:", err)
+		logging.Global.Debugf("CreateMealInDay error: %v", err)
 		return -1
 	}
 	var id int64
 	err = mr.DbEngine.QueryRow(fmt.Sprintf("SELECT MAX(%s) FROM %s", MEAL_IN_DAY_ID, MEAL_IN_DAY_TAB)).Scan(&id)
 	if err != nil {
-		log.Println("CreateMealInDay get id error:", err)
+		logging.Global.Debugf("CreateMealInDay get id error: %v", err)
 		return -1
 	}
 	m.Id = int(id)
@@ -117,7 +117,7 @@ func (mr *FirebirdRepoAccess) GetMealsInDay(id int) MealInDay {
 	var m MealInDayDb
 	err := row.Scan(returnMealsInDayDbFieldsToRetriveFromDb(&m))
 	if err != nil {
-		log.Println("GetMealInDay error:", err)
+		logging.Global.Debugf("GetMealInDay error: %v", err)
 		return MealInDay{}
 	}
 	return mr.ConvertMealsInDayDbToMealsInDay(&m)
@@ -131,7 +131,7 @@ func (mr *FirebirdRepoAccess) GetMealsInDays() []MealInDay {
 	sqlStr := fmt.Sprintf("SELECT %s FROM %s ORDER BY %s ASC", strings.Join(cols, ", "), MEAL_IN_DAY_TAB, MEAL_IN_DAY_ID)
 	rows, err := mr.DbEngine.Query(sqlStr)
 	if err != nil {
-		log.Println("GetMealsInDay error:", err)
+		logging.Global.Debugf("GetMealsInDay error: %v", err)
 		return nil
 	}
 	var res []MealInDay
@@ -142,7 +142,7 @@ func (mr *FirebirdRepoAccess) GetMealsInDays() []MealInDay {
 			mealInDay := mr.ConvertMealsInDayDbToMealsInDay(&m)
 			res = append(res, mealInDay)
 		} else {
-			log.Fatalln(err)
+			logging.Global.Panicf("%v", err)
 		}
 	}
 	return res
@@ -152,7 +152,7 @@ func (mr *FirebirdRepoAccess) DeleteMealsInDay(id int) bool {
 	sqlStr := fmt.Sprintf("DELETE FROM %s WHERE %s = ?", MEAL_IN_DAY_TAB, MEAL_IN_DAY_ID)
 	_, err := mr.DbEngine.Exec(sqlStr, id)
 	if err != nil {
-		log.Println("DeleteMealInDay error:", err)
+		logging.Global.Debugf("DeleteMealInDay error: %v", err)
 		return false
 	}
 	return true
@@ -169,6 +169,6 @@ func (mr *FirebirdRepoAccess) UpdateMealsInDay(m *MealInDay) {
 		for5DaysChar, m.FactorBreakfast, m.FactorSecondBreakfast, m.FactorLunch, m.FactorDinner, m.FactorSupper,
 		m.FactorAfternoonSnack, m.Name, m.Id)
 	if err != nil {
-		log.Println("UpdateMealInDay error:", err)
+		logging.Global.Debugf("UpdateMealInDay error: %v", err)
 	}
 }

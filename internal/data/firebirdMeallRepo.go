@@ -3,7 +3,7 @@ package database
 import (
 	"database/sql"
 	"fmt"
-	"log"
+	"nourishment_20/internal/logging"
 	"strings"
 )
 
@@ -58,7 +58,7 @@ func generateGetMealsQuery() string{
 	colsForProductInMealStr := CreateColsToSelect(ProductInMealPrefix, colsForProductInMeal)
 	colsForCategoryStr := CreateColsToSelect(CategoryPrefix, colsForCategory)
 	colsToRetrive := strings.Join([]string{colsForMealStr, colsForProductInMealStr, colsForProductStr, colsForCategoryStr}, `, `)
-	log.Println(`cols to retive ` + colsToRetrive)
+	logging.Global.Debugf(`cols to retive %s`, colsToRetrive)
 
 	sql := "SELECT %s FROM %s LEFT JOIN %s ON %s=%s LEFT JOIN %s ON %s=%s LEFT JOIN %s ON %s=%s"
 	return fmt.Sprintf(sql, colsToRetrive, MEAL_TAB + ` ` + MealPrefix, PRODUCTS_IN_MEAL_TAB + ` ` + ProductInMealPrefix,
@@ -96,7 +96,7 @@ func ConvertToMeals(m []MealDb) []Meal { // [AI] poprawka: []Meal zamiast []meal
 
 func ConvertToMeal(m []MealDb) Meal { // [AI] poprawka: Meal zamiast meal
 	var meal Meal
-	log.Println(`start converting db to meal`)
+	logging.Global.Debugf(`start converting db to meal`)
 	meal.Id = NullInt64ToInt(&m[0].Id)
 	meal.Name = NullStringToString(&m[0].Name)
 	meal.Recipe = NullStringToString(&m[0].Recipe)
@@ -109,32 +109,32 @@ func ConvertToMeal(m []MealDb) Meal { // [AI] poprawka: Meal zamiast meal
 			meal.ProductsInMeal = append(meal.ProductsInMeal, pm)
 		}
 	}
-	log.Println(`finish converting db to meal`)
+	logging.Global.Debugf(`finish converting db to meal`)
 	return meal
 }
 
 func (mr *FirebirdRepoAccess) GetMeal(i int) Meal { // [AI] poprawka: Meal zamiast meal
 	sqlStr := generateGetMealsQuery()
 	sqlStr = fmt.Sprintf(sqlStr+` WHERE %s = ?`, MealPrefix+`.`+MEAL_ID)
-	log.Println(`SQL: ` + sqlStr)
+	logging.Global.Debugf(`SQL: %s`, sqlStr)
 
 	var meals []MealDb
 	rows, err := mr.DbEngine.Query(sqlStr, i)
 	if err != nil {
-		log.Fatalln(err)
+		logging.Global.Panicf("%v", err)
 	}
 	for rows.Next() {
 		var meal MealDb
 		err := rows.Scan(returnMealFieldsForDbRetriving(&meal))
-		log.Println(meal)
+		logging.Global.Debugf("%v", meal)
 		if err == nil {
 			meals = append(meals, meal)
 		} else {
-			log.Fatal(err)
+			logging.Global.Panicf("%v", err)
 		}
 	}
 	res := ConvertToMeal(meals)
-	log.Println(res)
+	logging.Global.Debugf("%v", res)
 	return res
 }
 
@@ -144,7 +144,7 @@ func (mr *FirebirdRepoAccess) GetMeals() []Meal { // [AI] poprawka: []Meal zamia
 	sqlStr = fmt.Sprintf(sqlStr+` ORDER BY %s`, MealPrefix+`.`+MEAL_ID)
 	rows, err := mr.DbEngine.Query(sqlStr)
 	if err != nil {
-		log.Fatal(err)
+		logging.Global.Panicf("%v", err)
 	} else {
 		var mealsDb []MealDb
 		for rows.Next() {
@@ -152,24 +152,24 @@ func (mr *FirebirdRepoAccess) GetMeals() []Meal { // [AI] poprawka: []Meal zamia
 			if err := rows.Scan(returnMealFieldsForDbRetriving(&mealDb)); err == nil {
 				mealsDb = append(mealsDb, mealDb)
 			} else {
-				log.Fatalln(err)
+				logging.Global.Panicf("%v", err)
 			}
 		}
 		meals = ConvertToMeals(mealsDb)
 	}
 	for i, meal := range meals {
-		log.Printf(`%d: %v\n`, i, meal)
+		logging.Global.Debugf(`%d: %v`, i, meal)
 	}
 	return meals
 }
 
-func (mr *FirebirdRepoAccess)	DeleteMeal(i int) bool {
+func (mr *FirebirdRepoAccess) DeleteMeal(i int) bool {
 	if _, err := mr.DbEngine.Exec(`DELETE FROM ` + MEAL_TAB + ` WHERE ID = ?`, i); err != nil{
-		log.Fatalln(err)
+		logging.Global.Panicf("%v", err)
 	}
 	row, err := mr.DbEngine.Query(`SELECT ID FROM ` + MEAL_TAB + ` WHERE ID = ?`, i) 
 	if err != nil {
-		log.Fatalln(err)
+		logging.Global.Panicf("%v", err)
 	}
 	return !row.Next();
 }
@@ -193,7 +193,7 @@ func (mr *FirebirdRepoAccess) updateProductsInMeal(m *Meal, r ProductsRepo) { //
 				QuestionMarks(len(prodInDbTabs)))
 			_, err := mr.DbEngine.Exec(sql, &prodInMealDb.Product.Id, m.Id, prodInMealDb.Weight)
 			if err != nil {
-				log.Fatalln(err)
+				logging.Global.Panicf("%v", err)
 			}
 
 			sql = fmt.Sprintf(`SELECT MAX(%s) FROM `+PRODUCTS_IN_MEAL_TAB, PRODUCTS_IN_MEAL_ID)
@@ -209,7 +209,7 @@ func (mr *FirebirdRepoAccess) updateProductsInMeal(m *Meal, r ProductsRepo) { //
 	tabs := []string{PRODUCTS_IN_MEAL_ID, PRODUCTS_IN_MEAL_PRODUCT_ID}
 	res, err := mr.DbEngine.Query(`SELECT `+strings.Join(tabs, ", ")+` FROM `+PRODUCTS_IN_MEAL_TAB+` WHERE `+PRODUCTS_IN_MEAL_MEAL_ID+` = ?`, m.Id)
 	if err != nil {
-		log.Fatalln(err)
+		logging.Global.Panicf("%v", err)
 	}
 
 	prodInMealIds := make(map[int]int)
@@ -217,7 +217,7 @@ func (mr *FirebirdRepoAccess) updateProductsInMeal(m *Meal, r ProductsRepo) { //
 	for res.Next() {
 		err := res.Scan(&value, &key)
 		if err != nil {
-			log.Fatalln(err)
+			logging.Global.Panicf("%v", err)
 		}
 		prodInMealIds[int(key.Int64)] = int(value.Int64)
 	}
@@ -230,16 +230,16 @@ func (mr *FirebirdRepoAccess) updateProductsInMeal(m *Meal, r ProductsRepo) { //
 	}
 }
 
-func (mr *FirebirdRepoAccess)	CreateMeal(m *Meal) int64 { // [AI] poprawka: *Meal zamiast *meal
+func (mr *FirebirdRepoAccess) CreateMeal(m *Meal) int64 { // [AI] poprawka: *Meal zamiast *meal
 	if _, err := mr.DbEngine.Exec(`INSERT INTO ` + MEAL_TAB + ` (` + MEAL_NAME + `, ` + MEAL_RECIPE + `) ` + `VALUES (?, ?)`, m.Name, m.Recipe); err != nil {
-		log.Fatalln(err)
-  	} else {
+		logging.Global.Panicf("%v", err)
+   	} else {
 		query := fmt.Sprintf(`SELECT MAX(%s) FROM %s`, MEAL_ID, MEAL_TAB)
 		mr.DbEngine.QueryRow(query).Scan(&m.Id)
 
 		r, supp := interface{}(mr).(ProductsRepo)
 		if !supp {
-			log.Fatalf(`object does not support ProductRepo interface`)
+			logging.Global.Panicf(`object does not support ProductRepo interface`)
 		}
 		mr.updateProductsInMeal(m, r)
 		return int64(m.Id)
@@ -249,16 +249,16 @@ func (mr *FirebirdRepoAccess)	CreateMeal(m *Meal) int64 { // [AI] poprawka: *Mea
 
 func (mr *FirebirdRepoAccess) UpdateMeal(m *Meal) { // [AI] poprawka: *Meal zamiast *meal
 	sql := fmt.Sprintf(`UPDATE %s SET %s=?, %s=? WHERE ID=?`, MEAL_TAB, MEAL_NAME, MEAL_RECIPE)
-	log.Println(sql)
+	logging.Global.Debugf(sql)
 
 	_, err := mr.DbEngine.Exec(sql, m.Name, m.Recipe, m.Id)
 	if err == nil {
 		r, supp := interface{}(mr).(ProductsRepo)
 		if !supp{
-			log.Fatalf(`object does not support ProductRepo interface`)	
+			logging.Global.Panicf(`object does not support ProductRepo interface`)
 		}
 		mr.updateProductsInMeal(m,r)
 	} else {
-		log.Fatalln(err)
+		logging.Global.Panicf("%v", err)
 	}
 }

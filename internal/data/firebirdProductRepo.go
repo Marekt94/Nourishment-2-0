@@ -3,7 +3,7 @@ package database
 import (
 	"database/sql"
 	"fmt"
-	"log"
+	"nourishment_20/internal/logging"
 	"strings"
 )
 
@@ -72,7 +72,7 @@ func (s *productDb) ConvertToProduct(p *Product) { // [AI REFACTOR]
 
 func (mr *FirebirdRepoAccess) createSQLForProducts() string{
 	tabs := productSQLPrefix +  `.` + strings.Join(ProductTabs[:], ", " + productSQLPrefix + ".") + `, ` + categorySQLPrefix +  `.` + strings.Join(CategoryTabs[:], `, ` + categorySQLPrefix + `.`)
-	log.Println(tabs)
+	logging.Global.Debugf("%v", tabs)
 
 	sqltempl := `SELECT %s FROM %s LEFT JOIN %s ON %s=%s`
 	return fmt.Sprintf(sqltempl, tabs, PRODUCT_TAB + ` ` + productSQLPrefix, CATEGORY_TAB + ` ` + categorySQLPrefix, categorySQLPrefix + `.` + CATEGORY_ID, productSQLPrefix + `.` + PRODUCT_CATEGORY)	
@@ -86,12 +86,12 @@ func (mr *FirebirdRepoAccess) GetProduct(i int) Product { // [AI REFACTOR]
 
 	row, err := mr.DbEngine.Query(sql, i)
 	if err != nil {
-		log.Fatalln(err)
+		logging.Global.Panicf("%v", err)
 	}
 	if row.Next(){
 		prod = serializeDBToProduct(row)
 	}
-	log.Println(prod)
+	logging.Global.Debugf("%v", prod)
 	return prod
 }
 
@@ -101,7 +101,7 @@ func (mr *FirebirdRepoAccess) GetProducts() []Product { // [AI REFACTOR]
 	sql := mr.createSQLForProducts()
 	rows, err := mr.DbEngine.Query(sql)
 	if err != nil{
-		log.Fatalln(err)
+		logging.Global.Panicf("%v", err)
 	}
 	for rows.Next() {
 		prod := serializeDBToProduct(rows)
@@ -115,12 +115,12 @@ func (mr *FirebirdRepoAccess) CreateProduct(p *Product) int64 { // [AI REFACTOR]
 	sql := fmt.Sprintf(`INSERT INTO %s (%s) VALUES (%s)`, PRODUCT_TAB, strings.Join(insertTabs[:], `, `), QuestionMarks(len(insertTabs)))
 	if _, err := mr.DbEngine.Exec(sql, &p.Name, &p.KcalPer100, &p.UnitWeight, &p.Proteins, &p.Fat, &p.Sugar, &p.Carbohydrates, 
 		&p.SugarAndCarbo, &p.Fiber, &p.Salt, &p.Unit, &p.Category.Id); err != nil{
-			log.Fatalln(err)
+			logging.Global.Panicf("%v", err)
 		} else {
 			var id int
 			err := mr.DbEngine.QueryRow(`SELECT MAX(` + PRODUCT_ID + `) FROM ` + PRODUCT_TAB).Scan(&id)
 			if err != nil {
-				log.Fatalln(err)
+				logging.Global.Panicf("%v", err)
 			}
 			return int64(id)
 		}
@@ -129,11 +129,11 @@ func (mr *FirebirdRepoAccess) CreateProduct(p *Product) int64 { // [AI REFACTOR]
 
 func (mr *FirebirdRepoAccess) DeleteProduct(i int) bool {
 	if _, err := mr.DbEngine.Exec(`DELETE FROM ` + PRODUCT_TAB + ` WHERE ID = ?`, i); err != nil{
-		log.Fatalln(err)
+		logging.Global.Panicf("%v", err)
 	}
 	row, err := mr.DbEngine.Query(`SELECT ID FROM ` + PRODUCT_TAB + ` WHERE ID = ?`, i) 
 	if err != nil {
-		log.Fatalln(err)
+		logging.Global.Panicf("%v", err)
 	}
 	return !row.Next();
 }
@@ -143,6 +143,6 @@ func (mr *FirebirdRepoAccess) UpdateProduct(p *Product) { // [AI REFACTOR]
 	_, err := mr.DbEngine.Exec(sql, &p.Name, &p.KcalPer100, &p.UnitWeight, &p.Proteins, &p.Fat, &p.Sugar, &p.Carbohydrates, 
 		&p.SugarAndCarbo, &p.Fiber, &p.Salt, &p.Unit, &p.Category.Id, &p.Id)
 	if err != nil{
-		log.Fatalln(err)
+		logging.Global.Panicf("%v", err)
 	}
 }

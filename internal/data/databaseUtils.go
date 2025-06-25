@@ -2,7 +2,7 @@ package database
 
 import (
 	"database/sql"
-	"log"
+	"nourishment_20/internal/logging"
 	"strings"
 )
 
@@ -51,6 +51,6 @@ func UpdateValues(v []string) string {
 
 func CreateColsToSelect(prefix string, c []string) string{
     res :=  prefix + `.` + strings.Join(c[:], `, ` + prefix + `.`)
-    log.Println(res)
+    logging.Global.Debugf(res)
     return res
 }

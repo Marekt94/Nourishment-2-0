@@ -2,7 +2,7 @@ package database
 
 import (
 	"database/sql"
-	"log"
+	"nourishment_20/internal/logging"
 	"os"
 
 	"github.com/rs/zerolog"
@@ -14,9 +14,8 @@ type DBEngine interface {
 	Connect(c *DBConf) *sql.DB
 }
 
-
 type BaseEngineIntf interface {
-	Connect(dbType string, connstr string, dbName string)(*sql.DB)
+	Connect(dbType string, connstr string, dbName string) (*sql.DB)
 }
 
 type DBConf struct {
@@ -27,23 +26,22 @@ type DBConf struct {
 }
 
 type BaseEngine struct {
-
 }
 
-func (e *BaseEngine) Connect(dbType string, connstr string, dbName string)(*sql.DB){
-	log.Printf("connection string: %s\n", connstr)
+func (e *BaseEngine) Connect(dbType string, connstr string, dbName string) (*sql.DB) {
+	logging.Global.Debugf("connection string: %s", connstr)
 	db, err := sql.Open(dbType, connstr)
 	if err != nil {
-		log.Fatal(err)
+		logging.Global.Panicf("connection error: %v", err)
 	}
-    consoleWriter := zerolog.ConsoleWriter{
-        Out:        os.Stdout,
-        TimeFormat: `2006/01/02 15:04:05`,
-    }
-    zlogger := zerolog.New(consoleWriter).With().Timestamp().Logger()
-    db = sqldblogger.OpenDriver(connstr, db.Driver(), zerologadapter.New(zlogger))	
+	consoleWriter := zerolog.ConsoleWriter{
+		Out:        os.Stdout,
+		TimeFormat: `2006/01/02 15:04:05`,
+	}
+	zlogger := zerolog.New(consoleWriter).With().Timestamp().Logger()
+	db = sqldblogger.OpenDriver(connstr, db.Driver(), zerologadapter.New(zlogger))
 
-	log.Printf("connected to %s\n", dbName)
+	logging.Global.Debugf("connected to %s", dbName)
 	return db
 }
 

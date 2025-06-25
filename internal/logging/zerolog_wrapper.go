@@ -15,8 +15,10 @@ func NewZerologLogger() *ZerologLogger {
 		Out:        os.Stdout,
 		TimeFormat: "2006/01/02 15:04:05",
 	}
+	logger := zerolog.New(consoleWriter).With().Timestamp().Logger()
+	logger.Info().Msg("[ZERLOGGER] ZerologLogger initialized and connected!")
 	return &ZerologLogger{
-		logger: zerolog.New(consoleWriter).With().Timestamp().Logger(),
+		logger: logger,
 	}
 }
 
