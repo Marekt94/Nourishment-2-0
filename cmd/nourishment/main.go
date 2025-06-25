@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"nourishment_20/api"
-	database "nourishment_20/data"
+	"nourishment_20/internal/api"
+	database "nourishment_20/internal/data"
 
 	"github.com/gin-gonic/gin"
 )

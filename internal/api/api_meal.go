@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
-	db "nourishment_20/data"
+	db "nourishment_20/internal/data"
 
 	"github.com/gin-gonic/gin"
 )
