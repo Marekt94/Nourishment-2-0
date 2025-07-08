@@ -1,0 +1,173 @@
+{
+	"info": {
+		"_postman_id": "bb3fd015-6612-496b-bd75-0d0f39779586",
+		"name": "OpenRouter API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "30215534",
+		"_collection_link": "https://mt5555-7028.postman.co/workspace/Nourishment-2-0~ac3be09c-bd04-4d0e-9bbb-2ca1ab0efff3/collection/30215534-bb3fd015-6612-496b-bd75-0d0f39779586?action=share&source=collection_link&creator=30215534"
+	},
+	"item": [
+		{
+			"name": "Base prompt",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": " {\r\n    \"model\": \"google/gemini-2.5-flash-lite-preview-06-17\",\r\n    \"messages\": [\r\n      {\r\n        \"role\": \"user\",\r\n        \"content\": \"# Rola\\n\\nJesteś doświadczonym dietetykiem\\n\\n# Zadanie\\n\\nNa podstawie dostarczonych składników potrawy, wraz z makroskładnikami dostosuj ilość poszczególnych składników, aby sumaryczna kaloryczność potrawy wynosiła około 1000 kcal.\\nDo obliczeń wykorzystaj dostarczone makroskładniki.\\n\\n# Kontekst\\n\\nSkładniki potrawy do przeliczenia:\\n\\n- jajko:\\n  - id: 24\\n  - 140 kcal/100g\\n  - waga wstępna: 224 g\\n- cebula:\\n  - id: 39\\n  - 33 kcal/100g\\n  - waga wstępna: 30 g\\n- łosoś wędzony:\\n  - id: 21\\n  - 162 kcal/100g\\n  - waga wstępna: 37 g\\n\\n# Zasady\\n\\n- nie zadawaj dodatkowych pytań\\n- ilość poszczególnych składników dobierz z dokładnością do pełnych dziesiątek\\n- sumaryczną kaloryczność podaj z dokładnością do jedności\\n- przyjmij wagę 1ml = 1g\\n- kaloryczność sumaryczna potrawy nie może odbiegać o +/-25 kcal w stosunku do zadanej kaloryczności\\n- przedstaw kroki matematyczne wylicznia kaloryczności końcowej\\n\\n# Przykład\\n\\n## Dane wejściowe:\\n\\n- płatki owsiane:\\n  - id: 13\\n  - 336 kcal/100g\\n  - waga wstępna 60 g\\n- mleko 2%:\\n  - id: 14\\n  - 51 kcal/100g\\n  - waga wstępna 300 ml\\n- banan:\\n  - id: 12\\n  - 97 kcal/100g\\n  - waga wstępna 120 g\\n\\n## Obliczenia:\\n\\n### Wyznaczona końcowa ilość każdego ze składników po optymalizacji:\\n\\n- płatki owsiane - weight: 160g\\n- mleko 2% - weight: 380 ml\\n- banan - weight: 230 g\\n\\n### Obliczenia kaloryczności każdego ze składników:\\n\\n- płatki owsiane: 336 kcal * 160g / 100g = 537.6 kcal\\n- mleko 2%: 51 kcal * 380ml / 100ml = 193.8 kcal\\n- banan: 97 kcal * 230g / 100g = 223.1 kcal\\n\\n### Obliczenia kaloryczności potrawy:\\n\\n537.6 + 193.8 + 223.1 = 954.5 ≈ 955 kcal\\n\\n### Wynik końcowy do zwócenia:\\n\\n- płatki owsiane:\\n  - id: 13\\n  - weight: 160\\n- banan:\\n  - id: 12\\n  - weight: 230\\n- mleko:\\n  - id: 14\\n  - weight: 380\"\r\n      }\r\n    ],\r\n    \"reasoning\": {\r\n        \"exclude\": true\r\n    },\r\n    \"max_tokens\": 1024\r\n  }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://openrouter.ai/api/{{version}}/chat/completions",
+					"protocol": "https",
+					"host": [
+						"openrouter",
+						"ai"
+					],
+					"path": [
+						"api",
+						"{{version}}",
+						"chat",
+						"completions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Optimize prods in meal",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.environment.set(\"ai_response\", pm.response.json().choices[0].message.content);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"model\": \"{{model}}\",\r\n    \"messages\": [\r\n        {\r\n            \"role\": \"user\",\r\n            \"content\": \"# Rola\\n\\nJesteś doświadczonym dietetykiem\\n\\n# Zadanie\\n\\nNa podstawie dostarczonych składników potrawy, wraz z makroskładnikami dostosuj ilość poszczególnych składników, aby sumaryczna kaloryczność potrawy wynosiła około 1000 kcal. Do obliczeń wykorzystaj dostarczone makroskładniki.\\n\\n# Kontekst\\n\\nSkładniki potrawy do przeliczenia:\\n\\n- jajko:\\n  - id: 24\\n  - 140 kcal/100g\\n  - waga wstępna: 224 g\\n- cebula:\\n  - id: 39\\n  - 33 kcal/100g\\n  - waga wstępna: 30 g\\n- łosoś wędzony:\\n  - id: 21\\n  - 162 kcal/100g\\n  - waga wstępna: 37 g\\n\\n# Zasady\\n\\n- nie zadawaj dodatkowych pytań\\n- ilość poszczególnych składników dobierz z dokładnością do pełnych dziesiątek\\n- sumaryczną kaloryczność podaj z dokładnością do jedności\\n- przyjmij wagę 1ml = 1g\\n- kaloryczność sumaryczna potrawy nie może odbiegać o +/-25 kcal w stosunku do zadanej kaloryczności\\n- przedstaw kroki matematyczne wylicznia kaloryczności końcowej\\n\\n# Przykład\\n\\n## Dane wejściowe:\\n\\n- płatki owsiane:\\n  - id: 13\\n  - 336 kcal/100g\\n  - waga wstępna 60 g\\n- mleko 2%:\\n  - id: 14\\n  - 51 kcal/100g\\n  - waga wstępna 300 ml\\n- banan:\\n  - id: 12\\n  - 97 kcal/100g\\n  - waga wstępna 120 g\\n\\n## Obliczenia:\\n\\n### Wyznaczona końcowa ilość każdego ze składników po optymalizacji:\\n\\n- płatki owsiane - weight: 160g\\n- mleko 2% - weight: 380 ml\\n- banan - weight: 230 g\\n\\n### Obliczenia kaloryczności każdego ze składników:\\n\\n- płatki owsiane: 336 kcal * 160g / 100g = 537.6 kcal\\n- mleko 2%: 51 kcal * 380ml / 100ml = 193.8 kcal\\n- banan: 97 kcal * 230g / 100g = 223.1 kcal\\n\\n### Obliczenia kaloryczności potrawy:\\n\\n537.6 + 193.8 + 223.1 = 954.5 ≈ 955 kcal\\n\\n### Wynik końcowy do zwócenia:\\n\\n- płatki owsiane:\\n  - id: 13\\n  - weight: 160\\n- banan:\\n  - id: 12\\n  - weight: 230\\n- mleko:\\n  - id: 14\\n  - weight: 380\"\r\n        }\r\n    ],\r\n    \"max_tokens\": 2048\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://openrouter.ai/api/{{version}}/chat/completions",
+					"protocol": "https",
+					"host": [
+						"openrouter",
+						"ai"
+					],
+					"path": [
+						"api",
+						"{{version}}",
+						"chat",
+						"completions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Extract optimized data",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"model\": \"{{model}}\",\r\n    \"messages\": [\r\n        {\r\n            \"role\": \"user\",\r\n            \"content\": \"Z podanej odpowiedzi modelu AI wyciągnij ostateczne dane dot. składników potrawy,czyli: nazwę, id, wagę ostateczną, kalorykę ostateczną. Odpowiedź modelu do analizy:\\n\\\"{{ai_response}}\\\"\"\r\n        }\r\n    ],\r\n    \"response_format\": {\r\n        \"type\": \"json_schema\",\r\n        \"json_schema\": {\r\n            \"name\": \"productsInMeals\",\r\n            \"strict\": true,\r\n            \"schema\": {\r\n                \"type\": \"object\",\r\n                \"properties\": {\r\n                    \"products\": {\r\n                        \"type\": \"array\",\r\n                        \"items\": {\r\n                            \"type\": \"object\",\r\n                            \"properties\": {\r\n                                \"id\": {\r\n                                    \"type\": \"number\"\r\n                                },\r\n                                \"name\": {\r\n                                    \"type\": \"string\"\r\n                                },\r\n                                \"finalweightAfterOptimization\": {\r\n                                    \"type\": \"number\"\r\n                                }\r\n                            },\r\n                            \"additionalProperties\": false,\r\n                            \"required\": [\r\n                                \"id\",\r\n                                \"name\",\r\n                                \"finalweightAfterOptimization\"\r\n                            ]\r\n                        }\r\n                    },\r\n                    \"cumulativeKcal\": {\r\n                        \"type\": \"number\"\r\n                    }\r\n                },\r\n                \"additionalProperties\": false,\r\n                \"required\": [\r\n                    \"products\",\r\n                    \"cumulativeKcal\"\r\n                ]\r\n            }\r\n        }\r\n    },\r\n    \"max_tokens\": 1024\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://openrouter.ai/api/{{version}}/chat/completions",
+					"protocol": "https",
+					"host": [
+						"openrouter",
+						"ai"
+					],
+					"path": [
+						"api",
+						"{{version}}",
+						"chat",
+						"completions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Models",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://openrouter.ai/api/{{version}}/models",
+					"protocol": "https",
+					"host": [
+						"openrouter",
+						"ai"
+					],
+					"path": [
+						"api",
+						"{{version}}",
+						"models"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "test",
+			"value": ""
+		}
+	]
+}
