@@ -9,7 +9,8 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/nakagami/chacha20 v0.1.0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20200410134404-eec4a21b6bb0 // indirect
-	github.com/rs/zerolog v1.28.0 // indirect
+	github.com/revrost/go-openrouter v0.1.8 // indirect
+	github.com/rs/zerolog v1.34.0 // indirect
 	github.com/shopspring/decimal v1.2.0 // indirect
 	gitlab.com/nyarla/go-crypt v0.0.0-20160106005555-d9a5dc2b789b // indirect
 	golang.org/x/exp v0.0.0-20250106191152-7588d65b2ba8 // indirect
