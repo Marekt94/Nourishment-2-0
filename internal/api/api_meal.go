@@ -4,16 +4,16 @@ import (
 	"net/http"
 	"strconv"
 
-	db "nourishment_20/internal/data"
+	db "nourishment_20/internal/database"
 
 	"github.com/gin-gonic/gin"
 )
 
 func getRepo() db.MealsRepo { // [AI REFACTOR]
 	conf := db.DBConf{
-		User:     "sysdba",
-		Password: "masterkey",
-		Address:  "localhost:3050",
+		User:       "sysdba",
+		Password:   "masterkey",
+		Address:    "localhost:3050",
 		PathOrName: "C:/Users/marek/Documents/nourishment_backup_db/NOURISHMENT.FDB",
 	}
 	fDbEngine := db.FBDBEngine{BaseEngineIntf: &db.BaseEngine{}}
@@ -21,7 +21,7 @@ func getRepo() db.MealsRepo { // [AI REFACTOR]
 	return &db.FirebirdRepoAccess{DbEngine: engine}
 }
 
-func GetMeal(c *gin.Context){
+func GetMeal(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err == nil {
 		repo := getRepo() // [AI REFACTOR]
@@ -31,7 +31,7 @@ func GetMeal(c *gin.Context){
 	}
 }
 
-func GetMeals(c *gin.Context){
+func GetMeals(c *gin.Context) {
 	repo := getRepo() // [AI REFACTOR]
 	c.IndentedJSON(http.StatusOK, repo.GetMeals())
 }
@@ -58,7 +58,7 @@ func UpdateMeal(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
-func DeleteMeal(c *gin.Context){
+func DeleteMeal(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})

@@ -1,10 +1,16 @@
 package main
 
 import (
+	"nourishment_20/internal/AIClient"
 	"nourishment_20/internal/api"
+	"nourishment_20/internal/database"
 	log "nourishment_20/internal/logging"
+	"nourishment_20/internal/logic"
+	"os"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 // [AI REFACTOR] Tworzenie i uruchamianie serwera HTTP na porcie 8080
@@ -28,5 +34,32 @@ func StartMealServer() {
 
 func main() {
 	log.SetGlobalLogger(log.NewZerologLogger())
-	StartMealServer() // [AI REFACTOR] uruchom serwer
+	// StartMealServer() // [AI REFACTOR] uruchom serwer
+	err := godotenv.Load()
+	if err != nil {
+		log.Global.Panicf("Error loading .env file: %v", err)
+	}
+	maxTokensStr := os.Getenv("OPENROUTER_MAX_TOKENS")
+	maxTokens, err := strconv.Atoi(maxTokensStr)
+	if err != nil {
+		log.Global.Panicf("Error converting OPEROUTER_MAX_TOKENS to int: %v", err)
+	}
+	client := AIClient.OpenRouterClient{ApiKey: os.Getenv("OPENROUTER_API_KEY"), Model: os.Getenv("OPENROUTER_MODEL"), MaxTokens: maxTokens}
+	mealOptimizer := logic.MealOptimizer{AIClient: &client}
+
+	var conf database.DBConf
+	conf.User = `sysdba`
+	conf.Password = `masterkey`
+	conf.Address = `localhost:3050`
+	conf.PathOrName = `C:\Users\marek\Documents\nourishment_backup_db\NOURISHMENT.FDB`
+	fDbEngine := database.FBDBEngine{BaseEngineIntf: &database.BaseEngine{}}
+	engine := fDbEngine.Connect(&conf)
+	var mealsRepo database.MealsRepo
+
+	mealsRepo = &database.FirebirdRepoAccess{DbEngine: engine}
+
+	_, err = mealOptimizer.OptimizeMeal(mealsRepo.GetMeal(21))
+	if err != nil {
+		log.Global.Panicf("Error optimizing meal: %v", err)
+	}
 }

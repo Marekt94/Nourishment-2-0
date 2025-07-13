@@ -1,4 +1,4 @@
-package aiclient
+package AIClient
 
 import (
 	"context"
@@ -9,12 +9,13 @@ import (
 )
 
 type OpenRouterClient struct {
-	ApiKey string
-	Model  string
+	ApiKey    string
+	Model     string
+	MaxTokens int
 }
 
-func (c *OpenRouterClient)ExecutePrompt(p string) {
-	client := openrouter.NewClient(c.ApiKey);
+func (c *OpenRouterClient) ExecutePrompt(p string) (string, bool) {
+	client := openrouter.NewClient(c.ApiKey)
 	request := openrouter.ChatCompletionRequest{
 		Model: c.Model,
 		Messages: []openrouter.ChatCompletionMessage{
@@ -23,17 +24,23 @@ func (c *OpenRouterClient)ExecutePrompt(p string) {
 				Content: openrouter.Content{Text: p},
 			},
 		},
-		MaxTokens: 1000, //TODO: make it configurable
+		MaxTokens: c.MaxTokens,
 	}
 	requestStr, err := json.MarshalIndent(request, "", "\t")
 	if err != nil {
 		logging.Global.Panicf("Error marshaling request: %v", err)
 	}
 	logging.Global.Debugf("Request: %s", requestStr)
-	ctx := context.Background();
-	response, err := client.CreateChatCompletion(ctx, request);
+	ctx := context.Background()
+	response, err := client.CreateChatCompletion(ctx, request)
 	if err != nil {
 		logging.Global.Panicf("Error while requesting openrouter: %v", err)
 	}
-	logging.Global.Debugf("Response: %s", response)
+	responseStr, err := json.MarshalIndent(response, "", "\t")
+	if err != nil {
+		logging.Global.Panicf("Error marshaling response: %v", err)
+	}
+	logging.Global.Debugf("Response: %s", responseStr)
+	//TODO: dorobić zwrotke fals, gdy finish jest inny niz ok (np, tokens)
+	return response.Choices[0].Message.Content.Text, true
 }
