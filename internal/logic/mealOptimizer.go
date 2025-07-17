@@ -9,10 +9,32 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/invopop/jsonschema"
 )
 
 type MealOptimizer struct {
 	AIClient AIClient.AIClientIntf
+}
+
+// OpenRouterOptimizationResult represents the expected JSON structure for OpenRouter response
+// swagger:model
+type ProdsInMealResponse struct {
+	Products       []OpenRouterProduct `json:"products" jsonschema:"required"`
+	CumulativeKcal float64             `json:"cumulativeKcal" jsonschema:"required"`
+}
+
+type OpenRouterProduct struct {
+	ID                           float64 `json:"id" jsonschema:"required"`
+	Name                         string  `json:"name" jsonschema:"required"`
+	FinalWeightAfterOptimization float64 `json:"finalweightAfterOptimization" jsonschema:"required"`
+}
+
+// ToJSONSchema returns the JSON schema for OpenRouterOptimizationResult using github.com/invopop/jsonschema
+func ProdsInMealResponseSchema() *jsonschema.Schema {
+	schema := jsonschema.Reflect(&ProdsInMealResponse{})
+	schema.AdditionalProperties = jsonschema.FalseSchema
+	return schema
 }
 
 func ProdToString(p database.ProductInMeal) string {
@@ -36,17 +58,34 @@ func (o *MealOptimizer) OptimizeMeal(m database.Meal) (*database.Meal, error) {
 	if err != nil {
 		return nil, err
 	}
-	logging.Global.Debugf("Read file content:\n%s", fileContent)
-	optimizingPromptScheme := string(fileContent)
-	optimizingPrompt := os.Expand(optimizingPromptScheme, func(key string) string {
+	logging.Global.Tracef("Read file content:\n%s", fileContent)
+	promptScheme := string(fileContent)
+	prompt := os.Expand(promptScheme, func(key string) string {
 		switch key {
 		case "MEAL_INGREDIENTS":
 			return MealToString(m)
 		}
 		return os.Getenv(key)
 	})
-	logging.Global.Debugf("Optimizing prompt:\n%s", optimizingPrompt)
-	res, _ := o.AIClient.ExecutePrompt(optimizingPrompt)
-	logging.Global.Debugf("AI response:\n%s", res)
+	logging.Global.Tracef("Optimizing prompt:\n%s", prompt)
+	res, _ := o.AIClient.ExecutePrompt(prompt, nil)
+	logging.Global.Tracef("AI response:\n%s", res)
+
+	fileContent, err = utils.ReadFile("ai_get_optimized_ingredients_prompt.md")
+	if err != nil {
+		return nil, err
+	}
+	logging.Global.Tracef("Read file content:\n%s", fileContent)
+	promptScheme = string(fileContent)
+	prompt = os.Expand(promptScheme, func(key string) string {
+		switch key {
+		case "OPTIMIZATION_ANSWER":
+			return res
+		}
+		return os.Getenv(key)
+	})
+	res, _ = o.AIClient.ExecutePrompt(prompt, ProdsInMealResponseSchema())
+	logging.Global.Tracef("AI response:\n%s", res)
+
 	return nil, nil
 }

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"nourishment_20/internal/logging"
 
+	"github.com/invopop/jsonschema"
 	"github.com/revrost/go-openrouter"
 )
 
@@ -14,7 +15,7 @@ type OpenRouterClient struct {
 	MaxTokens int
 }
 
-func (c *OpenRouterClient) ExecutePrompt(p string) (string, bool) {
+func (c *OpenRouterClient) ExecutePrompt(p string, s *jsonschema.Schema) (string, bool) {
 	client := openrouter.NewClient(c.ApiKey)
 	request := openrouter.ChatCompletionRequest{
 		Model: c.Model,
@@ -24,7 +25,18 @@ func (c *OpenRouterClient) ExecutePrompt(p string) (string, bool) {
 				Content: openrouter.Content{Text: p},
 			},
 		},
+
 		MaxTokens: c.MaxTokens,
+	}
+	if s != nil {
+		request.ResponseFormat = &openrouter.ChatCompletionResponseFormat{
+			Type: openrouter.ChatCompletionResponseFormatTypeJSONSchema,
+			JSONSchema: &openrouter.ChatCompletionResponseFormatJSONSchema{
+				Name:   "my_json_schema",
+				Strict: true,
+				Schema: s,
+			},
+		}
 	}
 	requestStr, err := json.MarshalIndent(request, "", "\t")
 	if err != nil {
