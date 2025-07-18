@@ -1,6 +1,7 @@
 package logic
 
 import (
+	"encoding/json"
 	"fmt"
 	utils "nourishment_20/internal"
 	"nourishment_20/internal/AIClient"
@@ -9,8 +10,6 @@ import (
 	"os"
 	"strconv"
 	"strings"
-
-	"github.com/invopop/jsonschema"
 )
 
 type MealOptimizer struct {
@@ -30,11 +29,45 @@ type OpenRouterProduct struct {
 	FinalWeightAfterOptimization float64 `json:"finalweightAfterOptimization" jsonschema:"required"`
 }
 
-// ToJSONSchema returns the JSON schema for OpenRouterOptimizationResult using github.com/invopop/jsonschema
-func ProdsInMealResponseSchema() *jsonschema.Schema {
-	schema := jsonschema.Reflect(&ProdsInMealResponse{})
-	schema.AdditionalProperties = jsonschema.FalseSchema
-	return schema
+func (p OpenRouterProduct) GetAIResponseSchema() map[string]interface{} {
+	res := map[string]interface{}{
+		"type": "object",
+		"properties": map[string]interface{}{
+			"id":                           map[string]string{"type": "number"},
+			"name":                         map[string]string{"type": "string"},
+			"finalweightAfterOptimization": map[string]string{"type": "number"},
+		},
+		"additionalProperties": false,
+		"required":             []string{"id", "name", "finalweightAfterOptimization"},
+	}
+
+	return res
+}
+
+func (p ProdsInMealResponse) GetAIResponseSchema() map[string]interface{} {
+	res := map[string]interface{}{
+		"type": "object",
+		"properties": map[string]interface{}{
+			"products": map[string]interface{}{
+				"type":  "array",
+				"items": OpenRouterProduct{}.GetAIResponseSchema(),
+			},
+			"cumulativeKcal": map[string]string{"type": "number"},
+		},
+		"additionalProperties": false,
+		"required":             []string{"products", "cumulativeKcal"},
+	}
+	return res
+}
+
+func (p ProdsInMealResponse) MarshalJSON() ([]byte, error) {
+	schema := p.GetAIResponseSchema()
+	return json.Marshal(schema)
+}
+
+func (p OpenRouterProduct) MarshalJSON() ([]byte, error) {
+	schema := p.GetAIResponseSchema()
+	return json.Marshal(schema)
 }
 
 func ProdToString(p database.ProductInMeal) string {
@@ -84,7 +117,7 @@ func (o *MealOptimizer) OptimizeMeal(m database.Meal) (*database.Meal, error) {
 		}
 		return os.Getenv(key)
 	})
-	res, _ = o.AIClient.ExecutePrompt(prompt, ProdsInMealResponseSchema())
+	res, _ = o.AIClient.ExecutePrompt(prompt, ProdsInMealResponse{})
 	logging.Global.Tracef("AI response:\n%s", res)
 
 	return nil, nil

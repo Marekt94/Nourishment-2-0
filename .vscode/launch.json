@@ -1,0 +1,20 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "go",
+      "request": "launch",
+      "name": "Launch Go Program",
+      "program": "${workspaceFolder}/cmd/nourishment",
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "go",
+      "request": "launch",
+      "name": "Test Go Package",
+      "mode": "test",
+      "program": "${workspaceFolder}/internal/logic",
+      "console": "integratedTerminal"
+    }
+  ]
+}

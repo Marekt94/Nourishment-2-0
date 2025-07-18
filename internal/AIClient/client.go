@@ -1,7 +1,10 @@
 package AIClient
 
-import "github.com/invopop/jsonschema"
-
 type AIClientIntf interface {
-	ExecutePrompt(p string, s *jsonschema.Schema) (string, bool)
+	ExecutePrompt(p string, s AIResponseSchemaIntf) (string, bool)
+}
+
+type AIResponseSchemaIntf interface {
+	GetAIResponseSchema() map[string]interface{}
+	MarshalJSON() ([]byte, error)
 }

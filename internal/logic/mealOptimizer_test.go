@@ -1,9 +1,75 @@
 package logic
 
 import (
+	"encoding/json"
 	"nourishment_20/internal/database"
 	"testing"
 )
+
+func TestGenSchema(t *testing.T) {
+	//given
+	expectedSchema := `{
+    "type": "object",
+    "properties": {
+        "products": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "number"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "finalweightAfterOptimization": {
+                        "type": "number"
+                    }
+                },
+                "additionalProperties": false,
+                "required": [
+                    "id",
+                    "name",
+                    "finalweightAfterOptimization"
+                ]
+            }
+        },
+        "cumulativeKcal": {
+            "type": "number"
+        }
+    },
+    "additionalProperties": false,
+    "required": [
+        "products",
+        "cumulativeKcal"
+    ]
+}`
+	expected := make(map[string]interface{})
+	err := json.Unmarshal([]byte(expectedSchema), &expected)
+	if err != nil {
+		t.Fatalf("Error unmarshaling expected schema: %v", err)
+	}
+	t.Logf("Expected schema: %v", expected)
+	expectedJSON, err := json.Marshal(expected)
+	if err != nil {
+		t.Fatalf("Error marshaling expected schema: %v", err)
+	}
+
+	//when
+	schema := ProdsInMealResponse{}.GetAIResponseSchema()
+	if err != nil {
+		t.Fatalf("Error marshaling schema: %v", err)
+	}
+	schemaJSON, err := json.Marshal(schema)
+	if err != nil {
+		t.Fatalf("Error marshaling returned schema: %v", err)
+	}
+
+	//then
+	if string(expectedJSON) != string(schemaJSON) {
+		t.Errorf("Schema mismatch.\nExpected:\n%s\nGot:\n%s", expectedJSON, schemaJSON)
+	}
+}
 
 func TestProdToString(t *testing.T) {
 	//given
