@@ -52,6 +52,6 @@ func (c *OpenRouterClient) ExecutePrompt(p string, s AIResponseSchemaIntf) (stri
 		logging.Global.Panicf("Error marshaling response: %v", err)
 	}
 	logging.Global.Debugf("Response: %s", responseStr)
-	//TODO: dorobić zwrotke fals, gdy finish jest inny niz ok (np, tokens)
-	return response.Choices[0].Message.Content.Text, true
+	requestFinishedSuccessfully := response.Choices[0].FinishReason == openrouter.FinishReasonStop
+	return response.Choices[0].Message.Content.Text, requestFinishedSuccessfully
 }

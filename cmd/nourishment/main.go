@@ -5,7 +5,7 @@ import (
 	"nourishment_20/internal/api"
 	"nourishment_20/internal/database"
 	log "nourishment_20/internal/logging"
-	"nourishment_20/internal/logic"
+	"nourishment_20/internal/mealOptimizer"
 	"os"
 	"strconv"
 
@@ -45,7 +45,7 @@ func main() {
 		log.Global.Panicf("Error converting OPEROUTER_MAX_TOKENS to int: %v", err)
 	}
 	client := AIClient.OpenRouterClient{ApiKey: os.Getenv("OPENROUTER_API_KEY"), Model: os.Getenv("OPENROUTER_MODEL"), MaxTokens: maxTokens}
-	mealOptimizer := logic.MealOptimizer{AIClient: &client}
+	mealOptimizer := mealOptimizer.Optimizer{AIClient: &client}
 
 	var conf database.DBConf
 	conf.User = `sysdba`
@@ -58,7 +58,7 @@ func main() {
 
 	mealsRepo = &database.FirebirdRepoAccess{DbEngine: engine}
 
-	_, err = mealOptimizer.OptimizeMeal(mealsRepo.GetMeal(21))
+	_, err = mealOptimizer.OptimizeMeal(mealsRepo.GetMeal(15))
 	if err != nil {
 		log.Global.Panicf("Error optimizing meal: %v", err)
 	}

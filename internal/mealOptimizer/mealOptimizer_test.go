@@ -1,4 +1,4 @@
-package logic
+package mealOptimizer
 
 import (
 	"encoding/json"
@@ -142,7 +142,7 @@ func TestMealToString(t *testing.T) {
 	}
 
 	//when
-	res := MealToString(meal)
+	res := MealToString(&meal)
 	//then
 	if res != dest {
 		t.Errorf("Expected\n%s, got\n%s", dest, res)

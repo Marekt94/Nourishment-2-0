@@ -1,4 +1,4 @@
-package logic
+package mealOptimizer
 
 import (
 	"encoding/json"
@@ -12,24 +12,22 @@ import (
 	"strings"
 )
 
-type MealOptimizer struct {
+type Optimizer struct {
 	AIClient AIClient.AIClientIntf
 }
 
-// OpenRouterOptimizationResult represents the expected JSON structure for OpenRouter response
-// swagger:model
 type ProdsInMealResponse struct {
-	Products       []OpenRouterProduct `json:"products" jsonschema:"required"`
-	CumulativeKcal float64             `json:"cumulativeKcal" jsonschema:"required"`
+	Products       []Product `json:"products"`
+	CumulativeKcal float64   `json:"cumulativeKcal"`
 }
 
-type OpenRouterProduct struct {
-	ID                           float64 `json:"id" jsonschema:"required"`
-	Name                         string  `json:"name" jsonschema:"required"`
-	FinalWeightAfterOptimization float64 `json:"finalweightAfterOptimization" jsonschema:"required"`
+type Product struct {
+	ID                           float64 `json:"id"`
+	Name                         string  `json:"name"`
+	FinalWeightAfterOptimization float64 `json:"finalweightAfterOptimization"`
 }
 
-func (p OpenRouterProduct) GetAIResponseSchema() map[string]interface{} {
+func (p Product) GetAIResponseSchema() map[string]interface{} {
 	res := map[string]interface{}{
 		"type": "object",
 		"properties": map[string]interface{}{
@@ -44,13 +42,18 @@ func (p OpenRouterProduct) GetAIResponseSchema() map[string]interface{} {
 	return res
 }
 
+func (p Product) MarshalJSON() ([]byte, error) {
+	schema := p.GetAIResponseSchema()
+	return json.Marshal(schema)
+}
+
 func (p ProdsInMealResponse) GetAIResponseSchema() map[string]interface{} {
 	res := map[string]interface{}{
 		"type": "object",
 		"properties": map[string]interface{}{
 			"products": map[string]interface{}{
 				"type":  "array",
-				"items": OpenRouterProduct{}.GetAIResponseSchema(),
+				"items": Product{}.GetAIResponseSchema(),
 			},
 			"cumulativeKcal": map[string]string{"type": "number"},
 		},
@@ -65,9 +68,23 @@ func (p ProdsInMealResponse) MarshalJSON() ([]byte, error) {
 	return json.Marshal(schema)
 }
 
-func (p OpenRouterProduct) MarshalJSON() ([]byte, error) {
-	schema := p.GetAIResponseSchema()
-	return json.Marshal(schema)
+func findProdInMealDB(productsInMeal []database.ProductInMeal, index float64) *database.ProductInMeal {
+	for i := range productsInMeal {
+		if productsInMeal[i].Product.Id == int(index) {
+			return &productsInMeal[i]
+		}
+	}
+	return nil
+}
+func (p ProdsInMealResponse) UpdateProductsInMeal(productsInMeal []database.ProductInMeal) {
+	for i := range p.Products {
+		prodInMealDB := findProdInMealDB(productsInMeal, p.Products[i].ID)
+		if prodInMealDB != nil {
+			prodInMealDB.Weight = p.Products[i].FinalWeightAfterOptimization
+		} else {
+			logging.Global.Panicf("Product with ID %v not found in productsInMeal", p.Products[i].ID)
+		}
+	}
 }
 
 func ProdToString(p database.ProductInMeal) string {
@@ -78,7 +95,7 @@ func ProdToString(p database.ProductInMeal) string {
 	return prodString
 }
 
-func MealToString(m database.Meal) string {
+func MealToString(m *database.Meal) string {
 	prodsInMealStr := []string{}
 	for _, prodsInMeal := range m.ProductsInMeal {
 		prodsInMealStr = append(prodsInMealStr, ProdToString(prodsInMeal))
@@ -86,8 +103,8 @@ func MealToString(m database.Meal) string {
 	return strings.Join(prodsInMealStr, "\n")
 }
 
-func (o *MealOptimizer) OptimizeMeal(m database.Meal) (*database.Meal, error) {
-	fileContent, err := utils.ReadFile("ai_optimization_prompt.md")
+func (o *Optimizer) OptimizeMeal(m *database.Meal) (*database.Meal, error) {
+	fileContent, err := utils.ReadFile(AI_OPTIMIZATION_PROMPT)
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +112,7 @@ func (o *MealOptimizer) OptimizeMeal(m database.Meal) (*database.Meal, error) {
 	promptScheme := string(fileContent)
 	prompt := os.Expand(promptScheme, func(key string) string {
 		switch key {
-		case "MEAL_INGREDIENTS":
+		case MEAL_INGREDIENTS:
 			return MealToString(m)
 		}
 		return os.Getenv(key)
@@ -104,7 +121,7 @@ func (o *MealOptimizer) OptimizeMeal(m database.Meal) (*database.Meal, error) {
 	res, _ := o.AIClient.ExecutePrompt(prompt, nil)
 	logging.Global.Tracef("AI response:\n%s", res)
 
-	fileContent, err = utils.ReadFile("ai_get_optimized_ingredients_prompt.md")
+	fileContent, err = utils.ReadFile(AI_GET_OPTIMIZED_MEAL_PROMPT)
 	if err != nil {
 		return nil, err
 	}
@@ -112,13 +129,19 @@ func (o *MealOptimizer) OptimizeMeal(m database.Meal) (*database.Meal, error) {
 	promptScheme = string(fileContent)
 	prompt = os.Expand(promptScheme, func(key string) string {
 		switch key {
-		case "OPTIMIZATION_ANSWER":
+		case OPTIMIZATION_ANSWER:
 			return res
 		}
 		return os.Getenv(key)
 	})
 	res, _ = o.AIClient.ExecutePrompt(prompt, ProdsInMealResponse{})
 	logging.Global.Tracef("AI response:\n%s", res)
-
-	return nil, nil
+	var prodsInMealResponse ProdsInMealResponse
+	err = json.Unmarshal([]byte(res), &prodsInMealResponse)
+	if err != nil {
+		logging.Global.Panicf("Error unmarshaling AI response: %v", err)
+	}
+	prodsInMealResponse.UpdateProductsInMeal(m.ProductsInMeal)
+	logging.Global.Debugf("Updated products in meal: %v", prodsInMealResponse)
+	return m, nil
 }
