@@ -1,5 +1,17 @@
 package main
 
+/*
+TODO:DODAĆ TESTY W POSTMANIE:
+ - update potrawy - czy updatują sie produkty?
+TODO: dodać crud, dto, repo dla kategorii
+TODO: dodać api dla optymalizacji potraw - kalorycznosc zmienna
+TODO: dodać crud, dto, repo dla produktów wolnych w dniu
+TODO: zwracac w responsie potraw w dniu całkowite makro
+TODO: dodać endpoint do wydruku, niech przesyła pdfa
+TODO: jwt, autoryzacja uwierzytelnianie
+TODO: stworzyc gotowego maina, zeby byl wystawialny w prosty sposób
+*/
+
 import (
 	"nourishment_20/internal/AIClient"
 	"nourishment_20/internal/api"
@@ -28,6 +40,12 @@ func StartMealServer() {
 	r.POST("/mealsinday", api.CreateMealInDay)
 	r.PUT("/mealsinday", api.UpdateMealInDay)
 	r.DELETE("/mealsinday/:id", api.DeleteMealInDay)
+
+	r.GET("/products", api.GetProducts)
+	r.GET("/products/:id", api.GetProduct)
+	r.POST("/products", api.CreateProduct)
+	r.PUT("/products", api.UpdateProduct)
+	r.DELETE("/products/:id", api.DeleteProduct)
 
 	r.Run(":8080") // [AI REFACTOR] nasłuch na porcie 8080
 }
@@ -58,7 +76,8 @@ func main() {
 
 	mealsRepo = &database.FirebirdRepoAccess{DbEngine: engine}
 
-	_, err = mealOptimizer.OptimizeMeal(mealsRepo.GetMeal(15))
+	meal := mealsRepo.GetMeal(15)
+	_, err = mealOptimizer.OptimizeMeal(&meal)
 	if err != nil {
 		log.Global.Panicf("Error optimizing meal: %v", err)
 	}

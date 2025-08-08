@@ -103,10 +103,10 @@ func MealToString(m *database.Meal) string {
 	return strings.Join(prodsInMealStr, "\n")
 }
 
-func (o *Optimizer) OptimizeMeal(m *database.Meal) (*database.Meal, error) {
+func (o *Optimizer) executePromptForOptimizingMeal(m *database.Meal) (*string, bool) {
 	fileContent, err := utils.ReadFile(AI_OPTIMIZATION_PROMPT)
 	if err != nil {
-		return nil, err
+		return nil, false
 	}
 	logging.Global.Tracef("Read file content:\n%s", fileContent)
 	promptScheme := string(fileContent)
@@ -118,26 +118,43 @@ func (o *Optimizer) OptimizeMeal(m *database.Meal) (*database.Meal, error) {
 		return os.Getenv(key)
 	})
 	logging.Global.Tracef("Optimizing prompt:\n%s", prompt)
-	res, _ := o.AIClient.ExecutePrompt(prompt, nil)
+	res, succ := o.AIClient.ExecutePrompt(prompt, nil)
 	logging.Global.Tracef("AI response:\n%s", res)
+	return &res, succ
+}
 
-	fileContent, err = utils.ReadFile(AI_GET_OPTIMIZED_MEAL_PROMPT)
+func (o *Optimizer) executePromptForRetrivingOptimizedMealValues(a *string) (*string, bool) {
+	fileContent, err := utils.ReadFile(AI_GET_OPTIMIZED_MEAL_PROMPT)
 	if err != nil {
-		return nil, err
+		return nil, false
 	}
 	logging.Global.Tracef("Read file content:\n%s", fileContent)
-	promptScheme = string(fileContent)
-	prompt = os.Expand(promptScheme, func(key string) string {
+	promptScheme := string(fileContent)
+	prompt := os.Expand(promptScheme, func(key string) string {
 		switch key {
 		case OPTIMIZATION_ANSWER:
-			return res
+			return *a
 		}
 		return os.Getenv(key)
 	})
-	res, _ = o.AIClient.ExecutePrompt(prompt, ProdsInMealResponse{})
+	res, succ := o.AIClient.ExecutePrompt(prompt, ProdsInMealResponse{})
 	logging.Global.Tracef("AI response:\n%s", res)
+	return &res, succ
+}
+
+func (o *Optimizer) OptimizeMeal(m *database.Meal) (*database.Meal, error) {
+	res, _ := o.executePromptForOptimizingMeal(m)
+	if res == nil {
+		logging.Global.Panicf("Error while executing prompt for optimizing meal. Meal:%v/n", m)
+	}
+
+	prodsInMealString, _ := o.executePromptForRetrivingOptimizedMealValues(res)
+	if res == nil {
+		logging.Global.Panicf("Error while executing prompt to retrive optimized values from AI response. Response: %v\n", res)
+	}
+
 	var prodsInMealResponse ProdsInMealResponse
-	err = json.Unmarshal([]byte(res), &prodsInMealResponse)
+	err := json.Unmarshal([]byte(*prodsInMealString), &prodsInMealResponse)
 	if err != nil {
 		logging.Global.Panicf("Error unmarshaling AI response: %v", err)
 	}

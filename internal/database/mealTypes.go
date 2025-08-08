@@ -70,7 +70,6 @@ type MealInDay struct {
 }
 
 // [API GEN] Interfejs MealsInDayRepo
-// TODO interfejs powinien zwracac obiekty niebazodanowe
 type MealsInDayRepo interface {
 	CreateMealsInDay(m *MealInDay) int64
 	GetMealsInDay(id int) MealInDay
