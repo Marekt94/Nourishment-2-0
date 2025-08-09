@@ -5,9 +5,10 @@ TODO:DODAĆ TESTY W POSTMANIE:
  - update potrawy - czy updatują sie produkty?
 TODO: dodać crud, dto, repo dla kategorii
 TODO: dodać api dla optymalizacji potraw - kalorycznosc zmienna
-TODO: dodać crud, dto, repo dla produktów wolnych w dniu
+DONE: dodać crud, dto, repo dla produktów wolnych w dniu
+TODO: testy dla luźnych produktów w dniu
 TODO: zwracac w responsie potraw w dniu całkowite makro
-TODO: dodać endpoint do wydruku, niech przesyła pdfa
+TODO: dodać endpoint do wydruku, niech przesyła pdfa (albo w markdown)
 TODO: jwt, autoryzacja uwierzytelnianie
 TODO: stworzyc gotowego maina, zeby byl wystawialny w prosty sposób
 */
