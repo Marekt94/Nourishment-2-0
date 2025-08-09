@@ -23,35 +23,51 @@ func (p *LooseProductsInDayDb) ConvertToLooseProductInDay() LooseProductInDay {
 	return product
 }
 
-func returnLooseProductFields(p *LooseProductsInDayDb) (*sql.NullInt64, *sql.NullInt64, *sql.NullInt64, *sql.NullString,
-	*sql.NullFloat64, *sql.NullFloat64, *sql.NullFloat64, *sql.NullFloat64, *sql.NullFloat64,
-	*sql.NullFloat64, *sql.NullFloat64, *sql.NullFloat64, *sql.NullFloat64, *sql.NullString,
-	*sql.NullInt64, *sql.NullString) {
-	return &p.Id, &p.DayId, &p.Product.Id, &p.Product.Name, &p.Product.KcalPer100,
-		&p.Product.UnitWeight, &p.Product.Proteins, &p.Product.Fat, &p.Product.Sugar,
-		&p.Product.Carbohydrates, &p.Product.SugarAndCarbo, &p.Product.Fiber, &p.Weight,
-		&p.Product.Unit, &p.Product.Category.Id, &p.Product.Category.Name
+func returnLooseProductFields(p *LooseProductsInDayDb) (
+	*sql.NullInt64, // pld.ID
+	*sql.NullInt64, // pld.ID_DNIA
+	*sql.NullFloat64, // pld.ILOSC_W_G (weight)
+	*sql.NullInt64, // p.ID
+	*sql.NullString, // p.NAZWA
+	*sql.NullFloat64, // p.KCAL_NA_100G
+	*sql.NullFloat64, // p.WAGA_JEDNOSTKI
+	*sql.NullFloat64, // p.BIALKO
+	*sql.NullFloat64, // p.TLUSZCZ
+	*sql.NullFloat64, // p.CUKRY_PROSTE
+	*sql.NullFloat64, // p.CUKRY_ZLOZONE
+	*sql.NullFloat64, // p.CUKRY_SUMA
+	*sql.NullFloat64, // p.BLONNIK
+	*sql.NullFloat64, // p.SOL
+	*sql.NullString, // p.JEDNOSTKA
+	*sql.NullInt64, // c.ID
+	*sql.NullString, // c.NAZWA_KATEGORII
+) {
+	return &p.Id, &p.DayId, &p.Weight,
+		&p.Product.Id, &p.Product.Name, &p.Product.KcalPer100, &p.Product.UnitWeight, &p.Product.Proteins,
+		&p.Product.Fat, &p.Product.Sugar, &p.Product.Carbohydrates, &p.Product.SugarAndCarbo, &p.Product.Fiber,
+		&p.Product.Salt, &p.Product.Unit, &p.Product.Category.Id, &p.Product.Category.Name
 }
 
 func (repo *FirebirdRepoAccess) CreateLooseProductInDay(p *LooseProductInDay) int64 {
-	sql := fmt.Sprintf(`INSERT INTO %s (%s, %s, %s) VALUES (?, ?, ?)`,
+	// Use RETURNING to reliably capture the newly inserted ID
+	query := fmt.Sprintf(`INSERT INTO %s (%s, %s, %s) VALUES (?, ?, ?) RETURNING %s`,
 		LOOSE_PRODUCTS_IN_DAY_TAB,
 		LOOSE_PRODUCTS_IN_DAY_DAY_ID,
 		LOOSE_PRODUCTS_IN_DAY_PRODUCT_ID,
-		LOOSE_PRODUCTS_IN_DAY_WEIGHT)
-	if _, err := repo.DbEngine.Exec(sql, p.DayId, p.Product.Id, p.Weight); err != nil {
+		LOOSE_PRODUCTS_IN_DAY_WEIGHT,
+		LOOSE_PRODUCTS_IN_DAY_ID)
+	var id int64
+	if err := repo.DbEngine.QueryRow(query, p.DayId, p.Product.Id, p.Weight).Scan(&id); err != nil {
 		logging.Global.Panicf("%v", err)
-	} else {
-		query := fmt.Sprintf(`SELECT MAX(%s) FROM %s`, LOOSE_PRODUCTS_IN_DAY_ID, LOOSE_PRODUCTS_IN_DAY_TAB)
-		repo.DbEngine.QueryRow(query).Scan(&p.Id)
-		return int64(p.Id)
+		return -1
 	}
-	return -1
+	p.Id = int(id)
+	return id
 }
 
 func (repo *FirebirdRepoAccess) GetLooseProductInDay(id int) LooseProductInDay {
 	sqlStr := generateGetLooseProductsQuery()
-	sqlStr = fmt.Sprintf(sqlStr+` WHERE pld.ID = ?`, id)
+	sqlStr = fmt.Sprintf("%s WHERE pld.ID = ?", sqlStr)
 	logging.Global.Debugf("SQL: %s", sqlStr)
 
 	row := repo.DbEngine.QueryRow(sqlStr, id)
@@ -65,7 +81,7 @@ func (repo *FirebirdRepoAccess) GetLooseProductInDay(id int) LooseProductInDay {
 func (repo *FirebirdRepoAccess) GetLooseProductsInDay(dayId int) []LooseProductInDay {
 	var products []LooseProductInDay
 	sqlStr := generateGetLooseProductsQuery()
-	sqlStr = fmt.Sprintf(sqlStr + ` WHERE pld.ID_DNIA = ?`)
+	sqlStr = fmt.Sprintf("%s WHERE pld.ID_DNIA = ?", sqlStr)
 	logging.Global.Debugf("SQL: %s", sqlStr)
 
 	rows, err := repo.DbEngine.Query(sqlStr, dayId)
