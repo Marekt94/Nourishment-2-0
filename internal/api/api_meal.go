@@ -135,3 +135,134 @@ func DeleteMealInDay(c *gin.Context) {
 		c.Status(http.StatusNotFound)
 	}
 }
+
+// CRUD dla Products
+func GetProduct(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	repo := getRepo().(db.ProductsRepo)
+	product := repo.GetProduct(id)
+	if product.Id == 0 {
+		c.Status(http.StatusNotFound)
+		return
+	}
+	c.IndentedJSON(http.StatusOK, product)
+}
+
+func GetProducts(c *gin.Context) {
+	repo := getRepo().(db.ProductsRepo)
+	products := repo.GetProducts()
+	c.IndentedJSON(http.StatusOK, products)
+}
+
+func CreateProduct(c *gin.Context) {
+	repo := getRepo().(db.ProductsRepo)
+	var p db.Product
+	if err := c.ShouldBindJSON(&p); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	id := repo.CreateProduct(&p)
+	if id <= 0 {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "CreateProduct failed"})
+		return
+	}
+	c.IndentedJSON(http.StatusOK, gin.H{"id": id})
+}
+
+func UpdateProduct(c *gin.Context) {
+	repo := getRepo().(db.ProductsRepo)
+	var p db.Product
+	if err := c.ShouldBindJSON(&p); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	repo.UpdateProduct(&p)
+	c.Status(http.StatusOK)
+}
+
+func DeleteProduct(c *gin.Context) {
+	repo := getRepo().(db.ProductsRepo)
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	ok := repo.DeleteProduct(id)
+	if ok {
+		c.Status(http.StatusOK)
+	} else {
+		c.Status(http.StatusNotFound)
+	}
+}
+
+// CRUD dla LooseProductInDay
+func GetLooseProductInDay(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	repo := getRepo().(db.LooseProductsInDayRepo)
+	product := repo.GetLooseProductInDay(id)
+	if product.Id == 0 {
+		c.Status(http.StatusNotFound)
+		return
+	}
+	c.IndentedJSON(http.StatusOK, product)
+}
+
+func GetLooseProductsInDay(c *gin.Context) {
+	dayId, err := strconv.Atoi(c.Param("dayId"))
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	repo := getRepo().(db.LooseProductsInDayRepo)
+	products := repo.GetLooseProductsInDay(dayId)
+	c.IndentedJSON(http.StatusOK, products)
+}
+
+func CreateLooseProductInDay(c *gin.Context) {
+	repo := getRepo().(db.LooseProductsInDayRepo)
+	var p db.LooseProductInDay
+	if err := c.ShouldBindJSON(&p); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	id := repo.CreateLooseProductInDay(&p)
+	if id <= 0 {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "CreateLooseProductInDay failed"})
+		return
+	}
+	c.IndentedJSON(http.StatusOK, gin.H{"id": id})
+}
+
+func UpdateLooseProductInDay(c *gin.Context) {
+	repo := getRepo().(db.LooseProductsInDayRepo)
+	var p db.LooseProductInDay
+	if err := c.ShouldBindJSON(&p); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	repo.UpdateLooseProductInDay(&p)
+	c.Status(http.StatusOK)
+}
+
+func DeleteLooseProductInDay(c *gin.Context) {
+	repo := getRepo().(db.LooseProductsInDayRepo)
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	ok := repo.DeleteLooseProductInDay(id)
+	if ok {
+		c.Status(http.StatusOK)
+	} else {
+		c.Status(http.StatusNotFound)
+	}
+}

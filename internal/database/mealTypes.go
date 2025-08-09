@@ -77,3 +77,20 @@ type MealsInDayRepo interface {
 	DeleteMealsInDay(id int) bool
 	UpdateMealsInDay(m *MealInDay)
 }
+
+// LooseProductInDay reprezentuje pojedynczy produkt w dniu (tabela PRODUKTY_LUZNE_W_DNIU)
+type LooseProductInDay struct {
+	Id      int     `json:"id"`
+	DayId   int     `json:"dayId"`   // ID_DNIA
+	Product Product `json:"product"` // ID_PRODUKTU jako relacja
+	Weight  float64 `json:"weight"`  // ILOSC_W_G
+}
+
+// Interfejs do operacji na luźnych produktach w dniu
+type LooseProductsInDayRepo interface {
+	CreateLooseProductInDay(p *LooseProductInDay) int64
+	GetLooseProductInDay(id int) LooseProductInDay
+	GetLooseProductsInDay(dayId int) []LooseProductInDay
+	DeleteLooseProductInDay(id int) bool
+	UpdateLooseProductInDay(p *LooseProductInDay)
+}
