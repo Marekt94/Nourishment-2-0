@@ -47,6 +47,12 @@ func StartMealServer() {
 	r.PUT("/products", api.UpdateProduct)
 	r.DELETE("/products/:id", api.DeleteProduct)
 
+	r.GET("/looseproductsinday", api.GetLooseProductsInDay)
+	r.GET("/looseproductsinday/:id", api.GetLooseProductInDay)
+	r.POST("/looseproductsinday", api.CreateLooseProductInDay)
+	r.PUT("/looseproductsinday", api.UpdateLooseProductInDay)
+	r.DELETE("/looseproductsinday/:id", api.DeleteLooseProductInDay)
+
 	r.Run(":8080") // [AI REFACTOR] nasłuch na porcie 8080
 }
 
