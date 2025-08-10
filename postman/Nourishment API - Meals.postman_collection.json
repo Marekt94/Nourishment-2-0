@@ -15,13 +15,9 @@
         "url": {
           "raw": "{{http}}://{{ip}}:{{port}}/meals",
           "protocol": "{{http}}",
-          "host": [
-            "{{ip}}"
-          ],
+          "host": ["{{ip}}"],
           "port": "{{port}}",
-          "path": [
-            "meals"
-          ]
+          "path": ["meals"]
         }
       },
       "response": []
@@ -34,14 +30,9 @@
         "url": {
           "raw": "{{http}}://{{ip}}:{{port}}/meals/{{id}}",
           "protocol": "{{http}}",
-          "host": [
-            "{{ip}}"
-          ],
+          "host": ["{{ip}}"],
           "port": "{{port}}",
-          "path": [
-            "meals",
-            "{{id}}"
-          ]
+          "path": ["meals", "{{id}}"]
         }
       },
       "response": []
@@ -52,9 +43,7 @@
         {
           "listen": "test",
           "script": {
-            "exec": [
-              "pm.environment.set(\"id\", pm.response.json().id);"
-            ],
+            "exec": ["pm.environment.set(\"id\", pm.response.json().id);"],
             "type": "text/javascript",
             "packages": {}
           }
@@ -75,13 +64,9 @@
         "url": {
           "raw": "{{http}}://{{ip}}:{{port}}/meals",
           "protocol": "{{http}}",
-          "host": [
-            "{{ip}}"
-          ],
+          "host": ["{{ip}}"],
           "port": "{{port}}",
-          "path": [
-            "meals"
-          ]
+          "path": ["meals"]
         }
       },
       "response": []
@@ -103,13 +88,9 @@
         "url": {
           "raw": "{{http}}://{{ip}}:{{port}}/meals",
           "protocol": "{{http}}",
-          "host": [
-            "{{ip}}"
-          ],
+          "host": ["{{ip}}"],
           "port": "{{port}}",
-          "path": [
-            "meals"
-          ]
+          "path": ["meals"]
         }
       },
       "response": []
@@ -122,66 +103,50 @@
         "url": {
           "raw": "{{http}}://{{ip}}:{{port}}/meals/{{id}}",
           "protocol": "{{http}}",
-          "host": [
-            "{{ip}}"
-          ],
+          "host": ["{{ip}}"],
           "port": "{{port}}",
-          "path": [
-            "meals",
-            "{{id}}"
-          ]
+          "path": ["meals", "{{id}}"]
         }
       },
       "response": []
     },
     {
-      "name": "Get all mealsInDay",
+      "name": "Get categories",
       "request": {
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{http}}://{{ip}}:{{port}}/mealsinday",
+          "raw": "{{http}}://{{ip}}:{{port}}/categories",
           "protocol": "{{http}}",
-          "host": [
-            "{{ip}}"
-          ],
+          "host": ["{{ip}}"],
           "port": "{{port}}",
-          "path": [
-            "mealsinday"
-          ]
+          "path": ["categories"]
         }
       },
       "response": []
     },
     {
-      "name": "Get mealsInDay by ID",
+      "name": "Get category by ID",
       "request": {
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{http}}://{{ip}}:{{port}}/mealsinday/{{mealsInDayId}}",
+          "raw": "{{http}}://{{ip}}:{{port}}/categories/{{categoryId}}",
           "protocol": "{{http}}",
-          "host": [
-            "{{ip}}"
-          ],
+          "host": ["{{ip}}"],
           "port": "{{port}}",
-          "path": [
-            "mealsinday",
-            "{{mealsInDayId}}"
-          ]
+          "path": ["categories", "{{categoryId}}"]
         }
       },
       "response": []
     },
     {
-      "name": "Create mealsInDay",
+      "name": "Create category",
       "event": [
         {
           "listen": "test",
           "script": {
-            "exec": [
-              "pm.environment.set(\"mealsInDayId\", pm.response.json().id);"
-            ],
+            "exec": ["pm.environment.set(\"categoryId\", pm.response.json().id);"],
             "type": "text/javascript"
           }
         }
@@ -196,24 +161,20 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"name\": \"Test day\",\n  \"for5Days\": true,\n  \"factorBreakfast\": 1.0,\n  \"factorSecondBreakfast\": 1.0,\n  \"factorLunch\": 1.0,\n  \"factorDinner\": 1.0,\n  \"factorSupper\": 1.0,\n  \"factorAfternoonSnack\": 1.0,\n  \"breakfast\": {\"id\": 1},\n  \"secondBreakfast\": {\"id\": 1},\n  \"lunch\": {\"id\": 1},\n  \"dinner\": {\"id\": 1},\n  \"supper\": {\"id\": 1},\n  \"afternoonSnack\": {\"id\": 1}\n}"
+          "raw": "{\n  \"name\": \"Postman test category\"\n}"
         },
         "url": {
-          "raw": "{{http}}://{{ip}}:{{port}}/mealsinday",
+          "raw": "{{http}}://{{ip}}:{{port}}/categories",
           "protocol": "{{http}}",
-          "host": [
-            "{{ip}}"
-          ],
+          "host": ["{{ip}}"],
           "port": "{{port}}",
-          "path": [
-            "mealsinday"
-          ]
+          "path": ["categories"]
         }
       },
       "response": []
     },
     {
-      "name": "Update mealsInDay",
+      "name": "Update category",
       "request": {
         "method": "PUT",
         "header": [
@@ -224,38 +185,29 @@
         ],
         "body": {
           "mode": "raw",
-          "raw": "{\n  \"id\": {{mealsInDayId}},\n  \"name\": \"Zmieniony dzień\",\n  \"for5Days\": false,\n  \"factorBreakfast\": 1.0,\n  \"factorSecondBreakfast\": 1.0,\n  \"factorLunch\": 1.0,\n  \"factorDinner\": 1.0,\n  \"factorSupper\": 1.0,\n  \"factorAfternoonSnack\": 1.0,\n  \"breakfast\": {\"id\": 1},\n  \"secondBreakfast\": {\"id\": 1},\n  \"lunch\": {\"id\": 1},\n  \"dinner\": {\"id\": 1},\n  \"supper\": {\"id\": 1},\n  \"afternoonSnack\": {\"id\": 1}\n}"
+          "raw": "{\n  \"id\": {{categoryId}},\n  \"name\": \"Postman category updated\"\n}"
         },
         "url": {
-          "raw": "{{http}}://{{ip}}:{{port}}/mealsinday",
+          "raw": "{{http}}://{{ip}}:{{port}}/categories",
           "protocol": "{{http}}",
-          "host": [
-            "{{ip}}"
-          ],
+          "host": ["{{ip}}"],
           "port": "{{port}}",
-          "path": [
-            "mealsinday"
-          ]
+          "path": ["categories"]
         }
       },
       "response": []
     },
     {
-      "name": "Delete mealsInDay",
+      "name": "Delete category",
       "request": {
         "method": "DELETE",
         "header": [],
         "url": {
-          "raw": "{{http}}://{{ip}}:{{port}}/mealsinday/{{mealsInDayId}}",
+          "raw": "{{http}}://{{ip}}:{{port}}/categories/{{categoryId}}",
           "protocol": "{{http}}",
-          "host": [
-            "{{ip}}"
-          ],
+          "host": ["{{ip}}"],
           "port": "{{port}}",
-          "path": [
-            "mealsinday",
-            "{{mealsInDayId}}"
-          ]
+          "path": ["categories", "{{categoryId}}"]
         }
       },
       "response": []
@@ -268,13 +220,9 @@
         "url": {
           "raw": "{{http}}://{{ip}}:{{port}}/products",
           "protocol": "{{http}}",
-          "host": [
-            "{{ip}}"
-          ],
+          "host": ["{{ip}}"],
           "port": "{{port}}",
-          "path": [
-            "products"
-          ]
+          "path": ["products"]
         }
       },
       "response": []
@@ -287,14 +235,9 @@
         "url": {
           "raw": "{{http}}://{{ip}}:{{port}}/products/{{productId}}",
           "protocol": "{{http}}",
-          "host": [
-            "{{ip}}"
-          ],
+          "host": ["{{ip}}"],
           "port": "{{port}}",
-          "path": [
-            "products",
-            "{{productId}}"
-          ]
+          "path": ["products", "{{productId}}"]
         }
       },
       "response": []
@@ -305,9 +248,7 @@
         {
           "listen": "test",
           "script": {
-            "exec": [
-              "pm.environment.set(\"productId\", pm.response.json().id);"
-            ],
+            "exec": ["pm.environment.set(\"productId\", pm.response.json().id);"],
             "type": "text/javascript"
           }
         }
@@ -327,13 +268,9 @@
         "url": {
           "raw": "{{http}}://{{ip}}:{{port}}/products",
           "protocol": "{{http}}",
-          "host": [
-            "{{ip}}"
-          ],
+          "host": ["{{ip}}"],
           "port": "{{port}}",
-          "path": [
-            "products"
-          ]
+          "path": ["products"]
         }
       },
       "response": []
@@ -355,13 +292,9 @@
         "url": {
           "raw": "{{http}}://{{ip}}:{{port}}/products",
           "protocol": "{{http}}",
-          "host": [
-            "{{ip}}"
-          ],
+          "host": ["{{ip}}"],
           "port": "{{port}}",
-          "path": [
-            "products"
-          ]
+          "path": ["products"]
         }
       },
       "response": []
@@ -374,14 +307,111 @@
         "url": {
           "raw": "{{http}}://{{ip}}:{{port}}/products/{{productId}}",
           "protocol": "{{http}}",
-          "host": [
-            "{{ip}}"
-          ],
+          "host": ["{{ip}}"],
           "port": "{{port}}",
-          "path": [
-            "products",
-            "{{productId}}"
-          ]
+          "path": ["products", "{{productId}}"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get all mealsInDay",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{http}}://{{ip}}:{{port}}/mealsinday",
+          "protocol": "{{http}}",
+          "host": ["{{ip}}"],
+          "port": "{{port}}",
+          "path": ["mealsinday"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get mealsInDay by ID",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{http}}://{{ip}}:{{port}}/mealsinday/{{mealsInDayId}}",
+          "protocol": "{{http}}",
+          "host": ["{{ip}}"],
+          "port": "{{port}}",
+          "path": ["mealsinday", "{{mealsInDayId}}"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create mealsInDay",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": ["pm.environment.set(\"mealsInDayId\", pm.response.json().id);"],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Test day\",\n  \"for5Days\": true,\n  \"factorBreakfast\": 1.0,\n  \"factorSecondBreakfast\": 1.0,\n  \"factorLunch\": 1.0,\n  \"factorDinner\": 1.0,\n  \"factorSupper\": 1.0,\n  \"factorAfternoonSnack\": 1.0,\n  \"breakfast\": {\"id\": 1},\n  \"secondBreakfast\": {\"id\": 1},\n  \"lunch\": {\"id\": 1},\n  \"dinner\": {\"id\": 1},\n  \"supper\": {\"id\": 1},\n  \"afternoonSnack\": {\"id\": 1}\n}"
+        },
+        "url": {
+          "raw": "{{http}}://{{ip}}:{{port}}/mealsinday",
+          "protocol": "{{http}}",
+          "host": ["{{ip}}"],
+          "port": "{{port}}",
+          "path": ["mealsinday"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Update mealsInDay",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id\": {{mealsInDayId}},\n  \"name\": \"Zmieniony dzień\",\n  \"for5Days\": false,\n  \"factorBreakfast\": 1.0,\n  \"factorSecondBreakfast\": 1.0,\n  \"factorLunch\": 1.0,\n  \"factorDinner\": 1.0,\n  \"factorSupper\": 1.0,\n  \"factorAfternoonSnack\": 1.0,\n  \"breakfast\": {\"id\": 1},\n  \"secondBreakfast\": {\"id\": 1},\n  \"lunch\": {\"id\": 1},\n  \"dinner\": {\"id\": 1},\n  \"supper\": {\"id\": 1},\n  \"afternoonSnack\": {\"id\": 1}\n}"
+        },
+        "url": {
+          "raw": "{{http}}://{{ip}}:{{port}}/mealsinday",
+          "protocol": "{{http}}",
+          "host": ["{{ip}}"],
+          "port": "{{port}}",
+          "path": ["mealsinday"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete mealsInDay",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{http}}://{{ip}}:{{port}}/mealsinday/{{mealsInDayId}}",
+          "protocol": "{{http}}",
+          "host": ["{{ip}}"],
+          "port": "{{port}}",
+          "path": ["mealsinday", "{{mealsInDayId}}"]
         }
       },
       "response": []
@@ -394,19 +424,10 @@
         "url": {
           "raw": "{{http}}://{{ip}}:{{port}}/looseproductsinday?dayId={{mealsInDayId}}",
           "protocol": "{{http}}",
-          "host": [
-            "{{ip}}"
-          ],
+          "host": ["{{ip}}"],
           "port": "{{port}}",
-          "path": [
-            "looseproductsinday"
-          ],
-          "query": [
-            {
-              "key": "dayId",
-              "value": "{{mealsInDayId}}"
-            }
-          ]
+          "path": ["looseproductsinday"],
+          "query": [{ "key": "dayId", "value": "{{mealsInDayId}}" }]
         }
       },
       "response": []
@@ -419,14 +440,9 @@
         "url": {
           "raw": "{{http}}://{{ip}}:{{port}}/looseproductsinday/{{looseProductInDayId}}",
           "protocol": "{{http}}",
-          "host": [
-            "{{ip}}"
-          ],
+          "host": ["{{ip}}"],
           "port": "{{port}}",
-          "path": [
-            "looseproductsinday",
-            "{{looseProductInDayId}}"
-          ]
+          "path": ["looseproductsinday", "{{looseProductInDayId}}"]
         }
       },
       "response": []
@@ -437,9 +453,7 @@
         {
           "listen": "test",
           "script": {
-            "exec": [
-              "pm.environment.set(\"looseProductInDayId\", pm.response.json().id);"
-            ],
+            "exec": ["pm.environment.set(\"looseProductInDayId\", pm.response.json().id);"],
             "type": "text/javascript"
           }
         }
@@ -459,13 +473,9 @@
         "url": {
           "raw": "{{http}}://{{ip}}:{{port}}/looseproductsinday",
           "protocol": "{{http}}",
-          "host": [
-            "{{ip}}"
-          ],
+          "host": ["{{ip}}"],
           "port": "{{port}}",
-          "path": [
-            "looseproductsinday"
-          ]
+          "path": ["looseproductsinday"]
         }
       },
       "response": []
@@ -487,13 +497,9 @@
         "url": {
           "raw": "{{http}}://{{ip}}:{{port}}/looseproductsinday",
           "protocol": "{{http}}",
-          "host": [
-            "{{ip}}"
-          ],
+          "host": ["{{ip}}"],
           "port": "{{port}}",
-          "path": [
-            "looseproductsinday"
-          ]
+          "path": ["looseproductsinday"]
         }
       },
       "response": []
@@ -506,14 +512,9 @@
         "url": {
           "raw": "{{http}}://{{ip}}:{{port}}/looseproductsinday/{{looseProductInDayId}}",
           "protocol": "{{http}}",
-          "host": [
-            "{{ip}}"
-          ],
+          "host": ["{{ip}}"],
           "port": "{{port}}",
-          "path": [
-            "looseproductsinday",
-            "{{looseProductInDayId}}"
-          ]
+          "path": ["looseproductsinday", "{{looseProductInDayId}}"]
         }
       },
       "response": []

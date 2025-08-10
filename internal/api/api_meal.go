@@ -216,7 +216,12 @@ func GetLooseProductInDay(c *gin.Context) {
 }
 
 func GetLooseProductsInDay(c *gin.Context) {
-	dayId, err := strconv.Atoi(c.Param("dayId"))
+	dayIdStr := c.Query("dayId")
+	if dayIdStr == "" {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "missing query parameter: dayId"})
+		return
+	}
+	dayId, err := strconv.Atoi(dayIdStr)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -260,6 +265,69 @@ func DeleteLooseProductInDay(c *gin.Context) {
 		return
 	}
 	ok := repo.DeleteLooseProductInDay(id)
+	if ok {
+		c.Status(http.StatusOK)
+	} else {
+		c.Status(http.StatusNotFound)
+	}
+}
+
+// CRUD dla Categories
+func GetCategory(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	repo := getRepo().(db.CategoriesRepo)
+	cat := repo.GetCategory(id)
+	if cat.Id == 0 {
+		c.Status(http.StatusNotFound)
+		return
+	}
+	c.IndentedJSON(http.StatusOK, cat)
+}
+
+func GetCategories(c *gin.Context) {
+	repo := getRepo().(db.CategoriesRepo)
+	cats := repo.GetCategories()
+	c.IndentedJSON(http.StatusOK, cats)
+}
+
+func CreateCategory(c *gin.Context) {
+	repo := getRepo().(db.CategoriesRepo)
+	var cat db.Category
+	if err := c.ShouldBindJSON(&cat); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	id := repo.CreateCategory(&cat)
+	if id <= 0 {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": "CreateCategory failed"})
+		return
+	}
+	c.IndentedJSON(http.StatusOK, gin.H{"id": id})
+}
+
+func UpdateCategory(c *gin.Context) {
+	repo := getRepo().(db.CategoriesRepo)
+	var cat db.Category
+	if err := c.ShouldBindJSON(&cat); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	repo.UpdateCategory(&cat)
+	c.Status(http.StatusOK)
+}
+
+func DeleteCategory(c *gin.Context) {
+	repo := getRepo().(db.CategoriesRepo)
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	ok := repo.DeleteCategory(id)
 	if ok {
 		c.Status(http.StatusOK)
 	} else {

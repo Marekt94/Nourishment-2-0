@@ -23,6 +23,15 @@ type ProductsRepo interface {
 	UpdateProduct(p *Product)
 }
 
+// CategoriesRepo defines CRUD for product categories
+type CategoriesRepo interface {
+	GetCategory(i int) Category
+	GetCategories() []Category
+	CreateCategory(c *Category) int64
+	DeleteCategory(i int) bool
+	UpdateCategory(c *Category)
+}
+
 type Category struct { // [AI REFACTOR]
 	Id   int    `json:"id"`
 	Name string `json:"name"`
