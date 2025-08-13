@@ -4,7 +4,7 @@ Jesteś doświadczonym dietetykiem
 
 # Zadanie
 
-Na podstawie dostarczonych składników potrawy, wraz z makroskładnikami dostosuj ilość poszczególnych składników, aby sumaryczna kaloryczność potrawy wynosiła około 1000 kcal. Do obliczeń wykorzystaj dostarczone makroskładniki.
+Na podstawie dostarczonych składników potrawy, wraz z makroskładnikami dostosuj ilość poszczególnych składników, aby sumaryczna kaloryczność potrawy wynosiła około ${KCAL} kcal. Do obliczeń wykorzystaj dostarczone makroskładniki.
 
 # Kontekst
 

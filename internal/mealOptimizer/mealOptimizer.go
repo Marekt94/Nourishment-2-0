@@ -103,7 +103,7 @@ func MealToString(m *database.Meal) string {
 	return strings.Join(prodsInMealStr, "\n")
 }
 
-func (o *Optimizer) executePromptForOptimizingMeal(m *database.Meal) (*string, bool) {
+func (o *Optimizer) executePromptForOptimizingMeal(m *database.Meal, k float64) (*string, bool) {
 	fileContent, err := utils.ReadFile(AI_OPTIMIZATION_PROMPT)
 	if err != nil {
 		return nil, false
@@ -114,6 +114,8 @@ func (o *Optimizer) executePromptForOptimizingMeal(m *database.Meal) (*string, b
 		switch key {
 		case MEAL_INGREDIENTS:
 			return MealToString(m)
+		case KCAL:
+			return fmt.Sprintf("%.1f", k)
 		}
 		return os.Getenv(key)
 	})
@@ -142,8 +144,8 @@ func (o *Optimizer) executePromptForRetrivingOptimizedMealValues(a *string) (*st
 	return &res, succ
 }
 
-func (o *Optimizer) OptimizeMeal(m *database.Meal) (*database.Meal, error) {
-	res, _ := o.executePromptForOptimizingMeal(m)
+func (o *Optimizer) OptimizeMeal(m *database.Meal, k float64) (*database.Meal, error) {
+	res, _ := o.executePromptForOptimizingMeal(m, k)
 	if res == nil {
 		logging.Global.Panicf("Error while executing prompt for optimizing meal. Meal:%v/n", m)
 	}

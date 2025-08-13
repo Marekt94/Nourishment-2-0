@@ -2,13 +2,18 @@ package api
 
 import (
 	"net/http"
+	"os"
 	"strconv"
 
+	"nourishment_20/internal/AIClient"
 	db "nourishment_20/internal/database"
+	"nourishment_20/internal/logging"
+	"nourishment_20/internal/mealOptimizer"
 
 	"github.com/gin-gonic/gin"
 )
 
+// TODO do refactoringu - trzeba wyciagnac pliki konfiguracyjne wyzej, repo musi byc orzekazywane jako parametr, byc moze do obiektu
 func getRepo() db.MealsRepo { // [AI REFACTOR]
 	conf := db.DBConf{
 		User:       "sysdba",
@@ -19,6 +24,67 @@ func getRepo() db.MealsRepo { // [AI REFACTOR]
 	fDbEngine := db.FBDBEngine{BaseEngineIntf: &db.BaseEngine{}}
 	engine := fDbEngine.Connect(&conf)
 	return &db.FirebirdRepoAccess{DbEngine: engine}
+}
+
+// TODO (ai opmitimizer) do refactoringu - trzeba wyciagnac pliki konfiguracyjne wyzej, repo musi byc orzekazywane jako parametr, byc moze do obiektu
+func getAIClient() *mealOptimizer.Optimizer { // [AI REFACTOR]
+	maxTokens, err := strconv.Atoi(os.Getenv("OPENROUTER_MAX_TOKENS"))
+	if err != nil {
+		logging.Global.Panicf("Error converting OPENROUTER_MAX_TOKENS to int: %v", err)
+	}
+	client := AIClient.OpenRouterClient{
+		ApiKey:    os.Getenv("OPENROUTER_API_KEY"),
+		Model:     os.Getenv("OPENROUTER_MODEL"),
+		MaxTokens: maxTokens,
+	}
+	res := mealOptimizer.Optimizer{AIClient: &client}
+	return &res
+}
+
+func OptimizeMeal(c *gin.Context) {
+	kcalStr := c.Query("kcal")
+	kcal, err := strconv.ParseFloat(kcalStr, 64)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	optimizer := getAIClient() // [AI REFACTOR]
+	var meal db.Meal
+	if err := c.ShouldBindJSON(&meal); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	res, err := optimizer.OptimizeMeal(&meal, kcal)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.IndentedJSON(http.StatusOK, res)
+}
+
+func OptimizeMealFromRepo(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	kcal, err := strconv.ParseFloat(c.Query("kcal"), 64)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	repo := getRepo() // [AI REFACTOR]
+	meal := repo.GetMeal(id)
+	if meal.Id == 0 {
+		c.Status(http.StatusNotFound)
+		return
+	}
+	res, err := getAIClient().OptimizeMeal(&meal, kcal)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.IndentedJSON(http.StatusOK, res)
 }
 
 func GetMeal(c *gin.Context) {

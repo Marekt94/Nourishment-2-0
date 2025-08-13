@@ -3,10 +3,10 @@ package main
 /*
 TODO:DODAĆ TESTY W POSTMANIE:
  - update potrawy - czy updatują sie produkty?
-TODO: dodać crud, dto, repo dla kategorii
+DONE: dodać crud, dto, repo dla kategorii
 TODO: dodać api dla optymalizacji potraw - kalorycznosc zmienna
 DONE: dodać crud, dto, repo dla produktów wolnych w dniu
-TODO: testy dla luźnych produktów w dniu
+DONE: testy dla luźnych produktów w dniu
 TODO: zwracac w responsie potraw w dniu całkowite makro
 TODO: dodać endpoint do wydruku, niech przesyła pdfa (albo w markdown)
 TODO: jwt, autoryzacja uwierzytelnianie
@@ -14,13 +14,8 @@ TODO: stworzyc gotowego maina, zeby byl wystawialny w prosty sposób
 */
 
 import (
-	"nourishment_20/internal/AIClient"
 	"nourishment_20/internal/api"
-	"nourishment_20/internal/database"
 	log "nourishment_20/internal/logging"
-	"nourishment_20/internal/mealOptimizer"
-	"os"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -54,38 +49,48 @@ func StartMealServer() {
 	r.PUT("/looseproductsinday", api.UpdateLooseProductInDay)
 	r.DELETE("/looseproductsinday/:id", api.DeleteLooseProductInDay)
 
+	// Categories endpoints
+	r.GET("/categories", api.GetCategories)
+	r.GET("/categories/:id", api.GetCategory)
+	r.POST("/categories", api.CreateCategory)
+	r.PUT("/categories", api.UpdateCategory)
+	r.DELETE("/categories/:id", api.DeleteCategory)
+
+	r.POST("/optimizemeal", api.OptimizeMeal)
+	r.POST("/optimizemeal/:id", api.OptimizeMealFromRepo)
+
 	r.Run(":8080") // [AI REFACTOR] nasłuch na porcie 8080
 }
 
 func main() {
 	log.SetGlobalLogger(log.NewZerologLogger())
-	// StartMealServer() // [AI REFACTOR] uruchom serwer
 	err := godotenv.Load()
 	if err != nil {
 		log.Global.Panicf("Error loading .env file: %v", err)
 	}
-	maxTokensStr := os.Getenv("OPENROUTER_MAX_TOKENS")
-	maxTokens, err := strconv.Atoi(maxTokensStr)
-	if err != nil {
-		log.Global.Panicf("Error converting OPEROUTER_MAX_TOKENS to int: %v", err)
-	}
-	client := AIClient.OpenRouterClient{ApiKey: os.Getenv("OPENROUTER_API_KEY"), Model: os.Getenv("OPENROUTER_MODEL"), MaxTokens: maxTokens}
-	mealOptimizer := mealOptimizer.Optimizer{AIClient: &client}
+	StartMealServer() // [AI REFACTOR] uruchom serwer
+	// maxTokensStr := os.Getenv("OPENROUTER_MAX_TOKENS")
+	// maxTokens, err := strconv.Atoi(maxTokensStr)
+	// if err != nil {
+	// 	log.Global.Panicf("Error converting OPEROUTER_MAX_TOKENS to int: %v", err)
+	// }
+	// client := AIClient.OpenRouterClient{ApiKey: os.Getenv("OPENROUTER_API_KEY"), Model: os.Getenv("OPENROUTER_MODEL"), MaxTokens: maxTokens}
+	// mealOptimizer := mealOptimizer.Optimizer{AIClient: &client}
 
-	var conf database.DBConf
-	conf.User = `sysdba`
-	conf.Password = `masterkey`
-	conf.Address = `localhost:3050`
-	conf.PathOrName = `C:\Users\marek\Documents\nourishment_backup_db\NOURISHMENT.FDB`
-	fDbEngine := database.FBDBEngine{BaseEngineIntf: &database.BaseEngine{}}
-	engine := fDbEngine.Connect(&conf)
-	var mealsRepo database.MealsRepo
+	// var conf database.DBConf
+	// conf.User = `sysdba`
+	// conf.Password = `masterkey`
+	// conf.Address = `localhost:3050`
+	// conf.PathOrName = `C:\Users\marek\Documents\nourishment_backup_db\NOURISHMENT.FDB`
+	// fDbEngine := database.FBDBEngine{BaseEngineIntf: &database.BaseEngine{}}
+	// engine := fDbEngine.Connect(&conf)
+	// var mealsRepo database.MealsRepo
 
-	mealsRepo = &database.FirebirdRepoAccess{DbEngine: engine}
+	// mealsRepo = &database.FirebirdRepoAccess{DbEngine: engine}
 
-	meal := mealsRepo.GetMeal(15)
-	_, err = mealOptimizer.OptimizeMeal(&meal)
-	if err != nil {
-		log.Global.Panicf("Error optimizing meal: %v", err)
-	}
+	// meal := mealsRepo.GetMeal(15)
+	// _, err = mealOptimizer.OptimizeMeal(&meal)
+	// if err != nil {
+	// 	log.Global.Panicf("Error optimizing meal: %v", err)
+	// }
 }
