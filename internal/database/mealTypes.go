@@ -1,6 +1,6 @@
 package database
 
-type MealsRepo interface {
+type MealsRepoIntf interface {
 	GetMeal(i int) Meal
 	GetMeals() []Meal
 	DeleteMeal(i int) bool

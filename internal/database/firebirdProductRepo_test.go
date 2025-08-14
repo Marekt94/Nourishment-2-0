@@ -15,7 +15,7 @@ func initProductRepo() ProductsRepo {
 
 	engine := fDbEngine.Connect(&conf)
 
-	return &FirebirdRepoAccess{DbEngine: engine}
+	return &FirebirdRepoAccess{Database: engine}
 }
 
 func createProduct() Product { // [API GEN]
@@ -25,32 +25,32 @@ func createProduct() Product { // [API GEN]
 	prod.Id = i
 	return prod
 }
-func TestCreateProduct(t *testing.T){
-	prod := createProduct(); 
-	if prod.Id <= 0{
+func TestCreateProduct(t *testing.T) {
+	prod := createProduct()
+	if prod.Id <= 0 {
 		t.Error(`no product created`)
 	}
-	if prod.Name != TEST_PROD_NAME{
+	if prod.Name != TEST_PROD_NAME {
 		t.Error(`wrong name in created product`)
 	}
 }
 func TestGetProduct(t *testing.T) {
-	repo := initProductRepo();
+	repo := initProductRepo()
 	prod := repo.GetProduct(1)
-	if (prod.Id != 1) {
+	if prod.Id != 1 {
 		t.Error(`fail to get product`)
 	}
 }
 
 func TestGetProduct_WhenNoProductFound(t *testing.T) {
-	repo := initProductRepo();
+	repo := initProductRepo()
 	prod := repo.GetProduct(100000)
-	if ((prod.Id != 0) || (prod.Name != ``)) {
+	if (prod.Id != 0) || (prod.Name != ``) {
 		t.Error(`fail to get product`)
 	}
 }
 
-func TestGetProducts(t * testing.T){
+func TestGetProducts(t *testing.T) {
 	repo := initProductRepo()
 	prods := repo.GetProducts()
 	t.Logf(`products count: %d`, len(prods))
@@ -59,25 +59,25 @@ func TestGetProducts(t * testing.T){
 	}
 }
 
-func TestDeleteProduct(t *testing.T){
-	repo := initProductRepo();
-	prod := createProduct();
+func TestDeleteProduct(t *testing.T) {
+	repo := initProductRepo()
+	prod := createProduct()
 	res := repo.DeleteProduct(prod.Id)
 	if !res {
 		t.Errorf(`product with id %d not deleted`, prod.Id)
 	}
 }
 
-func TestUpdateProduct(t* testing.T){
+func TestUpdateProduct(t *testing.T) {
 	newName := `after update`
 	newFiber := 1994
-	repo := initProductRepo();
+	repo := initProductRepo()
 	prod := createProduct()
 	prod.Name = newName
 	prod.Fiber = float64(newFiber)
 	repo.UpdateProduct(&prod)
 	res := repo.GetProduct(prod.Id)
-	if (res.Name != newName) || (res.Fiber != float64(newFiber)){
+	if (res.Name != newName) || (res.Fiber != float64(newFiber)) {
 		t.Error(`product not updated`)
 	}
 }

@@ -1,6 +1,9 @@
 package logging
 
-import "fmt"
+import (
+	"fmt"
+	"io"
+)
 
 // Global is the global logger instance for the project.
 var Global Logger = &dummyLogger{}
@@ -22,6 +25,9 @@ func (d *dummyLogger) Warnf(format string, args ...interface{}) {
 }
 func (d *dummyLogger) Panicf(format string, args ...interface{}) {
 	fmt.Println("[dummyLogger] Logger not initialized: PANIC:", fmt.Sprintf(format, args...))
+}
+func (d *dummyLogger) Writer() io.Writer {
+	return getLogWriter()
 }
 
 // SetGlobalLogger allows to set the global logger instance (for reuse in other projects)

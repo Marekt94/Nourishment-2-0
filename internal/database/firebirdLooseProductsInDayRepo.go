@@ -57,7 +57,7 @@ func (repo *FirebirdRepoAccess) CreateLooseProductInDay(p *LooseProductInDay) in
 		LOOSE_PRODUCTS_IN_DAY_WEIGHT,
 		LOOSE_PRODUCTS_IN_DAY_ID)
 	var id int64
-	if err := repo.DbEngine.QueryRow(query, p.DayId, p.Product.Id, p.Weight).Scan(&id); err != nil {
+	if err := repo.Database.QueryRow(query, p.DayId, p.Product.Id, p.Weight).Scan(&id); err != nil {
 		logging.Global.Panicf("%v", err)
 		return -1
 	}
@@ -70,7 +70,7 @@ func (repo *FirebirdRepoAccess) GetLooseProductInDay(id int) LooseProductInDay {
 	sqlStr = fmt.Sprintf("%s WHERE pld.ID = ?", sqlStr)
 	logging.Global.Debugf("SQL: %s", sqlStr)
 
-	row := repo.DbEngine.QueryRow(sqlStr, id)
+	row := repo.Database.QueryRow(sqlStr, id)
 	var product LooseProductsInDayDb
 	if err := row.Scan(returnLooseProductFields(&product)); err != nil {
 		logging.Global.Panicf("%v", err)
@@ -84,7 +84,7 @@ func (repo *FirebirdRepoAccess) GetLooseProductsInDay(dayId int) []LooseProductI
 	sqlStr = fmt.Sprintf("%s WHERE pld.ID_DNIA = ?", sqlStr)
 	logging.Global.Debugf("SQL: %s", sqlStr)
 
-	rows, err := repo.DbEngine.Query(sqlStr, dayId)
+	rows, err := repo.Database.Query(sqlStr, dayId)
 	if err != nil {
 		logging.Global.Panicf("%v", err)
 	}
@@ -105,17 +105,17 @@ func (repo *FirebirdRepoAccess) UpdateLooseProductInDay(p *LooseProductInDay) {
 		LOOSE_PRODUCTS_IN_DAY_PRODUCT_ID,
 		LOOSE_PRODUCTS_IN_DAY_WEIGHT,
 		LOOSE_PRODUCTS_IN_DAY_ID)
-	if _, err := repo.DbEngine.Exec(sql, p.DayId, p.Product.Id, p.Weight, p.Id); err != nil {
+	if _, err := repo.Database.Exec(sql, p.DayId, p.Product.Id, p.Weight, p.Id); err != nil {
 		logging.Global.Panicf("%v", err)
 	}
 }
 
 func (repo *FirebirdRepoAccess) DeleteLooseProductInDay(id int) bool {
-	if _, err := repo.DbEngine.Exec(fmt.Sprintf(`DELETE FROM %s WHERE %s = ?`,
+	if _, err := repo.Database.Exec(fmt.Sprintf(`DELETE FROM %s WHERE %s = ?`,
 		LOOSE_PRODUCTS_IN_DAY_TAB, LOOSE_PRODUCTS_IN_DAY_ID), id); err != nil {
 		logging.Global.Panicf("%v", err)
 	}
-	row := repo.DbEngine.QueryRow(fmt.Sprintf(`SELECT %s FROM %s WHERE %s = ?`,
+	row := repo.Database.QueryRow(fmt.Sprintf(`SELECT %s FROM %s WHERE %s = ?`,
 		LOOSE_PRODUCTS_IN_DAY_ID, LOOSE_PRODUCTS_IN_DAY_TAB, LOOSE_PRODUCTS_IN_DAY_ID), id)
 	var checkId int
 	return row.Scan(&checkId) == sql.ErrNoRows

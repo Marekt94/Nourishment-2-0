@@ -6,27 +6,27 @@ import (
 
 func createTestMealInDay(repo MealsInDayRepo) (MealInDay, int) {
 	mealApi := Meal{Name: "test meal", Recipe: "przepis"}
-	mealsRepo, ok := interface{}(repo).(MealsRepo)
+	mealsRepo, ok := interface{}(repo).(MealsRepoIntf)
 	if !ok {
 		panic("MealsInDayRepo does not support MealsRepo interface")
 	}
 	mealId := mealsRepo.CreateMeal(&mealApi)
 	mealApi.Id = int(mealId)
 	mealInDay := MealInDay{
-		Breakfast: mealApi,
-		SecondBreakfast: mealApi,
-		Lunch: mealApi,
-		Dinner: mealApi,
-		Supper: mealApi,
-		AfternoonSnack: mealApi,
-		For5Days: true,
-		FactorBreakfast: 1.0,
+		Breakfast:             mealApi,
+		SecondBreakfast:       mealApi,
+		Lunch:                 mealApi,
+		Dinner:                mealApi,
+		Supper:                mealApi,
+		AfternoonSnack:        mealApi,
+		For5Days:              true,
+		FactorBreakfast:       1.0,
 		FactorSecondBreakfast: 1.0,
-		FactorLunch: 1.0,
-		FactorDinner: 1.0,
-		FactorSupper: 1.0,
-		FactorAfternoonSnack: 1.0,
-		Name: "test day",
+		FactorLunch:           1.0,
+		FactorDinner:          1.0,
+		FactorSupper:          1.0,
+		FactorAfternoonSnack:  1.0,
+		Name:                  "test day",
 	}
 	id := repo.CreateMealsInDay(&mealInDay)
 	return mealInDay, int(id)
@@ -87,5 +87,5 @@ func initMealsInDayRepo() MealsInDayRepo {
 
 	fDbEngine := FBDBEngine{BaseEngineIntf: &BaseEngine{}}
 	engine := fDbEngine.Connect(&conf)
-	return &FirebirdRepoAccess{DbEngine: engine}
+	return &FirebirdRepoAccess{Database: engine}
 }

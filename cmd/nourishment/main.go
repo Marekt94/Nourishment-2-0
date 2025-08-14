@@ -14,8 +14,15 @@ TODO: stworzyc gotowego maina, zeby byl wystawialny w prosty sposób
 */
 
 import (
+	"fmt"
+	"os"
+	"strconv"
+
+	"nourishment_20/internal/AIClient"
 	"nourishment_20/internal/api"
+	db "nourishment_20/internal/database"
 	log "nourishment_20/internal/logging"
+	"nourishment_20/internal/mealOptimizer"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -23,43 +30,78 @@ import (
 
 // [AI REFACTOR] Tworzenie i uruchamianie serwera HTTP na porcie 8080
 func StartMealServer() {
+	// Utworzenie instancji repo
+	DbEngine := db.FBDBEngine{BaseEngineIntf: &db.BaseEngine{}}
+
+	conf := db.DBConf{
+		User:       os.Getenv("DB_USER"),
+		Password:   os.Getenv("DB_PASSWORD"),
+		Address:    os.Getenv("DB_ADDRESS"),
+		PathOrName: os.Getenv("DB_NAME"),
+	}
+	database := DbEngine.Connect(&conf)
+
+	repo := &db.FirebirdRepoAccess{Database: database}
+
+	// Utworzenie instancji AI Client
+	maxTokens, err := strconv.Atoi(os.Getenv("OPENROUTER_MAX_TOKENS"))
+	if err != nil {
+		log.Global.Panicf("Error converting OPENROUTER_MAX_TOKENS to int: %v", err)
+	}
+	client := AIClient.OpenRouterClient{
+		ApiKey:    os.Getenv("OPENROUTER_API_KEY"),
+		Model:     os.Getenv("OPENROUTER_MODEL"),
+		MaxTokens: maxTokens,
+	}
+	aiOptimizer := mealOptimizer.Optimizer{AIClient: &client}
+
+	// Utworzenie instancji MealServer
+	mealServer := &api.MealServer{
+		Repo:     repo,
+		AIClient: aiOptimizer,
+	}
+
 	r := gin.Default()
 
-	r.GET("/meals", api.GetMeals)
-	r.GET("/meals/:id", api.GetMeal)
-	r.POST("/meals", api.CreateMeal)
-	r.PUT("/meals", api.UpdateMeal)
-	r.DELETE("/meals/:id", api.DeleteMeal)
+	// Podpięcie zerologa do gin
+	gin.DefaultWriter = log.Global.Writer()
+	gin.DefaultErrorWriter = log.Global.Writer()
 
-	r.GET("/mealsinday", api.GetMealsInDay)
-	r.GET("/mealsinday/:id", api.GetMealInDay)
-	r.POST("/mealsinday", api.CreateMealInDay)
-	r.PUT("/mealsinday", api.UpdateMealInDay)
-	r.DELETE("/mealsinday/:id", api.DeleteMealInDay)
+	r.GET("/meals", mealServer.GetMeals)
+	r.GET("/meals/:id", mealServer.GetMeal)
+	r.POST("/meals", mealServer.CreateMeal)
+	r.PUT("/meals", mealServer.UpdateMeal)
+	r.DELETE("/meals/:id", mealServer.DeleteMeal)
 
-	r.GET("/products", api.GetProducts)
-	r.GET("/products/:id", api.GetProduct)
-	r.POST("/products", api.CreateProduct)
-	r.PUT("/products", api.UpdateProduct)
-	r.DELETE("/products/:id", api.DeleteProduct)
+	r.GET("/mealsinday", mealServer.GetMealsInDay)
+	r.GET("/mealsinday/:id", mealServer.GetMealInDay)
+	r.POST("/mealsinday", mealServer.CreateMealInDay)
+	r.PUT("/mealsinday", mealServer.UpdateMealInDay)
+	r.DELETE("/mealsinday/:id", mealServer.DeleteMealInDay)
 
-	r.GET("/looseproductsinday", api.GetLooseProductsInDay)
-	r.GET("/looseproductsinday/:id", api.GetLooseProductInDay)
-	r.POST("/looseproductsinday", api.CreateLooseProductInDay)
-	r.PUT("/looseproductsinday", api.UpdateLooseProductInDay)
-	r.DELETE("/looseproductsinday/:id", api.DeleteLooseProductInDay)
+	r.GET("/products", mealServer.GetProducts)
+	r.GET("/products/:id", mealServer.GetProduct)
+	r.POST("/products", mealServer.CreateProduct)
+	r.PUT("/products", mealServer.UpdateProduct)
+	r.DELETE("/products/:id", mealServer.DeleteProduct)
+
+	r.GET("/looseproductsinday", mealServer.GetLooseProductsInDay)
+	r.GET("/looseproductsinday/:id", mealServer.GetLooseProductInDay)
+	r.POST("/looseproductsinday", mealServer.CreateLooseProductInDay)
+	r.PUT("/looseproductsinday", mealServer.UpdateLooseProductInDay)
+	r.DELETE("/looseproductsinday/:id", mealServer.DeleteLooseProductInDay)
 
 	// Categories endpoints
-	r.GET("/categories", api.GetCategories)
-	r.GET("/categories/:id", api.GetCategory)
-	r.POST("/categories", api.CreateCategory)
-	r.PUT("/categories", api.UpdateCategory)
-	r.DELETE("/categories/:id", api.DeleteCategory)
+	r.GET("/categories", mealServer.GetCategories)
+	r.GET("/categories/:id", mealServer.GetCategory)
+	r.POST("/categories", mealServer.CreateCategory)
+	r.PUT("/categories", mealServer.UpdateCategory)
+	r.DELETE("/categories/:id", mealServer.DeleteCategory)
 
-	r.POST("/optimizemeal", api.OptimizeMeal)
-	r.POST("/optimizemeal/:id", api.OptimizeMealFromRepo)
+	r.POST("/optimizemeal", mealServer.OptimizeMeal)
+	r.POST("/optimizemeal/:id", mealServer.OptimizeMealFromRepo)
 
-	r.Run(":8080") // [AI REFACTOR] nasłuch na porcie 8080
+	r.Run(fmt.Sprintf(":%s", os.Getenv("SERVER_PORT")))
 }
 
 func main() {
@@ -69,28 +111,4 @@ func main() {
 		log.Global.Panicf("Error loading .env file: %v", err)
 	}
 	StartMealServer() // [AI REFACTOR] uruchom serwer
-	// maxTokensStr := os.Getenv("OPENROUTER_MAX_TOKENS")
-	// maxTokens, err := strconv.Atoi(maxTokensStr)
-	// if err != nil {
-	// 	log.Global.Panicf("Error converting OPEROUTER_MAX_TOKENS to int: %v", err)
-	// }
-	// client := AIClient.OpenRouterClient{ApiKey: os.Getenv("OPENROUTER_API_KEY"), Model: os.Getenv("OPENROUTER_MODEL"), MaxTokens: maxTokens}
-	// mealOptimizer := mealOptimizer.Optimizer{AIClient: &client}
-
-	// var conf database.DBConf
-	// conf.User = `sysdba`
-	// conf.Password = `masterkey`
-	// conf.Address = `localhost:3050`
-	// conf.PathOrName = `C:\Users\marek\Documents\nourishment_backup_db\NOURISHMENT.FDB`
-	// fDbEngine := database.FBDBEngine{BaseEngineIntf: &database.BaseEngine{}}
-	// engine := fDbEngine.Connect(&conf)
-	// var mealsRepo database.MealsRepo
-
-	// mealsRepo = &database.FirebirdRepoAccess{DbEngine: engine}
-
-	// meal := mealsRepo.GetMeal(15)
-	// _, err = mealOptimizer.OptimizeMeal(&meal)
-	// if err != nil {
-	// 	log.Global.Panicf("Error optimizing meal: %v", err)
-	// }
 }

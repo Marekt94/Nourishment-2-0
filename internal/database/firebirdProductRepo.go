@@ -82,7 +82,7 @@ func (mr *FirebirdRepoAccess) GetProduct(i int) Product { // [AI REFACTOR]
 	sql := mr.createSQLForProducts()
 	sql = sql + ` WHERE ` + productSQLPrefix + `.ID = ?`
 
-	row, err := mr.DbEngine.Query(sql, i)
+	row, err := mr.Database.Query(sql, i)
 	if err != nil {
 		logging.Global.Panicf("%v", err)
 	}
@@ -97,7 +97,7 @@ func (mr *FirebirdRepoAccess) GetProducts() []Product { // [AI REFACTOR]
 	prods := []Product{} // [AI REFACTOR]
 
 	sql := mr.createSQLForProducts()
-	rows, err := mr.DbEngine.Query(sql)
+	rows, err := mr.Database.Query(sql)
 	if err != nil {
 		logging.Global.Panicf("%v", err)
 	}
@@ -111,12 +111,12 @@ func (mr *FirebirdRepoAccess) GetProducts() []Product { // [AI REFACTOR]
 func (mr *FirebirdRepoAccess) CreateProduct(p *Product) int64 { // [AI REFACTOR]
 	insertTabs := append(ProductTabs[1:], PRODUCT_CATEGORY)
 	sql := fmt.Sprintf(`INSERT INTO %s (%s) VALUES (%s)`, PRODUCT_TAB, strings.Join(insertTabs[:], `, `), QuestionMarks(len(insertTabs)))
-	if _, err := mr.DbEngine.Exec(sql, &p.Name, &p.KcalPer100, &p.UnitWeight, &p.Proteins, &p.Fat, &p.Sugar, &p.Carbohydrates,
+	if _, err := mr.Database.Exec(sql, &p.Name, &p.KcalPer100, &p.UnitWeight, &p.Proteins, &p.Fat, &p.Sugar, &p.Carbohydrates,
 		&p.SugarAndCarbo, &p.Fiber, &p.Salt, &p.Unit, &p.Category.Id); err != nil {
 		logging.Global.Panicf("%v", err)
 	} else {
 		var id int
-		err := mr.DbEngine.QueryRow(`SELECT MAX(` + PRODUCT_ID + `) FROM ` + PRODUCT_TAB).Scan(&id)
+		err := mr.Database.QueryRow(`SELECT MAX(` + PRODUCT_ID + `) FROM ` + PRODUCT_TAB).Scan(&id)
 		if err != nil {
 			logging.Global.Panicf("%v", err)
 		}
@@ -126,10 +126,10 @@ func (mr *FirebirdRepoAccess) CreateProduct(p *Product) int64 { // [AI REFACTOR]
 }
 
 func (mr *FirebirdRepoAccess) DeleteProduct(i int) bool {
-	if _, err := mr.DbEngine.Exec(`DELETE FROM `+PRODUCT_TAB+` WHERE ID = ?`, i); err != nil {
+	if _, err := mr.Database.Exec(`DELETE FROM `+PRODUCT_TAB+` WHERE ID = ?`, i); err != nil {
 		logging.Global.Panicf("%v", err)
 	}
-	row, err := mr.DbEngine.Query(`SELECT ID FROM `+PRODUCT_TAB+` WHERE ID = ?`, i)
+	row, err := mr.Database.Query(`SELECT ID FROM `+PRODUCT_TAB+` WHERE ID = ?`, i)
 	if err != nil {
 		logging.Global.Panicf("%v", err)
 	}
@@ -138,7 +138,7 @@ func (mr *FirebirdRepoAccess) DeleteProduct(i int) bool {
 
 func (mr *FirebirdRepoAccess) UpdateProduct(p *Product) { // [AI REFACTOR]
 	sql := fmt.Sprintf(`UPDATE %s SET %s WHERE ID=?`, PRODUCT_TAB, UpdateValues(append(ProductTabs[1:], PRODUCT_CATEGORY)))
-	_, err := mr.DbEngine.Exec(sql, &p.Name, &p.KcalPer100, &p.UnitWeight, &p.Proteins, &p.Fat, &p.Sugar, &p.Carbohydrates,
+	_, err := mr.Database.Exec(sql, &p.Name, &p.KcalPer100, &p.UnitWeight, &p.Proteins, &p.Fat, &p.Sugar, &p.Carbohydrates,
 		&p.SugarAndCarbo, &p.Fiber, &p.Salt, &p.Unit, &p.Category.Id, &p.Id)
 	if err != nil {
 		logging.Global.Panicf("%v", err)

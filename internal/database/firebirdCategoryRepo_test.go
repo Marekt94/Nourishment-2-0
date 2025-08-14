@@ -13,7 +13,7 @@ func initCategoryRepo() CategoriesRepo {
 
 	fDbEngine := FBDBEngine{BaseEngineIntf: &BaseEngine{}}
 	engine := fDbEngine.Connect(&conf)
-	return &FirebirdRepoAccess{DbEngine: engine}
+	return &FirebirdRepoAccess{Database: engine}
 }
 
 func createCategory() Category {

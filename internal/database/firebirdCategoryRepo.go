@@ -21,7 +21,7 @@ func (c *categoryDb) ConvertToCategory(out *Category) {
 func (mr *FirebirdRepoAccess) GetCategory(i int) Category {
 	var c Category
 	sqlStr := fmt.Sprintf("SELECT %s, %s FROM %s WHERE %s = ?", CATEGORY_ID, CATEGORY_NAME, CATEGORY_TAB, CATEGORY_ID)
-	row := mr.DbEngine.QueryRow(sqlStr, i)
+	row := mr.Database.QueryRow(sqlStr, i)
 	var dbRow categoryDb
 	if err := row.Scan(&dbRow.Id, &dbRow.Name); err == nil {
 		dbRow.ConvertToCategory(&c)
@@ -33,7 +33,7 @@ func (mr *FirebirdRepoAccess) GetCategory(i int) Category {
 
 func (mr *FirebirdRepoAccess) GetCategories() []Category {
 	sqlStr := fmt.Sprintf("SELECT %s, %s FROM %s ORDER BY %s", CATEGORY_ID, CATEGORY_NAME, CATEGORY_TAB, CATEGORY_ID)
-	rows, err := mr.DbEngine.Query(sqlStr)
+	rows, err := mr.Database.Query(sqlStr)
 	if err != nil {
 		logging.Global.Panicf("%v", err)
 	}
@@ -53,12 +53,12 @@ func (mr *FirebirdRepoAccess) GetCategories() []Category {
 
 func (mr *FirebirdRepoAccess) CreateCategory(c *Category) int64 {
 	sqlStr := fmt.Sprintf("INSERT INTO %s (%s) VALUES (?)", CATEGORY_TAB, CATEGORY_NAME)
-	if _, err := mr.DbEngine.Exec(sqlStr, &c.Name); err != nil {
+	if _, err := mr.Database.Exec(sqlStr, &c.Name); err != nil {
 		logging.Global.Panicf("%v", err)
 		return -1
 	}
 	var id int64
-	if err := mr.DbEngine.QueryRow(fmt.Sprintf("SELECT MAX(%s) FROM %s", CATEGORY_ID, CATEGORY_TAB)).Scan(&id); err != nil {
+	if err := mr.Database.QueryRow(fmt.Sprintf("SELECT MAX(%s) FROM %s", CATEGORY_ID, CATEGORY_TAB)).Scan(&id); err != nil {
 		logging.Global.Panicf("%v", err)
 		return -1
 	}
@@ -67,17 +67,17 @@ func (mr *FirebirdRepoAccess) CreateCategory(c *Category) int64 {
 }
 
 func (mr *FirebirdRepoAccess) DeleteCategory(i int) bool {
-	if _, err := mr.DbEngine.Exec("DELETE FROM "+CATEGORY_TAB+" WHERE "+CATEGORY_ID+" = ?", i); err != nil {
+	if _, err := mr.Database.Exec("DELETE FROM "+CATEGORY_TAB+" WHERE "+CATEGORY_ID+" = ?", i); err != nil {
 		logging.Global.Panicf("%v", err)
 	}
-	row := mr.DbEngine.QueryRow("SELECT "+CATEGORY_ID+" FROM "+CATEGORY_TAB+" WHERE "+CATEGORY_ID+" = ?", i)
+	row := mr.Database.QueryRow("SELECT "+CATEGORY_ID+" FROM "+CATEGORY_TAB+" WHERE "+CATEGORY_ID+" = ?", i)
 	var check int
 	return row.Scan(&check) == sql.ErrNoRows
 }
 
 func (mr *FirebirdRepoAccess) UpdateCategory(c *Category) {
 	sqlStr := fmt.Sprintf("UPDATE %s SET %s=? WHERE %s=?", CATEGORY_TAB, strings.Join([]string{CATEGORY_NAME}, ", "), CATEGORY_ID)
-	if _, err := mr.DbEngine.Exec(sqlStr, &c.Name, &c.Id); err != nil {
+	if _, err := mr.Database.Exec(sqlStr, &c.Name, &c.Id); err != nil {
 		logging.Global.Panicf("%v", err)
 	}
 }

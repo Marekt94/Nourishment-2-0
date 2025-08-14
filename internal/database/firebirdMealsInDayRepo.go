@@ -17,23 +17,22 @@ var cols = []string{
 }
 
 type MealInDayDb struct { // [API GEN]
-	Id sql.NullInt64
-	BreakfastId sql.NullInt64
-	SecondBreakfastId sql.NullInt64
-	LunchId sql.NullInt64
-	DinnerId sql.NullInt64
-	SupperId sql.NullInt64
-	AfternoonSnackId sql.NullInt64
-	For5Days sql.NullString // CHAR(1) '1' lub '0'
-	FactorBreakfast sql.NullFloat64
+	Id                    sql.NullInt64
+	BreakfastId           sql.NullInt64
+	SecondBreakfastId     sql.NullInt64
+	LunchId               sql.NullInt64
+	DinnerId              sql.NullInt64
+	SupperId              sql.NullInt64
+	AfternoonSnackId      sql.NullInt64
+	For5Days              sql.NullString // CHAR(1) '1' lub '0'
+	FactorBreakfast       sql.NullFloat64
 	FactorSecondBreakfast sql.NullFloat64
-	FactorLunch sql.NullFloat64
-	FactorDinner sql.NullFloat64
-	FactorSupper sql.NullFloat64
-	FactorAfternoonSnack sql.NullFloat64
-	Name sql.NullString
+	FactorLunch           sql.NullFloat64
+	FactorDinner          sql.NullFloat64
+	FactorSupper          sql.NullFloat64
+	FactorAfternoonSnack  sql.NullFloat64
+	Name                  sql.NullString
 }
-
 
 func (mr *FirebirdRepoAccess) CreateMealsInDay(m *MealInDay) int64 {
 	mealIds := []int{m.Breakfast.Id, m.SecondBreakfast.Id, m.Lunch.Id, m.Dinner.Id, m.Supper.Id, m.AfternoonSnack.Id}
@@ -48,7 +47,7 @@ func (mr *FirebirdRepoAccess) CreateMealsInDay(m *MealInDay) int64 {
 	if m.For5Days {
 		for5DaysChar.String = "1"
 	}
-	_, err := mr.DbEngine.Exec(sqlStr,
+	_, err := mr.Database.Exec(sqlStr,
 		m.Breakfast.Id, m.SecondBreakfast.Id, m.Lunch.Id, m.Dinner.Id, m.Supper.Id, m.AfternoonSnack.Id,
 		for5DaysChar, m.FactorBreakfast, m.FactorSecondBreakfast, m.FactorLunch, m.FactorDinner, m.FactorSupper,
 		m.FactorAfternoonSnack, m.Name)
@@ -57,7 +56,7 @@ func (mr *FirebirdRepoAccess) CreateMealsInDay(m *MealInDay) int64 {
 		return -1
 	}
 	var id int64
-	err = mr.DbEngine.QueryRow(fmt.Sprintf("SELECT MAX(%s) FROM %s", MEAL_IN_DAY_ID, MEAL_IN_DAY_TAB)).Scan(&id)
+	err = mr.Database.QueryRow(fmt.Sprintf("SELECT MAX(%s) FROM %s", MEAL_IN_DAY_ID, MEAL_IN_DAY_TAB)).Scan(&id)
 	if err != nil {
 		logging.Global.Debugf("CreateMealInDay get id error: %v", err)
 		return -1
@@ -66,23 +65,23 @@ func (mr *FirebirdRepoAccess) CreateMealsInDay(m *MealInDay) int64 {
 	return id
 }
 
-func (mr *FirebirdRepoAccess) ConvertMealsInDayDbToMealsInDay(m *MealInDayDb) MealInDay {	
+func (mr *FirebirdRepoAccess) ConvertMealsInDayDbToMealsInDay(m *MealInDayDb) MealInDay {
 	mealInDay := MealInDay{
-		Id: int(m.Id.Int64),
-		For5Days: m.For5Days.String == "1",
-		FactorBreakfast: m.FactorBreakfast.Float64,
+		Id:                    int(m.Id.Int64),
+		For5Days:              m.For5Days.String == "1",
+		FactorBreakfast:       m.FactorBreakfast.Float64,
 		FactorSecondBreakfast: m.FactorSecondBreakfast.Float64,
-		FactorLunch: m.FactorLunch.Float64,
-		FactorDinner: m.FactorDinner.Float64,
-		FactorSupper: m.FactorSupper.Float64,
-		FactorAfternoonSnack: m.FactorAfternoonSnack.Float64,
-		Name: m.Name.String,
+		FactorLunch:           m.FactorLunch.Float64,
+		FactorDinner:          m.FactorDinner.Float64,
+		FactorSupper:          m.FactorSupper.Float64,
+		FactorAfternoonSnack:  m.FactorAfternoonSnack.Float64,
+		Name:                  m.Name.String,
 	}
 	if m.BreakfastId.Valid {
 		mealInDay.Breakfast = mr.GetMeal(int(m.BreakfastId.Int64))
 	}
 	if m.SecondBreakfastId.Valid {
-		mealInDay.SecondBreakfast = mr.GetMeal(int(m.SecondBreakfastId.Int64))	
+		mealInDay.SecondBreakfast = mr.GetMeal(int(m.SecondBreakfastId.Int64))
 	}
 	if m.LunchId.Valid {
 		mealInDay.Lunch = mr.GetMeal(int(m.LunchId.Int64))
@@ -100,11 +99,11 @@ func (mr *FirebirdRepoAccess) ConvertMealsInDayDbToMealsInDay(m *MealInDayDb) Me
 }
 
 func returnMealsInDayDbFieldsToRetriveFromDb(m *MealInDayDb) (*sql.NullInt64, *sql.NullInt64, *sql.NullInt64,
-		*sql.NullInt64, *sql.NullInt64, *sql.NullInt64, *sql.NullInt64, *sql.NullString, *sql.NullFloat64,
-		*sql.NullFloat64, *sql.NullFloat64, *sql.NullFloat64, *sql.NullFloat64, *sql.NullFloat64, *sql.NullString) {
+	*sql.NullInt64, *sql.NullInt64, *sql.NullInt64, *sql.NullInt64, *sql.NullString, *sql.NullFloat64,
+	*sql.NullFloat64, *sql.NullFloat64, *sql.NullFloat64, *sql.NullFloat64, *sql.NullFloat64, *sql.NullString) {
 	return &m.Id, &m.BreakfastId, &m.SecondBreakfastId, &m.LunchId, &m.DinnerId, &m.SupperId, &m.AfternoonSnackId,
-		   &m.For5Days, &m.FactorBreakfast, &m.FactorSecondBreakfast, &m.FactorLunch, &m.FactorDinner, &m.FactorSupper,
-		   &m.FactorAfternoonSnack, &m.Name
+		&m.For5Days, &m.FactorBreakfast, &m.FactorSecondBreakfast, &m.FactorLunch, &m.FactorDinner, &m.FactorSupper,
+		&m.FactorAfternoonSnack, &m.Name
 }
 
 func (mr *FirebirdRepoAccess) GetMealsInDay(id int) MealInDay {
@@ -113,7 +112,7 @@ func (mr *FirebirdRepoAccess) GetMealsInDay(id int) MealInDay {
 		MEAL_IN_DAY_FOR_5_DAYS, MEAL_IN_DAY_FACTOR_BREAKFAST, MEAL_IN_DAY_FACTOR_SECOND_BREAKFAST, MEAL_IN_DAY_FACTOR_LUNCH, MEAL_IN_DAY_FACTOR_DINNER, MEAL_IN_DAY_FACTOR_SUPPER, MEAL_IN_DAY_FACTOR_AFTERNOON_SNACK, MEAL_IN_DAY_NAME,
 	}
 	sqlStr := fmt.Sprintf("SELECT %s FROM %s WHERE %s = ?", strings.Join(cols, ", "), MEAL_IN_DAY_TAB, MEAL_IN_DAY_ID)
-	row := mr.DbEngine.QueryRow(sqlStr, id)
+	row := mr.Database.QueryRow(sqlStr, id)
 	var m MealInDayDb
 	err := row.Scan(returnMealsInDayDbFieldsToRetriveFromDb(&m))
 	if err != nil {
@@ -129,7 +128,7 @@ func (mr *FirebirdRepoAccess) GetMealsInDays() []MealInDay {
 		MEAL_IN_DAY_FOR_5_DAYS, MEAL_IN_DAY_FACTOR_BREAKFAST, MEAL_IN_DAY_FACTOR_SECOND_BREAKFAST, MEAL_IN_DAY_FACTOR_LUNCH, MEAL_IN_DAY_FACTOR_DINNER, MEAL_IN_DAY_FACTOR_SUPPER, MEAL_IN_DAY_FACTOR_AFTERNOON_SNACK, MEAL_IN_DAY_NAME,
 	}
 	sqlStr := fmt.Sprintf("SELECT %s FROM %s ORDER BY %s ASC", strings.Join(cols, ", "), MEAL_IN_DAY_TAB, MEAL_IN_DAY_ID)
-	rows, err := mr.DbEngine.Query(sqlStr)
+	rows, err := mr.Database.Query(sqlStr)
 	if err != nil {
 		logging.Global.Debugf("GetMealsInDay error: %v", err)
 		return nil
@@ -150,7 +149,7 @@ func (mr *FirebirdRepoAccess) GetMealsInDays() []MealInDay {
 
 func (mr *FirebirdRepoAccess) DeleteMealsInDay(id int) bool {
 	sqlStr := fmt.Sprintf("DELETE FROM %s WHERE %s = ?", MEAL_IN_DAY_TAB, MEAL_IN_DAY_ID)
-	_, err := mr.DbEngine.Exec(sqlStr, id)
+	_, err := mr.Database.Exec(sqlStr, id)
 	if err != nil {
 		logging.Global.Debugf("DeleteMealInDay error: %v", err)
 		return false
@@ -164,7 +163,7 @@ func (mr *FirebirdRepoAccess) UpdateMealsInDay(m *MealInDay) {
 	if m.For5Days {
 		for5DaysChar.String = "1"
 	}
-	_, err := mr.DbEngine.Exec(sqlStr,
+	_, err := mr.Database.Exec(sqlStr,
 		m.Breakfast.Id, m.SecondBreakfast.Id, m.Lunch.Id, m.Dinner.Id, m.Supper.Id, m.AfternoonSnack.Id,
 		for5DaysChar, m.FactorBreakfast, m.FactorSecondBreakfast, m.FactorLunch, m.FactorDinner, m.FactorSupper,
 		m.FactorAfternoonSnack, m.Name, m.Id)

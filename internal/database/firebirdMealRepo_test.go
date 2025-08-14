@@ -8,7 +8,7 @@ import (
 const PROD_NAME_1 = `test prod 1`
 const PROD_NAME_2 = `test prod 2`
 
-func initMealRepo() MealsRepo {
+func initMealRepo() MealsRepoIntf {
 	var conf DBConf
 	conf.User = `sysdba`
 	conf.Password = `masterkey`
@@ -19,7 +19,7 @@ func initMealRepo() MealsRepo {
 
 	engine := fDbEngine.Connect(&conf)
 
-	return &FirebirdRepoAccess{DbEngine: engine}
+	return &FirebirdRepoAccess{Database: engine}
 }
 
 func createMeal() Meal { // [API GEN]
@@ -27,14 +27,14 @@ func createMeal() Meal { // [API GEN]
 	products := []ProductInMeal{
 		ProductInMeal{
 			Product: Product{
-				Name: PROD_NAME_1,
+				Name:     PROD_NAME_1,
 				Proteins: 12,
 			},
 			Weight: 12,
 		},
 		ProductInMeal{
 			Product: Product{
-				Name: PROD_NAME_2,
+				Name:     PROD_NAME_2,
 				Proteins: 15,
 			},
 			Weight: 12,
@@ -48,30 +48,30 @@ func createMeal() Meal { // [API GEN]
 
 func TestGetMeals(t *testing.T) {
 	repo := initMealRepo()
-	meals := repo.GetMeals();
+	meals := repo.GetMeals()
 	if len(meals) < 1 {
 		t.Error(`Meals list is empty`)
-	}		
-	if len(meals[0].ProductsInMeal) == 0{
+	}
+	if len(meals[0].ProductsInMeal) == 0 {
 		t.Error(`products in meals not retrived`)
 	}
 }
 
 func TestGetMeal(t *testing.T) {
 	repo := initMealRepo()
-	meal := repo.GetMeal(1);
-	if len(meal.ProductsInMeal) < 1{
+	meal := repo.GetMeal(1)
+	if len(meal.ProductsInMeal) < 1 {
 		t.Error(`products in meal not retrived`)
 	}
 }
 
-func TestCreateMeal(t *testing.T){
+func TestCreateMeal(t *testing.T) {
 	var meal Meal // [AI REFACTOR]
 	if meal = createMeal(); meal.Id < 0 {
 		t.Error(`meal creation error`)
 	}
 
-	repo := initMealRepo();
+	repo := initMealRepo()
 	mealRetrived := repo.GetMeal(meal.Id)
 	if len(mealRetrived.ProductsInMeal) != 2 {
 		t.Error(`products in meal not saved`)
@@ -81,61 +81,61 @@ func TestCreateMeal(t *testing.T){
 	}
 }
 
-func TestDeleteMeal(t *testing.T){
+func TestDeleteMeal(t *testing.T) {
 	meal := createMeal()
 	repo := initMealRepo()
 
-	if !repo.DeleteMeal(meal.Id){
+	if !repo.DeleteMeal(meal.Id) {
 		t.Errorf("meal with id: %d not deleted\n", meal.Id)
 	}
 }
 
-func TestUpdateMeal(t *testing.T){
+func TestUpdateMeal(t *testing.T) {
 	prodNameAfterUpdate := `product after update name`
-	meal := createMeal();
+	meal := createMeal()
 	repo := initMealRepo()
 
 	meal.Name = `test name after update`
 	meal.ProductsInMeal[0].Product.Name = prodNameAfterUpdate
-	repo.UpdateMeal(&meal);
+	repo.UpdateMeal(&meal)
 
 	res := repo.GetMeal(meal.Id)
 	if res.Name != meal.Name {
 		t.Errorf(`meal with id %d not updated`, res.Id)
 	}
-	var res2 bool = false;
-	for _, prod := range meal.ProductsInMeal{
-		res2 = res2 || (prod.Product.Name == prodNameAfterUpdate) 
+	var res2 bool = false
+	for _, prod := range meal.ProductsInMeal {
+		res2 = res2 || (prod.Product.Name == prodNameAfterUpdate)
 	}
 	if !res2 {
 		t.Errorf(`product in meal not updated`)
 	}
 }
 
-func TestUpdateMealWhenOneDeletedAndOneAdded(t *testing.T){
+func TestUpdateMealWhenOneDeletedAndOneAdded(t *testing.T) {
 	const prodName3 = `test prod 3`
 	meal := createMeal()
 	repo := initMealRepo()
 	newProd := ProductInMeal{Product: Product{Name: prodName3, Proteins: 31}} // [API GEN]
 	meal.ProductsInMeal = append(meal.ProductsInMeal, newProd)
 	idToDel := -1
-	for i, prod := range meal.ProductsInMeal{
-		if prod.Product.Name == PROD_NAME_2{
+	for i, prod := range meal.ProductsInMeal {
+		if prod.Product.Name == PROD_NAME_2 {
 			idToDel = i
 			break
 		}
 	}
-	if idToDel == -1{
+	if idToDel == -1 {
 		t.Error(`init data error`)
 	}
 	meal.ProductsInMeal = append(meal.ProductsInMeal[:idToDel], meal.ProductsInMeal[idToDel+1:]...)
 	t.Log(meal.ProductsInMeal)
-	
+
 	repo.UpdateMeal(&meal)
 	resMeal := repo.GetMeal(meal.Id)
 
 	res := false
-	for _, prod := range resMeal.ProductsInMeal{
+	for _, prod := range resMeal.ProductsInMeal {
 		res = res || (prod.Product.Name == prodName3)
 	}
 	if !res {
@@ -143,19 +143,19 @@ func TestUpdateMealWhenOneDeletedAndOneAdded(t *testing.T){
 	}
 
 	res = true
-	for _, prod := range resMeal.ProductsInMeal{
+	for _, prod := range resMeal.ProductsInMeal {
 		res = res && (prod.Product.Name != PROD_NAME_2)
 	}
 	if !res {
 		t.Error(`product not deleted`)
 	}
 
-	if len(resMeal.ProductsInMeal) != 2{
+	if len(resMeal.ProductsInMeal) != 2 {
 		t.Error(`product number mismatch`)
 	}
 }
 
-func TestUpdateProductInMeal(t *testing.T){
+func TestUpdateProductInMeal(t *testing.T) {
 	repo := initMealRepo()
 	meal := createMeal()
 
@@ -164,29 +164,29 @@ func TestUpdateProductInMeal(t *testing.T){
 
 	res := repo.GetMeal(meal.Id)
 	resTemp := false
-	for _, prodInMeal := range res.ProductsInMeal{
+	for _, prodInMeal := range res.ProductsInMeal {
 		resTemp = prodInMeal.Product.Name == `product name after update`
 		if resTemp {
 			break
 		}
 	}
-	if !resTemp{
+	if !resTemp {
 		t.Error(`product not updated`)
 	}
 }
 
-func TestConvertToMealWhenMealsDBEmpty(t *testing.T){
-	mealsDB := []MealDb{};
+func TestConvertToMealWhenMealsDBEmpty(t *testing.T) {
+	mealsDB := []MealDb{}
 	meals := ConvertToMeals(mealsDB)
 	if meals != nil {
 		t.Error(`meal should be empty`)
 	}
 }
 
-func TestConvertToMealWhenMealsDBWithOneMeal(t *testing.T){
+func TestConvertToMealWhenMealsDBWithOneMeal(t *testing.T) {
 	mealDB := []MealDb{MealDb{Name: sql.NullString{String: `meal_1`, Valid: true}, // [AI REFACTOR]
 		ProductInMeal: productInMealDb{Id: sql.NullInt64{Int64: 412, Valid: true}, // [AI REFACTOR]
-			Weight: sql.NullFloat64{Float64: 100, Valid: true}, // [AI REFACTOR]
+			Weight:  sql.NullFloat64{Float64: 100, Valid: true},                            // [AI REFACTOR]
 			Product: productDb{Name: sql.NullString{String: `test_prod_1`, Valid: true}}}}} // [AI REFACTOR]
 	meals := ConvertToMeals(mealDB)
 	if len(meals) != 1 {
@@ -197,7 +197,7 @@ func TestConvertToMealWhenMealsDBWithOneMeal(t *testing.T){
 	}
 }
 
-func TestConvertToMealWhenNoProducts(t *testing.T){
+func TestConvertToMealWhenNoProducts(t *testing.T) {
 	mealDB := []MealDb{MealDb{Name: sql.NullString{String: `meal_1`, Valid: true}}} // [AI REFACTOR]
 	meals := ConvertToMeals(mealDB)
 	if len(meals) != 1 {
@@ -207,5 +207,3 @@ func TestConvertToMealWhenNoProducts(t *testing.T){
 		t.Error(`too many products in meal`)
 	}
 }
-
-

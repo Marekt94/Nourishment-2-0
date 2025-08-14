@@ -13,7 +13,7 @@ func initLooseProductsInDayRepo() LooseProductsInDayRepo {
 
 	fDbEngine := FBDBEngine{BaseEngineIntf: &BaseEngine{}}
 	engine := fDbEngine.Connect(&conf)
-	return &FirebirdRepoAccess{DbEngine: engine}
+	return &FirebirdRepoAccess{Database: engine}
 }
 
 func createTestProductForLoose() Product {
@@ -26,7 +26,7 @@ func createTestProductForLoose() Product {
 
 func createTestMealInDayForLoose() (MealInDay, int) {
 	repo := initMealsInDayRepo()
-	mealsRepo, ok := interface{}(repo).(MealsRepo)
+	mealsRepo, ok := interface{}(repo).(MealsRepoIntf)
 	if !ok {
 		panic("MealsInDayRepo does not support MealsRepo interface")
 	}

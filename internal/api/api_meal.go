@@ -2,59 +2,33 @@ package api
 
 import (
 	"net/http"
-	"os"
 	"strconv"
 
-	"nourishment_20/internal/AIClient"
 	db "nourishment_20/internal/database"
-	"nourishment_20/internal/logging"
 	"nourishment_20/internal/mealOptimizer"
 
 	"github.com/gin-gonic/gin"
 )
 
-// TODO do refactoringu - trzeba wyciagnac pliki konfiguracyjne wyzej, repo musi byc orzekazywane jako parametr, byc moze do obiektu
-func getRepo() db.MealsRepo { // [AI REFACTOR]
-	conf := db.DBConf{
-		User:       "sysdba",
-		Password:   "masterkey",
-		Address:    "localhost:3050",
-		PathOrName: "C:/Users/marek/Documents/nourishment_backup_db/NOURISHMENT.FDB",
-	}
-	fDbEngine := db.FBDBEngine{BaseEngineIntf: &db.BaseEngine{}}
-	engine := fDbEngine.Connect(&conf)
-	return &db.FirebirdRepoAccess{DbEngine: engine}
+type MealServer struct {
+	Repo     db.MealsRepoIntf
+	AIClient mealOptimizer.Optimizer
 }
 
-// TODO (ai opmitimizer) do refactoringu - trzeba wyciagnac pliki konfiguracyjne wyzej, repo musi byc orzekazywane jako parametr, byc moze do obiektu
-func getAIClient() *mealOptimizer.Optimizer { // [AI REFACTOR]
-	maxTokens, err := strconv.Atoi(os.Getenv("OPENROUTER_MAX_TOKENS"))
-	if err != nil {
-		logging.Global.Panicf("Error converting OPENROUTER_MAX_TOKENS to int: %v", err)
-	}
-	client := AIClient.OpenRouterClient{
-		ApiKey:    os.Getenv("OPENROUTER_API_KEY"),
-		Model:     os.Getenv("OPENROUTER_MODEL"),
-		MaxTokens: maxTokens,
-	}
-	res := mealOptimizer.Optimizer{AIClient: &client}
-	return &res
-}
-
-func OptimizeMeal(c *gin.Context) {
+// DONE do refactoringu - trzeba wyciagnac pliki konfiguracyjne wyzej, repo musi byc orzekazywane jako parametr, byc moze do obiektu
+func (ms *MealServer) OptimizeMeal(c *gin.Context) {
 	kcalStr := c.Query("kcal")
 	kcal, err := strconv.ParseFloat(kcalStr, 64)
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	optimizer := getAIClient() // [AI REFACTOR]
 	var meal db.Meal
 	if err := c.ShouldBindJSON(&meal); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	res, err := optimizer.OptimizeMeal(&meal, kcal)
+	res, err := ms.AIClient.OptimizeMeal(&meal, kcal)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -62,7 +36,7 @@ func OptimizeMeal(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, res)
 }
 
-func OptimizeMealFromRepo(c *gin.Context) {
+func (ms *MealServer) OptimizeMealFromRepo(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -73,13 +47,12 @@ func OptimizeMealFromRepo(c *gin.Context) {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	repo := getRepo() // [AI REFACTOR]
-	meal := repo.GetMeal(id)
+	meal := ms.Repo.GetMeal(id)
 	if meal.Id == 0 {
 		c.Status(http.StatusNotFound)
 		return
 	}
-	res, err := getAIClient().OptimizeMeal(&meal, kcal)
+	res, err := ms.AIClient.OptimizeMeal(&meal, kcal)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -87,51 +60,46 @@ func OptimizeMealFromRepo(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, res)
 }
 
-func GetMeal(c *gin.Context) {
+func (ms *MealServer) GetMeal(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err == nil {
-		repo := getRepo() // [AI REFACTOR]
-		c.IndentedJSON(http.StatusOK, repo.GetMeal(id))
+		c.IndentedJSON(http.StatusOK, ms.Repo.GetMeal(id))
 	} else {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
 }
 
-func GetMeals(c *gin.Context) {
-	repo := getRepo() // [AI REFACTOR]
-	c.IndentedJSON(http.StatusOK, repo.GetMeals())
+func (ms *MealServer) GetMeals(c *gin.Context) {
+	c.IndentedJSON(http.StatusOK, ms.Repo.GetMeals())
 }
 
-func CreateMeal(c *gin.Context) {
+func (ms *MealServer) CreateMeal(c *gin.Context) {
 	var m db.Meal // [AI REFACTOR]
 	if err := c.ShouldBindJSON(&m); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	repo := getRepo() // [AI REFACTOR]
-	id := repo.CreateMeal(&m)
+	id := ms.Repo.CreateMeal(&m)
 	c.IndentedJSON(http.StatusOK, gin.H{"id": id})
 }
 
-func UpdateMeal(c *gin.Context) {
+func (ms *MealServer) UpdateMeal(c *gin.Context) {
 	var m db.Meal // [AI REFACTOR]
 	if err := c.ShouldBindJSON(&m); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	repo := getRepo() // [AI REFACTOR]
-	repo.UpdateMeal(&m)
+	ms.Repo.UpdateMeal(&m)
 	c.Status(http.StatusOK)
 }
 
-func DeleteMeal(c *gin.Context) {
+func (ms *MealServer) DeleteMeal(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	repo := getRepo() // [AI REFACTOR]
-	ok := repo.DeleteMeal(id)
+	ok := ms.Repo.DeleteMeal(id)
 	if ok {
 		c.Status(http.StatusOK)
 	} else {
@@ -140,8 +108,8 @@ func DeleteMeal(c *gin.Context) {
 }
 
 // CRUD dla MealsInDay
-func GetMealInDay(c *gin.Context) {
-	repo := getRepo().(db.MealsInDayRepo)
+func (ms *MealServer) GetMealInDay(c *gin.Context) {
+	repo := ms.Repo.(db.MealsInDayRepo)
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -155,14 +123,14 @@ func GetMealInDay(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, meal)
 }
 
-func GetMealsInDay(c *gin.Context) {
-	repo := getRepo().(db.MealsInDayRepo)
+func (ms *MealServer) GetMealsInDay(c *gin.Context) {
+	repo := ms.Repo.(db.MealsInDayRepo)
 	meals := repo.GetMealsInDays()
 	c.IndentedJSON(http.StatusOK, meals)
 }
 
-func CreateMealInDay(c *gin.Context) {
-	repo := getRepo().(db.MealsInDayRepo)
+func (ms *MealServer) CreateMealInDay(c *gin.Context) {
+	repo := ms.Repo.(db.MealsInDayRepo)
 	var m db.MealInDay
 	if err := c.ShouldBindJSON(&m); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -176,8 +144,8 @@ func CreateMealInDay(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, gin.H{"id": id})
 }
 
-func UpdateMealInDay(c *gin.Context) {
-	repo := getRepo().(db.MealsInDayRepo)
+func (ms *MealServer) UpdateMealInDay(c *gin.Context) {
+	repo := ms.Repo.(db.MealsInDayRepo)
 	var m db.MealInDay
 	if err := c.ShouldBindJSON(&m); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -187,8 +155,8 @@ func UpdateMealInDay(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
-func DeleteMealInDay(c *gin.Context) {
-	repo := getRepo().(db.MealsInDayRepo)
+func (ms *MealServer) DeleteMealInDay(c *gin.Context) {
+	repo := ms.Repo.(db.MealsInDayRepo)
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -203,13 +171,13 @@ func DeleteMealInDay(c *gin.Context) {
 }
 
 // CRUD dla Products
-func GetProduct(c *gin.Context) {
+func (ms *MealServer) GetProduct(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	repo := getRepo().(db.ProductsRepo)
+	repo := ms.Repo.(db.ProductsRepo)
 	product := repo.GetProduct(id)
 	if product.Id == 0 {
 		c.Status(http.StatusNotFound)
@@ -218,14 +186,14 @@ func GetProduct(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, product)
 }
 
-func GetProducts(c *gin.Context) {
-	repo := getRepo().(db.ProductsRepo)
+func (ms *MealServer) GetProducts(c *gin.Context) {
+	repo := ms.Repo.(db.ProductsRepo)
 	products := repo.GetProducts()
 	c.IndentedJSON(http.StatusOK, products)
 }
 
-func CreateProduct(c *gin.Context) {
-	repo := getRepo().(db.ProductsRepo)
+func (ms *MealServer) CreateProduct(c *gin.Context) {
+	repo := ms.Repo.(db.ProductsRepo)
 	var p db.Product
 	if err := c.ShouldBindJSON(&p); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -239,8 +207,8 @@ func CreateProduct(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, gin.H{"id": id})
 }
 
-func UpdateProduct(c *gin.Context) {
-	repo := getRepo().(db.ProductsRepo)
+func (ms *MealServer) UpdateProduct(c *gin.Context) {
+	repo := ms.Repo.(db.ProductsRepo)
 	var p db.Product
 	if err := c.ShouldBindJSON(&p); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -250,8 +218,8 @@ func UpdateProduct(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
-func DeleteProduct(c *gin.Context) {
-	repo := getRepo().(db.ProductsRepo)
+func (ms *MealServer) DeleteProduct(c *gin.Context) {
+	repo := ms.Repo.(db.ProductsRepo)
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -266,13 +234,13 @@ func DeleteProduct(c *gin.Context) {
 }
 
 // CRUD dla LooseProductInDay
-func GetLooseProductInDay(c *gin.Context) {
+func (ms *MealServer) GetLooseProductInDay(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	repo := getRepo().(db.LooseProductsInDayRepo)
+	repo := ms.Repo.(db.LooseProductsInDayRepo)
 	product := repo.GetLooseProductInDay(id)
 	if product.Id == 0 {
 		c.Status(http.StatusNotFound)
@@ -281,7 +249,7 @@ func GetLooseProductInDay(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, product)
 }
 
-func GetLooseProductsInDay(c *gin.Context) {
+func (ms *MealServer) GetLooseProductsInDay(c *gin.Context) {
 	dayIdStr := c.Query("dayId")
 	if dayIdStr == "" {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": "missing query parameter: dayId"})
@@ -292,13 +260,13 @@ func GetLooseProductsInDay(c *gin.Context) {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	repo := getRepo().(db.LooseProductsInDayRepo)
+	repo := ms.Repo.(db.LooseProductsInDayRepo)
 	products := repo.GetLooseProductsInDay(dayId)
 	c.IndentedJSON(http.StatusOK, products)
 }
 
-func CreateLooseProductInDay(c *gin.Context) {
-	repo := getRepo().(db.LooseProductsInDayRepo)
+func (ms *MealServer) CreateLooseProductInDay(c *gin.Context) {
+	repo := ms.Repo.(db.LooseProductsInDayRepo)
 	var p db.LooseProductInDay
 	if err := c.ShouldBindJSON(&p); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -312,8 +280,8 @@ func CreateLooseProductInDay(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, gin.H{"id": id})
 }
 
-func UpdateLooseProductInDay(c *gin.Context) {
-	repo := getRepo().(db.LooseProductsInDayRepo)
+func (ms *MealServer) UpdateLooseProductInDay(c *gin.Context) {
+	repo := ms.Repo.(db.LooseProductsInDayRepo)
 	var p db.LooseProductInDay
 	if err := c.ShouldBindJSON(&p); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -323,8 +291,8 @@ func UpdateLooseProductInDay(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
-func DeleteLooseProductInDay(c *gin.Context) {
-	repo := getRepo().(db.LooseProductsInDayRepo)
+func (ms *MealServer) DeleteLooseProductInDay(c *gin.Context) {
+	repo := ms.Repo.(db.LooseProductsInDayRepo)
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -339,13 +307,13 @@ func DeleteLooseProductInDay(c *gin.Context) {
 }
 
 // CRUD dla Categories
-func GetCategory(c *gin.Context) {
+func (ms *MealServer) GetCategory(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	repo := getRepo().(db.CategoriesRepo)
+	repo := ms.Repo.(db.CategoriesRepo)
 	cat := repo.GetCategory(id)
 	if cat.Id == 0 {
 		c.Status(http.StatusNotFound)
@@ -354,14 +322,14 @@ func GetCategory(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, cat)
 }
 
-func GetCategories(c *gin.Context) {
-	repo := getRepo().(db.CategoriesRepo)
+func (ms *MealServer) GetCategories(c *gin.Context) {
+	repo := ms.Repo.(db.CategoriesRepo)
 	cats := repo.GetCategories()
 	c.IndentedJSON(http.StatusOK, cats)
 }
 
-func CreateCategory(c *gin.Context) {
-	repo := getRepo().(db.CategoriesRepo)
+func (ms *MealServer) CreateCategory(c *gin.Context) {
+	repo := ms.Repo.(db.CategoriesRepo)
 	var cat db.Category
 	if err := c.ShouldBindJSON(&cat); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -375,8 +343,8 @@ func CreateCategory(c *gin.Context) {
 	c.IndentedJSON(http.StatusOK, gin.H{"id": id})
 }
 
-func UpdateCategory(c *gin.Context) {
-	repo := getRepo().(db.CategoriesRepo)
+func (ms *MealServer) UpdateCategory(c *gin.Context) {
+	repo := ms.Repo.(db.CategoriesRepo)
 	var cat db.Category
 	if err := c.ShouldBindJSON(&cat); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -386,8 +354,8 @@ func UpdateCategory(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
-func DeleteCategory(c *gin.Context) {
-	repo := getRepo().(db.CategoriesRepo)
+func (ms *MealServer) DeleteCategory(c *gin.Context) {
+	repo := ms.Repo.(db.CategoriesRepo)
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.IndentedJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
