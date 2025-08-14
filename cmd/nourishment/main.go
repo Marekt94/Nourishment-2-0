@@ -4,7 +4,7 @@ package main
 TODO:DODAĆ TESTY W POSTMANIE:
  - update potrawy - czy updatują sie produkty?
 DONE: dodać crud, dto, repo dla kategorii
-TODO: dodać api dla optymalizacji potraw - kalorycznosc zmienna
+DONE: dodać api dla optymalizacji potraw - kalorycznosc zmienna
 DONE: dodać crud, dto, repo dla produktów wolnych w dniu
 DONE: testy dla luźnych produktów w dniu
 TODO: zwracac w responsie potraw w dniu całkowite makro
