@@ -2,7 +2,7 @@ package mealOptimizer
 
 import (
 	"encoding/json"
-	"nourishment_20/internal/database"
+	meal "nourishment_20/internal/mealDomain"
 	"testing"
 )
 
@@ -78,8 +78,8 @@ func TestProdToString(t *testing.T) {
   - 336 kcal/100g
   - waga wstępna: 60g`
 
-	prod := database.ProductInMeal{
-		Product: database.Product{Id: 13,
+	prod := meal.ProductInMeal{
+		Product: meal.Product{Id: 13,
 			Name:       "płatki owsiane",
 			KcalPer100: 336,
 			Unit:       "g",
@@ -109,10 +109,10 @@ func TestMealToString(t *testing.T) {
   - 97 kcal/100g
   - waga wstępna: 120g`
 
-	meal := database.Meal{
-		ProductsInMeal: []database.ProductInMeal{
+	meal := meal.Meal{
+		ProductsInMeal: []meal.ProductInMeal{
 			{
-				Product: database.Product{
+				Product: meal.Product{
 					Id:         13,
 					Name:       "płatki owsiane",
 					KcalPer100: 336,
@@ -121,7 +121,7 @@ func TestMealToString(t *testing.T) {
 				Weight: 60,
 			},
 			{
-				Product: database.Product{
+				Product: meal.Product{
 					Id:         14,
 					Name:       "mleko 2%",
 					KcalPer100: 51,
@@ -130,7 +130,7 @@ func TestMealToString(t *testing.T) {
 				Weight: 300,
 			},
 			{
-				Product: database.Product{
+				Product: meal.Product{
 					Id:         12,
 					Name:       "banan",
 					KcalPer100: 97,

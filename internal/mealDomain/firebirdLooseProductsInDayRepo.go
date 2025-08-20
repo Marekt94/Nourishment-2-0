@@ -1,8 +1,9 @@
-package database
+package meal
 
 import (
 	"database/sql"
 	"fmt"
+	"nourishment_20/internal/database"
 	"nourishment_20/internal/logging"
 	"strings"
 )
@@ -16,10 +17,10 @@ type LooseProductsInDayDb struct {
 
 func (p *LooseProductsInDayDb) ConvertToLooseProductInDay() LooseProductInDay {
 	var product LooseProductInDay
-	product.Id = NullInt64ToInt(&p.Id)
-	product.DayId = NullInt64ToInt(&p.DayId)
+	product.Id = database.NullInt64ToInt(&p.Id)
+	product.DayId = database.NullInt64ToInt(&p.DayId)
 	p.Product.ConvertToProduct(&product.Product)
-	product.Weight = NullFloat64ToFloat(&p.Weight)
+	product.Weight = database.NullFloat64ToFloat(&p.Weight)
 	return product
 }
 
@@ -126,9 +127,9 @@ func generateGetLooseProductsQuery() string {
 	colsForProduct := ProductTabs
 	colsForCategory := CategoryTabs
 
-	colsLooseProductStr := CreateColsToSelect("pld", colsForLooseProduct)
-	colsProductStr := CreateColsToSelect("p", colsForProduct)
-	colsCategoryStr := CreateColsToSelect("c", colsForCategory)
+	colsLooseProductStr := database.CreateColsToSelect("pld", colsForLooseProduct)
+	colsProductStr := database.CreateColsToSelect("p", colsForProduct)
+	colsCategoryStr := database.CreateColsToSelect("c", colsForCategory)
 
 	cols := strings.Join([]string{colsLooseProductStr, colsProductStr, colsCategoryStr}, ", ")
 

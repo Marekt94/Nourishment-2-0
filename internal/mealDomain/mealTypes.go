@@ -1,4 +1,4 @@
-package database
+package meal
 
 type MealsRepoIntf interface {
 	GetMeal(i int) Meal

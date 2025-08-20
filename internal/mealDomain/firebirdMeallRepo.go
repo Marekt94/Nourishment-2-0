@@ -1,8 +1,9 @@
-package database
+package meal
 
 import (
 	"database/sql"
 	"fmt"
+	"nourishment_20/internal/database"
 	"nourishment_20/internal/logging"
 	"strings"
 )
@@ -53,10 +54,10 @@ func generateGetMealsQuery() string {
 	colsForCategory := CategoryTabs
 	colsForProductInMeal := []string{PRODUCTS_IN_MEAL_ID, PRODUCTS_IN_MEAL_WEIGHT}
 
-	colsForMealStr := CreateColsToSelect(MealPrefix, colsForMeal)
-	colsForProductStr := CreateColsToSelect(ProductPrefix, colsForProduct)
-	colsForProductInMealStr := CreateColsToSelect(ProductInMealPrefix, colsForProductInMeal)
-	colsForCategoryStr := CreateColsToSelect(CategoryPrefix, colsForCategory)
+	colsForMealStr := database.CreateColsToSelect(MealPrefix, colsForMeal)
+	colsForProductStr := database.CreateColsToSelect(ProductPrefix, colsForProduct)
+	colsForProductInMealStr := database.CreateColsToSelect(ProductInMealPrefix, colsForProductInMeal)
+	colsForCategoryStr := database.CreateColsToSelect(CategoryPrefix, colsForCategory)
 	colsToRetrive := strings.Join([]string{colsForMealStr, colsForProductInMealStr, colsForProductStr, colsForCategoryStr}, `, `)
 	logging.Global.Debugf(`cols to retive %s`, colsToRetrive)
 
@@ -97,14 +98,14 @@ func ConvertToMeals(m []MealDb) []Meal { // [AI] poprawka: []Meal zamiast []meal
 func ConvertToMeal(m []MealDb) Meal { // [AI] poprawka: Meal zamiast meal
 	var meal Meal
 	logging.Global.Debugf(`start converting db to meal`)
-	meal.Id = NullInt64ToInt(&m[0].Id)
-	meal.Name = NullStringToString(&m[0].Name)
-	meal.Recipe = NullStringToString(&m[0].Recipe)
+	meal.Id = database.NullInt64ToInt(&m[0].Id)
+	meal.Name = database.NullStringToString(&m[0].Name)
+	meal.Recipe = database.NullStringToString(&m[0].Recipe)
 	for _, pml := range m {
 		if pml.ProductInMeal.Id.Valid {
 			var pm ProductInMeal
-			pm.Id = NullInt64ToInt(&pml.ProductInMeal.Id)
-			pm.Weight = NullFloat64ToFloat(&pml.ProductInMeal.Weight)
+			pm.Id = database.NullInt64ToInt(&pml.ProductInMeal.Id)
+			pm.Weight = database.NullFloat64ToFloat(&pml.ProductInMeal.Weight)
 			pml.ProductInMeal.Product.ConvertToProduct(&pm.Product)
 			meal.ProductsInMeal = append(meal.ProductsInMeal, pm)
 		}
@@ -190,7 +191,7 @@ func (mr *FirebirdRepoAccess) updateProductsInMeal(m *Meal, r ProductsRepo) { //
 			prodInDbTabs := []string{PRODUCTS_IN_MEAL_PRODUCT_ID, PRODUCTS_IN_MEAL_MEAL_ID, PRODUCTS_IN_MEAL_WEIGHT}
 			sql := fmt.Sprintf(`INSERT INTO %s (%s) VALUES (%s)`, PRODUCTS_IN_MEAL_TAB,
 				strings.Join(prodInDbTabs[:], `, `),
-				QuestionMarks(len(prodInDbTabs)))
+				database.QuestionMarks(len(prodInDbTabs)))
 			_, err := mr.Database.Exec(sql, &prodInMealDb.Product.Id, m.Id, prodInMealDb.Weight)
 			if err != nil {
 				logging.Global.Panicf("%v", err)

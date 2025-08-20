@@ -20,8 +20,9 @@ import (
 
 	"nourishment_20/internal/AIClient"
 	"nourishment_20/internal/api"
-	db "nourishment_20/internal/database"
+	"nourishment_20/internal/database"
 	log "nourishment_20/internal/logging"
+	meal "nourishment_20/internal/mealDomain"
 	"nourishment_20/internal/mealOptimizer"
 
 	"github.com/gin-gonic/gin"
@@ -31,9 +32,9 @@ import (
 // [AI REFACTOR] Tworzenie i uruchamianie serwera HTTP na porcie 8080
 func StartMealServer() {
 	// Utworzenie instancji repo
-	DbEngine := db.FBDBEngine{BaseEngineIntf: &db.BaseEngine{}}
+	DbEngine := meal.FBDBEngine{BaseEngineIntf: &database.BaseEngine{}}
 
-	conf := db.DBConf{
+	conf := database.DBConf{
 		User:       os.Getenv("DB_USER"),
 		Password:   os.Getenv("DB_PASSWORD"),
 		Address:    os.Getenv("DB_ADDRESS"),
@@ -41,7 +42,7 @@ func StartMealServer() {
 	}
 	database := DbEngine.Connect(&conf)
 
-	repo := &db.FirebirdRepoAccess{Database: database}
+	repo := &meal.FirebirdRepoAccess{Database: database}
 
 	// Utworzenie instancji AI Client
 	maxTokens, err := strconv.Atoi(os.Getenv("OPENROUTER_MAX_TOKENS"))
@@ -67,6 +68,7 @@ func StartMealServer() {
 	gin.DefaultWriter = log.Global.Writer()
 	gin.DefaultErrorWriter = log.Global.Writer()
 
+	// TODO: Dodać moduły które jako parametr przekazywałyby gin i w tych podułach byłyby rejestrowane endpointy
 	r.GET("/meals", mealServer.GetMeals)
 	r.GET("/meals/:id", mealServer.GetMeal)
 	r.POST("/meals", mealServer.CreateMeal)

@@ -1,8 +1,9 @@
-package database
+package meal
 
 import (
 	"database/sql"
 	"fmt"
+	"nourishment_20/internal/database"
 	"nourishment_20/internal/logging"
 	"strings"
 )
@@ -53,19 +54,19 @@ func serializeDBToProduct(r *sql.Rows) Product { // [AI REFACTOR]
 }
 
 func (s *productDb) ConvertToProduct(p *Product) { // [AI REFACTOR]
-	p.Id = NullInt64ToInt(&s.Id)
-	p.Name = NullStringToString(&s.Name)
-	p.KcalPer100 = NullFloat64ToFloat(&s.KcalPer100)
-	p.UnitWeight = NullFloat64ToFloat(&s.UnitWeight)
-	p.Proteins = NullFloat64ToFloat(&s.Proteins)
-	p.Fat = NullFloat64ToFloat(&s.Fat)
-	p.Sugar = NullFloat64ToFloat(&s.Sugar)
-	p.Carbohydrates = NullFloat64ToFloat(&s.Carbohydrates)
-	p.Fiber = NullFloat64ToFloat(&s.Fiber)
-	p.Salt = NullFloat64ToFloat(&s.Salt)
-	p.Unit = NullStringToString(&s.Unit)
-	p.Category.Id = NullInt64ToInt(&s.Category.Id)
-	p.Category.Name = NullStringToString(&s.Category.Name)
+	p.Id = database.NullInt64ToInt(&s.Id)
+	p.Name = database.NullStringToString(&s.Name)
+	p.KcalPer100 = database.NullFloat64ToFloat(&s.KcalPer100)
+	p.UnitWeight = database.NullFloat64ToFloat(&s.UnitWeight)
+	p.Proteins = database.NullFloat64ToFloat(&s.Proteins)
+	p.Fat = database.NullFloat64ToFloat(&s.Fat)
+	p.Sugar = database.NullFloat64ToFloat(&s.Sugar)
+	p.Carbohydrates = database.NullFloat64ToFloat(&s.Carbohydrates)
+	p.Fiber = database.NullFloat64ToFloat(&s.Fiber)
+	p.Salt = database.NullFloat64ToFloat(&s.Salt)
+	p.Unit = database.NullStringToString(&s.Unit)
+	p.Category.Id = database.NullInt64ToInt(&s.Category.Id)
+	p.Category.Name = database.NullStringToString(&s.Category.Name)
 }
 
 func (mr *FirebirdRepoAccess) createSQLForProducts() string {
@@ -110,7 +111,7 @@ func (mr *FirebirdRepoAccess) GetProducts() []Product { // [AI REFACTOR]
 
 func (mr *FirebirdRepoAccess) CreateProduct(p *Product) int64 { // [AI REFACTOR]
 	insertTabs := append(ProductTabs[1:], PRODUCT_CATEGORY)
-	sql := fmt.Sprintf(`INSERT INTO %s (%s) VALUES (%s)`, PRODUCT_TAB, strings.Join(insertTabs[:], `, `), QuestionMarks(len(insertTabs)))
+	sql := fmt.Sprintf(`INSERT INTO %s (%s) VALUES (%s)`, PRODUCT_TAB, strings.Join(insertTabs[:], `, `), database.QuestionMarks(len(insertTabs)))
 	if _, err := mr.Database.Exec(sql, &p.Name, &p.KcalPer100, &p.UnitWeight, &p.Proteins, &p.Fat, &p.Sugar, &p.Carbohydrates,
 		&p.SugarAndCarbo, &p.Fiber, &p.Salt, &p.Unit, &p.Category.Id); err != nil {
 		logging.Global.Panicf("%v", err)
@@ -137,7 +138,7 @@ func (mr *FirebirdRepoAccess) DeleteProduct(i int) bool {
 }
 
 func (mr *FirebirdRepoAccess) UpdateProduct(p *Product) { // [AI REFACTOR]
-	sql := fmt.Sprintf(`UPDATE %s SET %s WHERE ID=?`, PRODUCT_TAB, UpdateValues(append(ProductTabs[1:], PRODUCT_CATEGORY)))
+	sql := fmt.Sprintf(`UPDATE %s SET %s WHERE ID=?`, PRODUCT_TAB, database.UpdateValues(append(ProductTabs[1:], PRODUCT_CATEGORY)))
 	_, err := mr.Database.Exec(sql, &p.Name, &p.KcalPer100, &p.UnitWeight, &p.Proteins, &p.Fat, &p.Sugar, &p.Carbohydrates,
 		&p.SugarAndCarbo, &p.Fiber, &p.Salt, &p.Unit, &p.Category.Id, &p.Id)
 	if err != nil {

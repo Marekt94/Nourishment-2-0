@@ -1,8 +1,9 @@
-package database
+package meal
 
 import (
 	"database/sql"
 	"fmt"
+	"nourishment_20/internal/database"
 	"nourishment_20/internal/logging"
 	"strings"
 )
@@ -42,7 +43,7 @@ func (mr *FirebirdRepoAccess) CreateMealsInDay(m *MealInDay) int64 {
 			return -1
 		}
 	}
-	sqlStr := fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s)", MEAL_IN_DAY_TAB, strings.Join(cols, ", "), QuestionMarks(len(cols)))
+	sqlStr := fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s)", MEAL_IN_DAY_TAB, strings.Join(cols, ", "), database.QuestionMarks(len(cols)))
 	for5DaysChar := sql.NullString{String: "0", Valid: true}
 	if m.For5Days {
 		for5DaysChar.String = "1"
@@ -158,7 +159,7 @@ func (mr *FirebirdRepoAccess) DeleteMealsInDay(id int) bool {
 }
 
 func (mr *FirebirdRepoAccess) UpdateMealsInDay(m *MealInDay) {
-	sqlStr := fmt.Sprintf("UPDATE %s SET %s WHERE %s=?", MEAL_IN_DAY_TAB, UpdateValues(cols), MEAL_IN_DAY_ID)
+	sqlStr := fmt.Sprintf("UPDATE %s SET %s WHERE %s=?", MEAL_IN_DAY_TAB, database.UpdateValues(cols), MEAL_IN_DAY_ID)
 	for5DaysChar := sql.NullString{String: "0", Valid: true}
 	if m.For5Days {
 		for5DaysChar.String = "1"

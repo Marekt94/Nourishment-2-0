@@ -5,8 +5,8 @@ import (
 	"fmt"
 	utils "nourishment_20/internal"
 	"nourishment_20/internal/AIClient"
-	"nourishment_20/internal/database"
 	"nourishment_20/internal/logging"
+	meal "nourishment_20/internal/mealDomain"
 	"os"
 	"strconv"
 	"strings"
@@ -68,7 +68,7 @@ func (p ProdsInMealResponse) MarshalJSON() ([]byte, error) {
 	return json.Marshal(schema)
 }
 
-func findProdInMealDB(productsInMeal []database.ProductInMeal, index float64) *database.ProductInMeal {
+func findProdInMealDB(productsInMeal []meal.ProductInMeal, index float64) *meal.ProductInMeal {
 	for i := range productsInMeal {
 		if productsInMeal[i].Product.Id == int(index) {
 			return &productsInMeal[i]
@@ -76,7 +76,7 @@ func findProdInMealDB(productsInMeal []database.ProductInMeal, index float64) *d
 	}
 	return nil
 }
-func (p ProdsInMealResponse) UpdateProductsInMeal(productsInMeal []database.ProductInMeal) {
+func (p ProdsInMealResponse) UpdateProductsInMeal(productsInMeal []meal.ProductInMeal) {
 	for i := range p.Products {
 		prodInMealDB := findProdInMealDB(productsInMeal, p.Products[i].ID)
 		if prodInMealDB != nil {
@@ -87,7 +87,7 @@ func (p ProdsInMealResponse) UpdateProductsInMeal(productsInMeal []database.Prod
 	}
 }
 
-func ProdToString(p database.ProductInMeal) string {
+func ProdToString(p meal.ProductInMeal) string {
 	cProdStringSchema := "- %s:\n  - id: %d\n  - %s kcal/100%s\n  - waga wstępna: %v%s"
 	prodString := fmt.Sprintf(cProdStringSchema, p.Product.Name, p.Product.Id, strconv.FormatFloat(p.Product.KcalPer100, 'f', -1, 64),
 		p.Product.Unit, p.Weight, p.Product.Unit)
@@ -95,7 +95,7 @@ func ProdToString(p database.ProductInMeal) string {
 	return prodString
 }
 
-func MealToString(m *database.Meal) string {
+func MealToString(m *meal.Meal) string {
 	prodsInMealStr := []string{}
 	for _, prodsInMeal := range m.ProductsInMeal {
 		prodsInMealStr = append(prodsInMealStr, ProdToString(prodsInMeal))
@@ -103,7 +103,7 @@ func MealToString(m *database.Meal) string {
 	return strings.Join(prodsInMealStr, "\n")
 }
 
-func (o *Optimizer) executePromptForOptimizingMeal(m *database.Meal, k float64) (*string, bool) {
+func (o *Optimizer) executePromptForOptimizingMeal(m *meal.Meal, k float64) (*string, bool) {
 	fileContent, err := utils.ReadFile(AI_OPTIMIZATION_PROMPT)
 	if err != nil {
 		return nil, false
@@ -144,7 +144,7 @@ func (o *Optimizer) executePromptForRetrivingOptimizedMealValues(a *string) (*st
 	return &res, succ
 }
 
-func (o *Optimizer) OptimizeMeal(m *database.Meal, k float64) (*database.Meal, error) {
+func (o *Optimizer) OptimizeMeal(m *meal.Meal, k float64) (*meal.Meal, error) {
 	res, _ := o.executePromptForOptimizingMeal(m, k)
 	if res == nil {
 		logging.Global.Panicf("Error while executing prompt for optimizing meal. Meal:%v/n", m)

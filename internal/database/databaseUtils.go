@@ -11,7 +11,7 @@ func NullStringToString(n *sql.NullString) string { // [AI REFACTOR]
 		return n.String
 	}
 	return ""
-}	
+}
 
 func NullInt64ToInt(n *sql.NullInt64) int { // [AI REFACTOR]
 	if n.Valid {
@@ -39,18 +39,18 @@ func QuestionMarks(n int) string { // [AI REFACTOR]
 }
 
 func UpdateValues(v []string) string {
-    if len(v) == 0 {
-        return ""
-    }
-    updateValues := make([]string, len(v))
-    for i := range updateValues {
-        updateValues[i] = v[i] + `=?`
-    }
-    return strings.Join(updateValues, ", ")
+	if len(v) == 0 {
+		return ""
+	}
+	updateValues := make([]string, len(v))
+	for i := range updateValues {
+		updateValues[i] = v[i] + `=?`
+	}
+	return strings.Join(updateValues, ", ")
 }
 
-func CreateColsToSelect(prefix string, c []string) string{
-    res :=  prefix + `.` + strings.Join(c[:], `, ` + prefix + `.`)
-    logging.Global.Debugf(res)
-    return res
+func CreateColsToSelect(prefix string, c []string) string {
+	res := prefix + `.` + strings.Join(c[:], `, `+prefix+`.`)
+	logging.Global.Debugf(res)
+	return res
 }

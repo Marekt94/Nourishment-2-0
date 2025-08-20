@@ -1,17 +1,21 @@
-package database
+package meal
 
-import "testing"
+import (
+	"testing"
+
+	"nourishment_20/internal/database"
+)
 
 const TEST_PROD_NAME = "test_name"
 
 func initProductRepo() ProductsRepo {
-	var conf DBConf
+	var conf database.DBConf
 	conf.User = `sysdba`
 	conf.Password = `masterkey`
 	conf.Address = `localhost:3050`
 	conf.PathOrName = `C:\Users\marek\Documents\nourishment_backup_db\NOURISHMENT.FDB`
 
-	fDbEngine := FBDBEngine{BaseEngineIntf: &BaseEngine{}}
+	fDbEngine := FBDBEngine{BaseEngineIntf: &database.BaseEngine{}}
 
 	engine := fDbEngine.Connect(&conf)
 

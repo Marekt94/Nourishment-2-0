@@ -1,8 +1,9 @@
-package database
+package meal
 
 import (
 	"database/sql"
 	"fmt"
+	"nourishment_20/internal/database"
 	"nourishment_20/internal/logging"
 	"strings"
 )
@@ -14,8 +15,8 @@ type categoryDb struct {
 }
 
 func (c *categoryDb) ConvertToCategory(out *Category) {
-	out.Id = NullInt64ToInt(&c.Id)
-	out.Name = NullStringToString(&c.Name)
+	out.Id = database.NullInt64ToInt(&c.Id)
+	out.Name = database.NullStringToString(&c.Name)
 }
 
 func (mr *FirebirdRepoAccess) GetCategory(i int) Category {

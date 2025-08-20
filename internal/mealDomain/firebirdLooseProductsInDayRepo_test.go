@@ -1,17 +1,19 @@
-package database
+package meal
 
 import (
 	"testing"
+
+	"nourishment_20/internal/database"
 )
 
 func initLooseProductsInDayRepo() LooseProductsInDayRepo {
-	var conf DBConf
+	var conf database.DBConf
 	conf.User = `sysdba`
 	conf.Password = `masterkey`
 	conf.Address = `localhost:3050`
 	conf.PathOrName = `C:/Users/marek/Documents/nourishment_backup_db/NOURISHMENT.FDB`
 
-	fDbEngine := FBDBEngine{BaseEngineIntf: &BaseEngine{}}
+	fDbEngine := FBDBEngine{BaseEngineIntf: &database.BaseEngine{}}
 	engine := fDbEngine.Connect(&conf)
 	return &FirebirdRepoAccess{Database: engine}
 }
