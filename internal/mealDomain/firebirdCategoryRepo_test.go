@@ -16,8 +16,8 @@ func initCategoryRepo() CategoriesRepo {
 	conf.PathOrName = `C:\\Users\\marek\\Documents\\nourishment_backup_db\\NOURISHMENT.FDB`
 
 	fDbEngine := FBDBEngine{BaseEngineIntf: &database.BaseEngine{}}
-	engine := fDbEngine.Connect(&conf)
-	return &FirebirdRepoAccess{Database: engine}
+	database := fDbEngine.Connect(&conf)
+	return &FirebirdRepoAccess{Database: database}
 }
 
 func createCategory() Category {

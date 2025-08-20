@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+// TODO te metody powinny byc metodami silnika, a nie luzem, poniewaz np: w innej bazie danych  QuestionMarks moze wygladac inaczej
 func NullStringToString(n *sql.NullString) string { // [AI REFACTOR]
 	if n.Valid {
 		return n.String
