@@ -1,0 +1,12 @@
+package auth
+
+// Permissions table constants
+const PERMISSIONS_TAB = "UPRAWNIENIA"
+const PERMISSIONS_ID = "ID"
+const PERMISSIONS_RESOURCE = "ZASOB"
+const PERMISSIONS_RIGHT = "PRAWO"
+
+// User permissions table constants
+const USER_PERMISSIONS_TAB = "UPRAWNIENIA_UZYTKOWNIKOW"
+const USER_PERMISSIONS_USER = "UZYTKOWNIK"
+const USER_PERMISSIONS_PERMISSION_ID = "UPRAWNIENIE"

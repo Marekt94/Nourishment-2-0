@@ -1,13 +1,5 @@
 package meal
 
-import (
-	"database/sql"
-	"fmt"
-	"nourishment_20/internal/database"
-
-	_ "github.com/nakagami/firebirdsql"
-)
-
 const MEAL_TAB = "POTRAWY"
 const MEAL_ID = "ID"
 const MEAL_NAME = "NAZWA"
@@ -61,12 +53,3 @@ const LOOSE_PRODUCTS_IN_DAY_ID = "ID"
 const LOOSE_PRODUCTS_IN_DAY_DAY_ID = "ID_DNIA"
 const LOOSE_PRODUCTS_IN_DAY_PRODUCT_ID = "ID_PRODUKTU"
 const LOOSE_PRODUCTS_IN_DAY_WEIGHT = "ILOSC_W_G"
-
-type FBDBEngine struct {
-	database.BaseEngineIntf
-}
-
-func (e *FBDBEngine) Connect(c *database.DBConf) *sql.DB {
-	connString := fmt.Sprintf(`%s:%s@%s/%s`, c.User, c.Password, c.Address, c.PathOrName)
-	return e.BaseEngineIntf.Connect(`firebirdsql`, connString, c.PathOrName)
-}

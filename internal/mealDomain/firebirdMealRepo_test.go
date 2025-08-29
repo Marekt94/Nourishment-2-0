@@ -4,20 +4,20 @@ import (
 	"database/sql"
 	"testing"
 
-	"nourishment_20/internal/database"
+	db "nourishment_20/internal/database"
 )
 
 const PROD_NAME_1 = `test prod 1`
 const PROD_NAME_2 = `test prod 2`
 
 func initMealRepo() MealsRepoIntf {
-	var conf database.DBConf
+	var conf db.DBConf
 	conf.User = `sysdba`
 	conf.Password = `masterkey`
 	conf.Address = `localhost:3050`
 	conf.PathOrName = `C:\Users\marek\Documents\nourishment_backup_db\NOURISHMENT.FDB`
 
-	fDbEngine := FBDBEngine{BaseEngineIntf: &database.BaseEngine{}}
+	fDbEngine := db.FBDBEngine{BaseEngineIntf: &db.BaseEngine{}}
 
 	engine := fDbEngine.Connect(&conf)
 

@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"nourishment_20/internal/database"
+	db "nourishment_20/internal/database"
 )
 
 func createTestMealInDay(repo MealsInDayRepo) (MealInDay, int) {
@@ -87,7 +88,7 @@ func initMealsInDayRepo() MealsInDayRepo {
 	conf.Address = `localhost:3050`
 	conf.PathOrName = `C:/Users/marek/Documents/nourishment_backup_db/NOURISHMENT.FDB`
 
-	fDbEngine := FBDBEngine{BaseEngineIntf: &database.BaseEngine{}}
+	fDbEngine := db.FBDBEngine{BaseEngineIntf: &database.BaseEngine{}}
 	engine := fDbEngine.Connect(&conf)
 	return &FirebirdRepoAccess{Database: engine}
 }

@@ -20,21 +20,22 @@ import (
 
 	"nourishment_20/internal/AIClient"
 	"nourishment_20/internal/api"
-	"nourishment_20/internal/database"
 	log "nourishment_20/internal/logging"
 	meal "nourishment_20/internal/mealDomain"
 	"nourishment_20/internal/mealOptimizer"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+
+	db "nourishment_20/internal/database"
 )
 
 // [AI REFACTOR] Tworzenie i uruchamianie serwera HTTP na porcie 8080
 func StartMealServer() {
 	// Utworzenie instancji repo
-	DbEngine := meal.FBDBEngine{BaseEngineIntf: &database.BaseEngine{}}
+	DbEngine := db.FBDBEngine{BaseEngineIntf: &db.BaseEngine{}}
 
-	conf := database.DBConf{
+	conf := db.DBConf{
 		User:       os.Getenv("DB_USER"),
 		Password:   os.Getenv("DB_PASSWORD"),
 		Address:    os.Getenv("DB_ADDRESS"),
