@@ -65,7 +65,7 @@ func (j *JWTGenerator) JWTToString(t *jwt.Token) (*string, error) {
 	return &tokenString, nil
 }
 
-func validate(token *jwt.Token) (any, error) {
+func (j *JWTGenerator) Validate(token *jwt.Token) (any, error) {
 	// Sprawdź metodę podpisywania
 	if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 		return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
@@ -73,7 +73,7 @@ func validate(token *jwt.Token) (any, error) {
 	return []byte(os.Getenv("JWT_SECRET")), nil
 }
 
-func stringSliceToScope(s []string) map[string][]string {
+func (j *JWTGenerator) StringSliceToScope(s []string) map[string][]string {
 	scope := map[string][]string{}
 	for _, scopeTmp := range s {
 		scopeSlice := strings.Split(scopeTmp, PERMS_DIVIDOR)
@@ -91,10 +91,10 @@ func stringSliceToScope(s []string) map[string][]string {
 
 func (j *JWTGenerator) GetScope(t string) map[string][]string {
 	var claims InternalClaims
-	_, error := jwt.ParseWithClaims(t, &claims, validate)
+	_, error := jwt.ParseWithClaims(t, &claims, j.Validate)
 	if error != nil {
 		logging.Global.Warnf("Failed to parse JWT token: %v", error)
 		return nil
 	}
-	return stringSliceToScope(claims.Scope)
+	return j.StringSliceToScope(claims.Scope)
 }
