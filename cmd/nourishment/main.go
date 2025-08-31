@@ -20,6 +20,7 @@ import (
 
 	"nourishment_20/internal/AIClient"
 	"nourishment_20/internal/api"
+	"nourishment_20/internal/auth"
 	log "nourishment_20/internal/logging"
 	meal "nourishment_20/internal/mealDomain"
 	"nourishment_20/internal/mealOptimizer"
@@ -63,6 +64,14 @@ func StartMealServer() {
 		AIClient: aiOptimizer,
 	}
 
+	permissionRepo := auth.PermissionsRepo{Db: database}
+	jwtGen := auth.JWTGenerator{Repo: &permissionRepo}
+	authValidator := api.AuthMiddleware{JwtGenerator: jwtGen}
+
+	authServer := &api.AuthServer{UserRepo: &auth.FirebirdUserRepo{Database: database},
+		PermRepo:     &permissionRepo,
+		JWTGenerator: &jwtGen}
+
 	r := gin.Default()
 
 	// Podpięcie zerologa do gin
@@ -70,11 +79,13 @@ func StartMealServer() {
 	gin.DefaultErrorWriter = log.Global.Writer()
 
 	// TODO: Dodać moduły które jako parametr przekazywałyby gin i w tych podułach byłyby rejestrowane endpointy
-	r.GET("/meals", mealServer.GetMeals)
-	r.GET("/meals/:id", mealServer.GetMeal)
-	r.POST("/meals", mealServer.CreateMeal)
-	r.PUT("/meals", mealServer.UpdateMeal)
-	r.DELETE("/meals/:id", mealServer.DeleteMeal)
+	r.POST("login", authServer.GenerateToken)
+
+	r.GET("/meals", authValidator.Middleware, mealServer.GetMeals)
+	r.GET("/meals/:id", authValidator.Middleware, mealServer.GetMeal)
+	r.POST("/meals", authValidator.Middleware, mealServer.CreateMeal)
+	r.PUT("/meals", authValidator.Middleware, mealServer.UpdateMeal)
+	r.DELETE("/meals/:id", authValidator.Middleware, mealServer.DeleteMeal)
 
 	r.GET("/mealsinday", mealServer.GetMealsInDay)
 	r.GET("/mealsinday/:id", mealServer.GetMealInDay)

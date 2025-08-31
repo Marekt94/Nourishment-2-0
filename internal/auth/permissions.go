@@ -28,7 +28,7 @@ type PermissionsIntf interface {
 }
 
 type PermissionsRepo struct {
-	db *sql.DB
+	Db *sql.DB
 }
 
 type PermissionController struct {
@@ -57,7 +57,7 @@ func (p *PermissionsRepo) GetPermissions(user string) []Permission {
 		USER_PERMISSIONS_PERMISSION_ID, PERMISSIONS_ID,
 		USER_PERMISSIONS_USER, database.QuestionMarks(1))
 
-	rows, err := p.db.Query(sqlStr, user)
+	rows, err := p.Db.Query(sqlStr, user)
 	if err != nil {
 		logging.Global.Warnf("Failed to query user permissions: %v", err)
 		return nil
@@ -107,7 +107,7 @@ func (p *PermissionsRepo) RegisterPermissions(resource string, rights []string) 
 			PERMISSIONS_RIGHT, database.QuestionMarks(1))
 
 		var existingID int64
-		err := p.db.QueryRow(checkSql, resource, right).Scan(&existingID)
+		err := p.Db.QueryRow(checkSql, resource, right).Scan(&existingID)
 		if err != nil && err != sql.ErrNoRows {
 			logging.Global.Warnf("Failed to check existing permission: %v", err)
 			continue
@@ -119,7 +119,7 @@ func (p *PermissionsRepo) RegisterPermissions(resource string, rights []string) 
 				PERMISSIONS_TAB, PERMISSIONS_RESOURCE, PERMISSIONS_RIGHT, database.QuestionMarks(2), PERMISSIONS_ID)
 
 			var newID int64
-			err := p.db.QueryRow(insertSql, resource, right).Scan(&newID)
+			err := p.Db.QueryRow(insertSql, resource, right).Scan(&newID)
 			if err != nil {
 				logging.Global.Warnf("Failed to insert permission '%s:%s': %v", resource, right, err)
 			} else {

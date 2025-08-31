@@ -7,6 +7,8 @@ import (
 	"nourishment_20/internal/logging"
 )
 
+const NO_USER_ID = -1
+
 // User represents a user in the system
 type User struct {
 	Id       int64  `json:"id"`
@@ -36,7 +38,7 @@ func (repo *FirebirdUserRepo) CreateUser(u *User) int64 {
 	err := repo.Database.QueryRow(sqlStr, u.Username, u.Password).Scan(&id)
 	if err != nil {
 		logging.Global.Warnf("Failed to create user: %v", err)
-		return -1
+		return NO_USER_ID
 	}
 
 	// Set the ID in the User struct
