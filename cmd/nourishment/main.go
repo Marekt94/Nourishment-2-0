@@ -78,42 +78,72 @@ func StartMealServer() {
 	gin.DefaultWriter = log.Global.Writer()
 	gin.DefaultErrorWriter = log.Global.Writer()
 
+	// // Rejestracja uprawnień w systemie
+	// permissionRepo.RegisterPermissions(api.RESOURCE_MEALS, []string{"read", "write"})
+	// permissionRepo.RegisterPermissions(api.RESOURCE_MEALSINDAY, []string{"read", "write"})
+	// permissionRepo.RegisterPermissions(api.RESOURCE_PRODUCTS, []string{"read", "write"})
+	// permissionRepo.RegisterPermissions(api.RESOURCE_LOOSEPRODUCTSINDAY, []string{"read", "write"})
+	// permissionRepo.RegisterPermissions(api.RESOURCE_CATEGORIES, []string{"read", "write"})
+	// permissionRepo.RegisterPermissions(api.RESOURCE_OPTIMIZEMEAL, []string{"write"})
+
+	// // Zarejestruj wszystkie uprawnienia dla użytkownika ADMIN
+	// adminUser := "ADMIN"
+	// permissionRepo.RegisterUserPermission(adminUser, api.RESOURCE_MEALS, "read")
+	// permissionRepo.RegisterUserPermission(adminUser, api.RESOURCE_MEALS, "write")
+	// permissionRepo.RegisterUserPermission(adminUser, api.RESOURCE_MEALSINDAY, "read")
+	// permissionRepo.RegisterUserPermission(adminUser, api.RESOURCE_MEALSINDAY, "write")
+	// permissionRepo.RegisterUserPermission(adminUser, api.RESOURCE_PRODUCTS, "read")
+	// permissionRepo.RegisterUserPermission(adminUser, api.RESOURCE_PRODUCTS, "write")
+	// permissionRepo.RegisterUserPermission(adminUser, api.RESOURCE_LOOSEPRODUCTSINDAY, "read")
+	// permissionRepo.RegisterUserPermission(adminUser, api.RESOURCE_LOOSEPRODUCTSINDAY, "write")
+	// permissionRepo.RegisterUserPermission(adminUser, api.RESOURCE_CATEGORIES, "read")
+	// permissionRepo.RegisterUserPermission(adminUser, api.RESOURCE_CATEGORIES, "write")
+	// permissionRepo.RegisterUserPermission(adminUser, api.RESOURCE_OPTIMIZEMEAL, "write")
+
+	// Zarejestruj uprawnienia do odczytu dla użytkownika READER
+	// readerUser := "READER"
+	// permissionRepo.RegisterUserPermission(readerUser, api.RESOURCE_MEALS, "read")
+	// permissionRepo.RegisterUserPermission(readerUser, api.RESOURCE_MEALSINDAY, "read")
+	// permissionRepo.RegisterUserPermission(readerUser, api.RESOURCE_PRODUCTS, "read")
+	// permissionRepo.RegisterUserPermission(readerUser, api.RESOURCE_LOOSEPRODUCTSINDAY, "read")
+	// permissionRepo.RegisterUserPermission(readerUser, api.RESOURCE_CATEGORIES, "read")
+
 	// TODO: Dodać moduły które jako parametr przekazywałyby gin i w tych podułach byłyby rejestrowane endpointy
-	r.POST("login", authServer.GenerateToken)
+	r.POST(api.PATH_LOGIN, authServer.GenerateToken)
 
-	r.GET("/meals", authValidator.Middleware, mealServer.GetMeals)
-	r.GET("/meals/:id", authValidator.Middleware, mealServer.GetMeal)
-	r.POST("/meals", authValidator.Middleware, mealServer.CreateMeal)
-	r.PUT("/meals", authValidator.Middleware, mealServer.UpdateMeal)
-	r.DELETE("/meals/:id", authValidator.Middleware, mealServer.DeleteMeal)
+	r.GET(api.PATH_MEALS, authValidator.Middleware, mealServer.GetMeals)
+	r.GET(api.PATH_MEALS_WITH_ID, authValidator.Middleware, mealServer.GetMeal)
+	r.POST(api.PATH_MEALS, authValidator.Middleware, mealServer.CreateMeal)
+	r.PUT(api.PATH_MEALS, authValidator.Middleware, mealServer.UpdateMeal)
+	r.DELETE(api.PATH_MEALS_WITH_ID, authValidator.Middleware, mealServer.DeleteMeal)
 
-	r.GET("/mealsinday", mealServer.GetMealsInDay)
-	r.GET("/mealsinday/:id", mealServer.GetMealInDay)
-	r.POST("/mealsinday", mealServer.CreateMealInDay)
-	r.PUT("/mealsinday", mealServer.UpdateMealInDay)
-	r.DELETE("/mealsinday/:id", mealServer.DeleteMealInDay)
+	r.GET(api.PATH_MEALSINDAY, mealServer.GetMealsInDay)
+	r.GET(api.PATH_MEALSINDAY_WITH_ID, mealServer.GetMealInDay)
+	r.POST(api.PATH_MEALSINDAY, mealServer.CreateMealInDay)
+	r.PUT(api.PATH_MEALSINDAY, mealServer.UpdateMealInDay)
+	r.DELETE(api.PATH_MEALSINDAY_WITH_ID, mealServer.DeleteMealInDay)
 
-	r.GET("/products", mealServer.GetProducts)
-	r.GET("/products/:id", mealServer.GetProduct)
-	r.POST("/products", mealServer.CreateProduct)
-	r.PUT("/products", mealServer.UpdateProduct)
-	r.DELETE("/products/:id", mealServer.DeleteProduct)
+	r.GET(api.PATH_PRODUCTS, mealServer.GetProducts)
+	r.GET(api.PATH_PRODUCTS_WITH_ID, mealServer.GetProduct)
+	r.POST(api.PATH_PRODUCTS, mealServer.CreateProduct)
+	r.PUT(api.PATH_PRODUCTS, mealServer.UpdateProduct)
+	r.DELETE(api.PATH_PRODUCTS_WITH_ID, mealServer.DeleteProduct)
 
-	r.GET("/looseproductsinday", mealServer.GetLooseProductsInDay)
-	r.GET("/looseproductsinday/:id", mealServer.GetLooseProductInDay)
-	r.POST("/looseproductsinday", mealServer.CreateLooseProductInDay)
-	r.PUT("/looseproductsinday", mealServer.UpdateLooseProductInDay)
-	r.DELETE("/looseproductsinday/:id", mealServer.DeleteLooseProductInDay)
+	r.GET(api.PATH_LOOSEPRODUCTSINDAY, mealServer.GetLooseProductsInDay)
+	r.GET(api.PATH_LOOSEPRODUCTSINDAY_WITH_ID, mealServer.GetLooseProductInDay)
+	r.POST(api.PATH_LOOSEPRODUCTSINDAY, mealServer.CreateLooseProductInDay)
+	r.PUT(api.PATH_LOOSEPRODUCTSINDAY, mealServer.UpdateLooseProductInDay)
+	r.DELETE(api.PATH_LOOSEPRODUCTSINDAY_WITH_ID, mealServer.DeleteLooseProductInDay)
 
 	// Categories endpoints
-	r.GET("/categories", mealServer.GetCategories)
-	r.GET("/categories/:id", mealServer.GetCategory)
-	r.POST("/categories", mealServer.CreateCategory)
-	r.PUT("/categories", mealServer.UpdateCategory)
-	r.DELETE("/categories/:id", mealServer.DeleteCategory)
+	r.GET(api.PATH_CATEGORIES, mealServer.GetCategories)
+	r.GET(api.PATH_CATEGORIES_WITH_ID, mealServer.GetCategory)
+	r.POST(api.PATH_CATEGORIES, mealServer.CreateCategory)
+	r.PUT(api.PATH_CATEGORIES, mealServer.UpdateCategory)
+	r.DELETE(api.PATH_CATEGORIES_WITH_ID, mealServer.DeleteCategory)
 
-	r.POST("/optimizemeal", mealServer.OptimizeMeal)
-	r.POST("/optimizemeal/:id", mealServer.OptimizeMealFromRepo)
+	r.POST(api.PATH_OPTIMIZEMEAL, mealServer.OptimizeMeal)
+	r.POST(api.PATH_OPTIMIZEMEAL_WITH_ID, mealServer.OptimizeMealFromRepo)
 
 	r.Run(fmt.Sprintf(":%s", os.Getenv("SERVER_PORT")))
 }
