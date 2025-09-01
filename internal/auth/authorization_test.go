@@ -26,6 +26,10 @@ func (p *PermissionsMock) RegisterPermissions(resource string, rights []string) 
 
 }
 
+func (p *PermissionsMock) RegisterUserPermission(username string, resource string, right string) error {
+	return nil
+}
+
 func initAuthorizationTestUnit() {
 	i := REPO.CreateUser(&User{Username: TEST_USER_NAME, Password: TEST_USER_PASSWORD})
 	defer REPO.DeleteUser(int(i))
