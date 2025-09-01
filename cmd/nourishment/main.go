@@ -9,7 +9,8 @@ DONE: dodać crud, dto, repo dla produktów wolnych w dniu
 DONE: testy dla luźnych produktów w dniu
 TODO: zwracac w responsie potraw w dniu całkowite makro
 TODO: dodać endpoint do wydruku, niech przesyła pdfa (albo w markdown)
-TODO: jwt, autoryzacja uwierzytelnianie
+DONE: jwt, autoryzacja uwierzytelnianie
+TODO: dodać weryfikację uprawnień po danych w bazie danych
 TODO: stworzyc gotowego maina, zeby byl wystawialny w prosty sposób
 */
 
@@ -117,33 +118,33 @@ func StartMealServer() {
 	r.PUT(api.PATH_MEALS, authValidator.Middleware, mealServer.UpdateMeal)
 	r.DELETE(api.PATH_MEALS_WITH_ID, authValidator.Middleware, mealServer.DeleteMeal)
 
-	r.GET(api.PATH_MEALSINDAY, mealServer.GetMealsInDay)
-	r.GET(api.PATH_MEALSINDAY_WITH_ID, mealServer.GetMealInDay)
-	r.POST(api.PATH_MEALSINDAY, mealServer.CreateMealInDay)
-	r.PUT(api.PATH_MEALSINDAY, mealServer.UpdateMealInDay)
-	r.DELETE(api.PATH_MEALSINDAY_WITH_ID, mealServer.DeleteMealInDay)
+	r.GET(api.PATH_MEALSINDAY, authValidator.Middleware, mealServer.GetMealsInDay)
+	r.GET(api.PATH_MEALSINDAY_WITH_ID, authValidator.Middleware, mealServer.GetMealInDay)
+	r.POST(api.PATH_MEALSINDAY, authValidator.Middleware, mealServer.CreateMealInDay)
+	r.PUT(api.PATH_MEALSINDAY, authValidator.Middleware, mealServer.UpdateMealInDay)
+	r.DELETE(api.PATH_MEALSINDAY_WITH_ID, authValidator.Middleware, mealServer.DeleteMealInDay)
 
-	r.GET(api.PATH_PRODUCTS, mealServer.GetProducts)
-	r.GET(api.PATH_PRODUCTS_WITH_ID, mealServer.GetProduct)
-	r.POST(api.PATH_PRODUCTS, mealServer.CreateProduct)
-	r.PUT(api.PATH_PRODUCTS, mealServer.UpdateProduct)
-	r.DELETE(api.PATH_PRODUCTS_WITH_ID, mealServer.DeleteProduct)
+	r.GET(api.PATH_PRODUCTS, authValidator.Middleware, mealServer.GetProducts)
+	r.GET(api.PATH_PRODUCTS_WITH_ID, authValidator.Middleware, mealServer.GetProduct)
+	r.POST(api.PATH_PRODUCTS, authValidator.Middleware, mealServer.CreateProduct)
+	r.PUT(api.PATH_PRODUCTS, authValidator.Middleware, mealServer.UpdateProduct)
+	r.DELETE(api.PATH_PRODUCTS_WITH_ID, authValidator.Middleware, mealServer.DeleteProduct)
 
-	r.GET(api.PATH_LOOSEPRODUCTSINDAY, mealServer.GetLooseProductsInDay)
-	r.GET(api.PATH_LOOSEPRODUCTSINDAY_WITH_ID, mealServer.GetLooseProductInDay)
-	r.POST(api.PATH_LOOSEPRODUCTSINDAY, mealServer.CreateLooseProductInDay)
-	r.PUT(api.PATH_LOOSEPRODUCTSINDAY, mealServer.UpdateLooseProductInDay)
-	r.DELETE(api.PATH_LOOSEPRODUCTSINDAY_WITH_ID, mealServer.DeleteLooseProductInDay)
+	r.GET(api.PATH_LOOSEPRODUCTSINDAY, authValidator.Middleware, mealServer.GetLooseProductsInDay)
+	r.GET(api.PATH_LOOSEPRODUCTSINDAY_WITH_ID, authValidator.Middleware, mealServer.GetLooseProductInDay)
+	r.POST(api.PATH_LOOSEPRODUCTSINDAY, authValidator.Middleware, mealServer.CreateLooseProductInDay)
+	r.PUT(api.PATH_LOOSEPRODUCTSINDAY, authValidator.Middleware, mealServer.UpdateLooseProductInDay)
+	r.DELETE(api.PATH_LOOSEPRODUCTSINDAY_WITH_ID, authValidator.Middleware, mealServer.DeleteLooseProductInDay)
 
 	// Categories endpoints
-	r.GET(api.PATH_CATEGORIES, mealServer.GetCategories)
-	r.GET(api.PATH_CATEGORIES_WITH_ID, mealServer.GetCategory)
-	r.POST(api.PATH_CATEGORIES, mealServer.CreateCategory)
-	r.PUT(api.PATH_CATEGORIES, mealServer.UpdateCategory)
-	r.DELETE(api.PATH_CATEGORIES_WITH_ID, mealServer.DeleteCategory)
+	r.GET(api.PATH_CATEGORIES, authValidator.Middleware, mealServer.GetCategories)
+	r.GET(api.PATH_CATEGORIES_WITH_ID, authValidator.Middleware, mealServer.GetCategory)
+	r.POST(api.PATH_CATEGORIES, authValidator.Middleware, mealServer.CreateCategory)
+	r.PUT(api.PATH_CATEGORIES, authValidator.Middleware, mealServer.UpdateCategory)
+	r.DELETE(api.PATH_CATEGORIES_WITH_ID, authValidator.Middleware, mealServer.DeleteCategory)
 
-	r.POST(api.PATH_OPTIMIZEMEAL, mealServer.OptimizeMeal)
-	r.POST(api.PATH_OPTIMIZEMEAL_WITH_ID, mealServer.OptimizeMealFromRepo)
+	r.POST(api.PATH_OPTIMIZEMEAL, authValidator.Middleware, mealServer.OptimizeMeal)
+	r.POST(api.PATH_OPTIMIZEMEAL_WITH_ID, authValidator.Middleware, mealServer.OptimizeMealFromRepo)
 
 	r.Run(fmt.Sprintf(":%s", os.Getenv("SERVER_PORT")))
 }

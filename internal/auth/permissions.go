@@ -50,7 +50,7 @@ func (c *PermissionController) convertToPermissions(s *map[string][]string) []Pe
 	return permissions
 }
 
-// TODO pobieraj prawa dla danego usera z bazy danych
+// DONE pobieraj prawa dla danego usera z bazy danych
 func (p *PermissionsRepo) GetPermissions(user string) []Permission {
 	// Zapytanie z JOIN do tabeli użytkowników, bo USER_PERMISSIONS_USER to teraz FK do UZYTKOWNICY.ID
 	sqlStr := fmt.Sprintf(`SELECT p.%s, p.%s 

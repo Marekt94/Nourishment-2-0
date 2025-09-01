@@ -62,4 +62,4 @@ func TestGetJWT(t *testing.T) {
 
 }
 
-//TODO oprogramowac metody do tworzenia string-a z uprawnieniami oraz parsowania uprawnien na mape - dla kilku
+//DONE oprogramowac metody do tworzenia string-a z uprawnieniami oraz parsowania uprawnien na mape - dla kilku
