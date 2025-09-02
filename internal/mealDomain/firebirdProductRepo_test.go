@@ -8,7 +8,7 @@ import (
 
 const TEST_PROD_NAME = "test_name"
 
-func initProductRepo() ProductsRepo {
+func initProductRepo() ProductsRepoIntf {
 	var conf db.DBConf
 	conf.User = `sysdba`
 	conf.Password = `masterkey`

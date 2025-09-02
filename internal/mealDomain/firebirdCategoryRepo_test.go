@@ -8,7 +8,7 @@ import (
 
 const TEST_CAT_NAME = "test_category"
 
-func initCategoryRepo() CategoriesRepo {
+func initCategoryRepo() CategoriesRepoIntf {
 	var conf db.DBConf
 	conf.User = `sysdba`
 	conf.Password = `masterkey`

@@ -15,7 +15,7 @@ type Meal struct { // [AI REFACTOR]
 	ProductsInMeal []ProductInMeal `json:"productsInMeal"`
 }
 
-type ProductsRepo interface {
+type ProductsRepoIntf interface {
 	GetProduct(i int) Product
 	GetProducts() []Product
 	CreateProduct(p *Product) int64
@@ -23,8 +23,8 @@ type ProductsRepo interface {
 	UpdateProduct(p *Product)
 }
 
-// CategoriesRepo defines CRUD for product categories
-type CategoriesRepo interface {
+// CategoriesRepoIntf defines CRUD for product categories
+type CategoriesRepoIntf interface {
 	GetCategory(i int) Category
 	GetCategories() []Category
 	CreateCategory(c *Category) int64
@@ -78,8 +78,8 @@ type MealInDay struct {
 	Name                  string
 }
 
-// [API GEN] Interfejs MealsInDayRepo
-type MealsInDayRepo interface {
+// [API GEN] Interfejs MealsInDayRepoIntf
+type MealsInDayRepoIntf interface {
 	CreateMealsInDay(m *MealInDay) int64
 	GetMealsInDay(id int) MealInDay
 	GetMealsInDays() []MealInDay
@@ -96,7 +96,7 @@ type LooseProductInDay struct {
 }
 
 // Interfejs do operacji na luźnych produktach w dniu
-type LooseProductsInDayRepo interface {
+type LooseProductsInDayRepoIntf interface {
 	CreateLooseProductInDay(p *LooseProductInDay) int64
 	GetLooseProductInDay(id int) LooseProductInDay
 	GetLooseProductsInDay(dayId int) []LooseProductInDay

@@ -175,7 +175,7 @@ func (mr *FirebirdRepoAccess) DeleteMeal(i int) bool {
 	return !row.Next()
 }
 
-func (mr *FirebirdRepoAccess) updateProductsInMeal(m *Meal, r ProductsRepo) { // [AI] poprawka: *Meal zamiast *meal
+func (mr *FirebirdRepoAccess) updateProductsInMeal(m *Meal, r ProductsRepoIntf) { // [AI] poprawka: *Meal zamiast *meal
 	for i, prod := range m.ProductsInMeal {
 		if prod.Product.Id <= 0 {
 			id := r.CreateProduct(&prod.Product)
@@ -238,7 +238,7 @@ func (mr *FirebirdRepoAccess) CreateMeal(m *Meal) int64 { // [AI] poprawka: *Mea
 		query := fmt.Sprintf(`SELECT MAX(%s) FROM %s`, MEAL_ID, MEAL_TAB)
 		mr.Database.QueryRow(query).Scan(&m.Id)
 
-		r, supp := interface{}(mr).(ProductsRepo)
+		r, supp := interface{}(mr).(ProductsRepoIntf)
 		if !supp {
 			logging.Global.Panicf(`object does not support ProductRepo interface`)
 		}
@@ -254,7 +254,7 @@ func (mr *FirebirdRepoAccess) UpdateMeal(m *Meal) { // [AI] poprawka: *Meal zami
 
 	_, err := mr.Database.Exec(sql, m.Name, m.Recipe, m.Id)
 	if err == nil {
-		r, supp := interface{}(mr).(ProductsRepo)
+		r, supp := interface{}(mr).(ProductsRepoIntf)
 		if !supp {
 			logging.Global.Panicf(`object does not support ProductRepo interface`)
 		}

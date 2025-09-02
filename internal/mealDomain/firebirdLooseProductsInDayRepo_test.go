@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func initLooseProductsInDayRepo() LooseProductsInDayRepo {
+func initLooseProductsInDayRepo() LooseProductsInDayRepoIntf {
 	var conf db.DBConf
 	conf.User = `sysdba`
 	conf.Password = `masterkey`

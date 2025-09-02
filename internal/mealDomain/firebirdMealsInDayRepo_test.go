@@ -7,7 +7,7 @@ import (
 	db "nourishment_20/internal/database"
 )
 
-func createTestMealInDay(repo MealsInDayRepo) (MealInDay, int) {
+func createTestMealInDay(repo MealsInDayRepoIntf) (MealInDay, int) {
 	mealApi := Meal{Name: "test meal", Recipe: "przepis"}
 	mealsRepo, ok := interface{}(repo).(MealsRepoIntf)
 	if !ok {
@@ -81,7 +81,7 @@ func TestDeleteMealsInDay(t *testing.T) {
 	}
 }
 
-func initMealsInDayRepo() MealsInDayRepo {
+func initMealsInDayRepo() MealsInDayRepoIntf {
 	var conf database.DBConf
 	conf.User = `sysdba`
 	conf.Password = `masterkey`

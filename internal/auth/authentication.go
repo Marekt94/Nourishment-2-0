@@ -16,8 +16,8 @@ type User struct {
 	Password string `json:"-"` // Hidden from JSON output
 }
 
-// UserRepo defines the interface for user repository operations
-type UserRepo interface {
+// UserRepoIntf defines the interface for user repository operations
+type UserRepoIntf interface {
 	CreateUser(u *User) int64
 	DeleteUser(id int) bool
 	IsUserExists(username, password string) int64

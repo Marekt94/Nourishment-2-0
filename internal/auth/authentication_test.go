@@ -11,7 +11,7 @@ const TEST_USER_PASSWORD = "testpassword"
 
 var REPO = createRepo()
 
-func createRepo() UserRepo {
+func createRepo() UserRepoIntf {
 	c := h.InitTestUnit(`..\..\.env`)
 	return &FirebirdUserRepo{Database: c}
 }

@@ -7,7 +7,7 @@ import (
 )
 
 type AuthServer struct {
-	UserRepo     auth.UserRepo
+	UserRepo     auth.UserRepoIntf
 	PermRepo     auth.PermissionsIntf
 	JWTGenerator *auth.JWTGenerator
 }
