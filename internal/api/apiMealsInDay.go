@@ -3,15 +3,13 @@ package api
 import (
 	"net/http"
 	meal "nourishment_20/internal/mealDomain"
-	"nourishment_20/internal/mealOptimizer"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
 type MealsInDayAPI struct {
-	Repo     meal.MealsInDayRepoIntf
-	AIClient mealOptimizer.Optimizer
+	Repo meal.MealsInDayRepoIntf
 }
 
 // CRUD dla MealsInDay

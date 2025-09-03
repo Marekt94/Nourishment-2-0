@@ -3,15 +3,13 @@ package api
 import (
 	"net/http"
 	meal "nourishment_20/internal/mealDomain"
-	"nourishment_20/internal/mealOptimizer"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
 
 type MealsAPI struct {
-	Repo     meal.MealsRepoIntf
-	AIClient mealOptimizer.Optimizer
+	Repo meal.MealsRepoIntf
 }
 
 func (ms *MealsAPI) GetMeal(c *gin.Context) {

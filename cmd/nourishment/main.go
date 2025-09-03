@@ -25,6 +25,8 @@ import (
 	log "nourishment_20/internal/logging"
 	meal "nourishment_20/internal/mealDomain"
 	"nourishment_20/internal/mealOptimizer"
+	"nourishment_20/internal/modules"
+	"nourishment_20/kernel"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -45,9 +47,28 @@ func StartMealServer() {
 	}
 	database := DbEngine.Connect(&conf)
 
-	repo := &meal.FirebirdRepoAccess{Database: database}
+	permissionRepo := auth.PermissionsRepo{Db: database}
+	jwtGen := auth.JWTGenerator{Repo: &permissionRepo}
+	authValidator := api.AuthMiddleware{JwtGenerator: jwtGen}
 
-	// Utworzenie instancji AI Client
+	//TODO: poprawić - powinno byc dla firebirdrepoacces a nie osobny struct
+	authServer := &api.AuthServer{UserRepo: &auth.FirebirdUserRepo{Database: database},
+		PermRepo:     &permissionRepo,
+		JWTGenerator: &jwtGen}
+
+	r := gin.Default()
+
+	// Podpięcie zerologa do gin
+	gin.DefaultWriter = log.Global.Writer()
+	gin.DefaultErrorWriter = log.Global.Writer()
+
+	kernel := kernel.NewKernel()
+	kernel.RegisterModule(modules.ModuleAuth{Engine: r, AuthServer: authServer, PermRepo: &permissionRepo})
+
+	// Wspólne repozytorium dla wszystkich modułów
+	repo := meal.FirebirdRepoAccess{Database: database}
+
+	// AI Client dla optymalizacji
 	maxTokens, err := strconv.Atoi(os.Getenv("OPENROUTER_MAX_TOKENS"))
 	if err != nil {
 		log.Global.Panicf("Error converting OPENROUTER_MAX_TOKENS to int: %v", err)
@@ -59,92 +80,35 @@ func StartMealServer() {
 	}
 	aiOptimizer := mealOptimizer.Optimizer{AIClient: &client}
 
-	// Utworzenie instancji MealServer
-	mealServer := &api.MealServer{
-		Repo:     repo,
+	// API dla każdego modułu
+	mealsAPI := &api.MealsAPI{
+		Repo: &repo,
+	}
+	mealsInDayAPI := &api.MealsInDayAPI{
+		Repo: &repo,
+	}
+	productsAPI := &api.ProductsAPI{
+		Repo: &repo,
+	}
+	looseProductsInDayAPI := &api.LooseProductsInDayAPI{
+		Repo: &repo,
+	}
+	categoriesAPI := &api.CategoriesAPI{
+		Repo: &repo,
+	}
+	aiOptimizerAPI := &api.AIOptimizerAPI{
+		Repo:     &repo,
 		AIClient: aiOptimizer,
 	}
 
-	permissionRepo := auth.PermissionsRepo{Db: database}
-	jwtGen := auth.JWTGenerator{Repo: &permissionRepo}
-	authValidator := api.AuthMiddleware{JwtGenerator: jwtGen}
+	kernel.RegisterModule(&modules.ModuleMeals{Repo: &repo, Engine: r, AuthValidator: &authValidator, PermRepo: &permissionRepo, MethodExposer: mealsAPI})
+	kernel.RegisterModule(&modules.ModuleMealsInDay{Repo: &repo, Engine: r, AuthValidator: &authValidator, PermRepo: &permissionRepo, MethodExposer: mealsInDayAPI})
+	kernel.RegisterModule(&modules.ModuleProducts{Repo: &repo, Engine: r, AuthValidator: &authValidator, PermRepo: &permissionRepo, MethodExposer: productsAPI})
+	kernel.RegisterModule(&modules.ModuleLooseProductsInDay{Repo: &repo, Engine: r, AuthValidator: &authValidator, PermRepo: &permissionRepo, MethodExposer: looseProductsInDayAPI})
+	kernel.RegisterModule(&modules.ModuleCategories{Repo: &repo, Engine: r, AuthValidator: &authValidator, PermRepo: &permissionRepo, MethodExposer: categoriesAPI})
+	kernel.RegisterModule(&modules.ModuleOptimizeMeal{Engine: r, AuthValidator: &authValidator, PermRepo: &permissionRepo, MethodExposer: aiOptimizerAPI})
 
-	authServer := &api.AuthServer{UserRepo: &auth.FirebirdUserRepo{Database: database},
-		PermRepo:     &permissionRepo,
-		JWTGenerator: &jwtGen}
-
-	r := gin.Default()
-
-	// Podpięcie zerologa do gin
-	gin.DefaultWriter = log.Global.Writer()
-	gin.DefaultErrorWriter = log.Global.Writer()
-
-	// // Rejestracja uprawnień w systemie
-	// permissionRepo.RegisterPermissions(api.RESOURCE_MEALS, []string{"read", "write"})
-	// permissionRepo.RegisterPermissions(api.RESOURCE_MEALSINDAY, []string{"read", "write"})
-	// permissionRepo.RegisterPermissions(api.RESOURCE_PRODUCTS, []string{"read", "write"})
-	// permissionRepo.RegisterPermissions(api.RESOURCE_LOOSEPRODUCTSINDAY, []string{"read", "write"})
-	// permissionRepo.RegisterPermissions(api.RESOURCE_CATEGORIES, []string{"read", "write"})
-	// permissionRepo.RegisterPermissions(api.RESOURCE_OPTIMIZEMEAL, []string{"write"})
-
-	// // Zarejestruj wszystkie uprawnienia dla użytkownika ADMIN
-	// adminUser := "ADMIN"
-	// permissionRepo.RegisterUserPermission(adminUser, api.RESOURCE_MEALS, "read")
-	// permissionRepo.RegisterUserPermission(adminUser, api.RESOURCE_MEALS, "write")
-	// permissionRepo.RegisterUserPermission(adminUser, api.RESOURCE_MEALSINDAY, "read")
-	// permissionRepo.RegisterUserPermission(adminUser, api.RESOURCE_MEALSINDAY, "write")
-	// permissionRepo.RegisterUserPermission(adminUser, api.RESOURCE_PRODUCTS, "read")
-	// permissionRepo.RegisterUserPermission(adminUser, api.RESOURCE_PRODUCTS, "write")
-	// permissionRepo.RegisterUserPermission(adminUser, api.RESOURCE_LOOSEPRODUCTSINDAY, "read")
-	// permissionRepo.RegisterUserPermission(adminUser, api.RESOURCE_LOOSEPRODUCTSINDAY, "write")
-	// permissionRepo.RegisterUserPermission(adminUser, api.RESOURCE_CATEGORIES, "read")
-	// permissionRepo.RegisterUserPermission(adminUser, api.RESOURCE_CATEGORIES, "write")
-	// permissionRepo.RegisterUserPermission(adminUser, api.RESOURCE_OPTIMIZEMEAL, "write")
-
-	// Zarejestruj uprawnienia do odczytu dla użytkownika READER
-	// readerUser := "READER"
-	// permissionRepo.RegisterUserPermission(readerUser, api.RESOURCE_MEALS, "read")
-	// permissionRepo.RegisterUserPermission(readerUser, api.RESOURCE_MEALSINDAY, "read")
-	// permissionRepo.RegisterUserPermission(readerUser, api.RESOURCE_PRODUCTS, "read")
-	// permissionRepo.RegisterUserPermission(readerUser, api.RESOURCE_LOOSEPRODUCTSINDAY, "read")
-	// permissionRepo.RegisterUserPermission(readerUser, api.RESOURCE_CATEGORIES, "read")
-
-	// TODO: Dodać moduły które jako parametr przekazywałyby gin i w tych podułach byłyby rejestrowane endpointy
-	r.POST(api.PATH_LOGIN, authServer.GenerateToken)
-
-	r.GET(api.PATH_MEALS, authValidator.Middleware, mealServer.GetMeals)
-	r.GET(api.PATH_MEALS_WITH_ID, authValidator.Middleware, mealServer.GetMeal)
-	r.POST(api.PATH_MEALS, authValidator.Middleware, mealServer.CreateMeal)
-	r.PUT(api.PATH_MEALS, authValidator.Middleware, mealServer.UpdateMeal)
-	r.DELETE(api.PATH_MEALS_WITH_ID, authValidator.Middleware, mealServer.DeleteMeal)
-
-	r.GET(api.PATH_MEALSINDAY, authValidator.Middleware, mealServer.GetMealsInDay)
-	r.GET(api.PATH_MEALSINDAY_WITH_ID, authValidator.Middleware, mealServer.GetMealInDay)
-	r.POST(api.PATH_MEALSINDAY, authValidator.Middleware, mealServer.CreateMealInDay)
-	r.PUT(api.PATH_MEALSINDAY, authValidator.Middleware, mealServer.UpdateMealInDay)
-	r.DELETE(api.PATH_MEALSINDAY_WITH_ID, authValidator.Middleware, mealServer.DeleteMealInDay)
-
-	r.GET(api.PATH_PRODUCTS, authValidator.Middleware, mealServer.GetProducts)
-	r.GET(api.PATH_PRODUCTS_WITH_ID, authValidator.Middleware, mealServer.GetProduct)
-	r.POST(api.PATH_PRODUCTS, authValidator.Middleware, mealServer.CreateProduct)
-	r.PUT(api.PATH_PRODUCTS, authValidator.Middleware, mealServer.UpdateProduct)
-	r.DELETE(api.PATH_PRODUCTS_WITH_ID, authValidator.Middleware, mealServer.DeleteProduct)
-
-	r.GET(api.PATH_LOOSEPRODUCTSINDAY, authValidator.Middleware, mealServer.GetLooseProductsInDay)
-	r.GET(api.PATH_LOOSEPRODUCTSINDAY_WITH_ID, authValidator.Middleware, mealServer.GetLooseProductInDay)
-	r.POST(api.PATH_LOOSEPRODUCTSINDAY, authValidator.Middleware, mealServer.CreateLooseProductInDay)
-	r.PUT(api.PATH_LOOSEPRODUCTSINDAY, authValidator.Middleware, mealServer.UpdateLooseProductInDay)
-	r.DELETE(api.PATH_LOOSEPRODUCTSINDAY_WITH_ID, authValidator.Middleware, mealServer.DeleteLooseProductInDay)
-
-	// Categories endpoints
-	r.GET(api.PATH_CATEGORIES, authValidator.Middleware, mealServer.GetCategories)
-	r.GET(api.PATH_CATEGORIES_WITH_ID, authValidator.Middleware, mealServer.GetCategory)
-	r.POST(api.PATH_CATEGORIES, authValidator.Middleware, mealServer.CreateCategory)
-	r.PUT(api.PATH_CATEGORIES, authValidator.Middleware, mealServer.UpdateCategory)
-	r.DELETE(api.PATH_CATEGORIES_WITH_ID, authValidator.Middleware, mealServer.DeleteCategory)
-
-	r.POST(api.PATH_OPTIMIZEMEAL, authValidator.Middleware, mealServer.OptimizeMeal)
-	r.POST(api.PATH_OPTIMIZEMEAL_WITH_ID, authValidator.Middleware, mealServer.OptimizeMealFromRepo)
+	kernel.Run()
 
 	r.Run(fmt.Sprintf(":%s", os.Getenv("SERVER_PORT")))
 }
