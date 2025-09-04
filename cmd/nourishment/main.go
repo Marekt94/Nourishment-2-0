@@ -30,24 +30,22 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-
-	db "nourishment_20/internal/database"
 )
 
 // [AI REFACTOR] Tworzenie i uruchamianie serwera HTTP na porcie 8080
 func StartMealServer() {
 	// Utworzenie instancji repo
-	DbEngine := db.FBDBEngine{BaseEngineIntf: &db.BaseEngine{}}
+	// DbEngine := db.FBDBEngine{BaseEngineIntf: &db.BaseEngine{}}
 
-	conf := db.DBConf{
-		User:       os.Getenv("DB_USER"),
-		Password:   os.Getenv("DB_PASSWORD"),
-		Address:    os.Getenv("DB_ADDRESS"),
-		PathOrName: os.Getenv("DB_NAME"),
-	}
-	database := DbEngine.Connect(&conf)
+	// conf := db.DBConf{
+	// 	User:       os.Getenv("DB_USER"),
+	// 	Password:   os.Getenv("DB_PASSWORD"),
+	// 	Address:    os.Getenv("DB_ADDRESS"),
+	// 	PathOrName: os.Getenv("DB_NAME"),
+	// }
+	// database := DbEngine.Connect(&conf)
 
-	permissionRepo := auth.PermissionsRepo{Db: database}
+	// permissionRepo := auth.PermissionsRepo{Db: database}
 	jwtGen := auth.JWTGenerator{Repo: &permissionRepo}
 	authValidator := api.AuthMiddleware{JwtGenerator: jwtGen}
 
@@ -114,7 +112,7 @@ func StartMealServer() {
 }
 
 func main() {
-	log.SetGlobalLogger(log.NewZerologLogger())
+	// log.SetGlobalLogger(log.NewZerologLogger())
 	err := godotenv.Load()
 	if err != nil {
 		log.Global.Panicf("Error loading .env file: %v", err)

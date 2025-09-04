@@ -11,12 +11,22 @@ type ModuleIntf interface {
 	GetName() string
 }
 
+type KernelIntf interface {
+	RegisterModule(m ModuleIntf)
+	Run()
+	Init()
+}
+
 type Kernel struct {
 	modules map[string]ModuleIntf
 }
 
-func NewKernel() Kernel {
-	return Kernel{make(map[string]ModuleIntf)}
+func NewKernel() KernelIntf {
+	return &Kernel{make(map[string]ModuleIntf)}
+}
+
+func (k *Kernel) Init() {
+
 }
 
 func (k *Kernel) RegisterModule(m ModuleIntf) {
