@@ -32,43 +32,60 @@ type MealKernel struct {
 }
 
 func NewMealKernel() kernel.KernelIntf {
+	log.Global.Infof("Creating new MealKernel instance...")
 	k := MealKernel{}
 	k.Kernel = kernel.NewKernel()
+	log.Global.Infof("MealKernel instance created successfully")
 	return &k
 }
 
 func (k *MealKernel) initDB() {
+	log.Global.Infof("Initializing database connection...")
 	DbEngine := db.FBDBEngine{BaseEngineIntf: &db.BaseEngine{}}
 
 	conf := db.DBConf{
 		User:       os.Getenv("DB_USER"),
-		Password:   os.Getenv("DB_PASSWORD"),
+		Password:   "***", // Don't log password
 		Address:    os.Getenv("DB_ADDRESS"),
 		PathOrName: os.Getenv("DB_NAME"),
 	}
+	log.Global.Infof("Connecting to database at %s with user %s", conf.Address, conf.User)
+
+	conf.Password = os.Getenv("DB_PASSWORD") // Set real password
 	k.dbAccess = DbEngine.Connect(&conf)
+	log.Global.Infof("Database connection established successfully")
 }
 
 func (k *MealKernel) initLogger() {
+	log.Global.Infof("Initializing logger...")
 	log.SetGlobalLogger(log.NewZerologLogger())
+	log.Global.Infof("Logger initialized successfully")
 }
 
 func (k *MealKernel) initServer() {
+	log.Global.Infof("Initializing server engine...")
 	k.serverEngine = gin.Default()
 	gin.DefaultWriter = log.Global.Writer()
 	gin.DefaultErrorWriter = log.Global.Writer()
+	log.Global.Infof("Server engine initialized successfully")
 }
 
 func (k *MealKernel) initPermissionsRepo() {
+	log.Global.Infof("Initializing permissions repository...")
 	k.permissionsRepo = &auth.PermissionsRepo{Db: k.dbAccess}
+	log.Global.Infof("Permissions repository initialized successfully")
 }
 
 func (k *MealKernel) initJWTGenerator() {
+	log.Global.Infof("Initializing JWT generator...")
 	k.jwtGen = &auth.JWTGenerator{Repo: k.permissionsRepo}
+	log.Global.Infof("JWT generator initialized successfully")
 }
 
 func (k *MealKernel) initAuthValidator() {
+	log.Global.Infof("Initializing auth validator...")
 	k.authValidator = &api.AuthMiddleware{JwtGenerator: *k.jwtGen}
+	log.Global.Infof("Auth validator initialized successfully")
 }
 
 func (k *MealKernel) initAuthService() kernel.ModuleIntf {
@@ -79,7 +96,9 @@ func (k *MealKernel) initAuthService() kernel.ModuleIntf {
 }
 
 func (k *MealKernel) initMealRepo() {
+	log.Global.Infof("Initializing meal repository...")
 	k.mealsRepo = &meal.FirebirdRepoAccess{Database: k.dbAccess}
+	log.Global.Infof("Meal repository initialized successfully")
 }
 
 func (k *MealKernel) initMealsModule() kernel.ModuleIntf {
@@ -111,10 +130,15 @@ func (k *MealKernel) initMealsInDayModule() kernel.ModuleIntf {
 }
 
 func (k *MealKernel) initOptimizeMealModule() kernel.ModuleIntf {
+	log.Global.Infof("Initializing AI optimization module...")
+
 	maxTokens, err := strconv.Atoi(os.Getenv("OPENROUTER_MAX_TOKENS"))
 	if err != nil {
 		log.Global.Panicf("Error converting OPENROUTER_MAX_TOKENS to int: %v", err)
 	}
+	log.Global.Infof("AI Client configuration - Model: %s, MaxTokens: %d",
+		os.Getenv("OPENROUTER_MODEL"), maxTokens)
+
 	client := AIClient.OpenRouterClient{
 		ApiKey:    os.Getenv("OPENROUTER_API_KEY"),
 		Model:     os.Getenv("OPENROUTER_MODEL"),
@@ -126,6 +150,7 @@ func (k *MealKernel) initOptimizeMealModule() kernel.ModuleIntf {
 		Repo:     k.mealsRepo,
 		AIClient: aiOptimizer,
 	}
+	log.Global.Infof("AI optimization module initialized successfully")
 	return &ModuleOptimizeMeal{Engine: k.serverEngine, AuthValidator: k.authValidator, PermRepo: k.permissionsRepo, MethodExposer: aiOptimizerAPI}
 }
 
@@ -137,19 +162,23 @@ func (k *MealKernel) initProductsModule() kernel.ModuleIntf {
 }
 
 func (k *MealKernel) Init() {
+	log.Global.Infof("Starting MealKernel initialization...")
+
 	err := godotenv.Load()
 	if err != nil {
 		log.Global.Panicf("Error loading .env file: %v", err)
 	}
+	log.Global.Infof("Environment variables loaded successfully")
+
 	k.initLogger()
 	k.initServer()
 	k.initDB()
-
 	k.initPermissionsRepo()
 	k.initJWTGenerator()
 	k.initAuthValidator()
-
 	k.initMealRepo()
+
+	// Register all modules (each will log its own registration)
 	k.RegisterModule(k.initAuthService())
 	k.RegisterModule(k.initMealsModule())
 	k.RegisterModule(k.initProductsModule())
@@ -157,9 +186,18 @@ func (k *MealKernel) Init() {
 	k.RegisterModule(k.initLooseProductsInDayModule())
 	k.RegisterModule(k.initMealsInDayModule())
 	k.RegisterModule(k.initOptimizeMealModule())
+
+	log.Global.Infof("MealKernel initialization completed successfully")
 }
 
 func (k *MealKernel) Run() {
+	log.Global.Infof("Starting MealKernel run sequence...")
+
+	log.Global.Infof("Running kernel modules...")
 	k.Kernel.Run()
-	k.serverEngine.Run(fmt.Sprintf(":%s", os.Getenv("SERVER_PORT")))
+	log.Global.Infof("All modules initialized successfully")
+
+	port := os.Getenv("SERVER_PORT")
+	log.Global.Infof("Starting HTTP server on port %s", port)
+	k.serverEngine.Run(fmt.Sprintf(":%s", port))
 }
