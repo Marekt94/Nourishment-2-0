@@ -12,6 +12,9 @@ TODO: dodać endpoint do wydruku, niech przesyła pdfa (albo w markdown)
 DONE: jwt, autoryzacja uwierzytelnianie
 TODO: dodać weryfikację uprawnień po danych w bazie danych
 DONE: stworzyc gotowego maina, zeby byl wystawialny w prosty sposób
+TODO: update postmana
+TODO: refactoring globalny
+TODO: swagger
 */
 
 import (
