@@ -21,8 +21,8 @@ type Kernel struct {
 	modules map[string]ModuleIntf
 }
 
-func NewKernel() KernelIntf {
-	return &Kernel{make(map[string]ModuleIntf)}
+func NewKernel() Kernel {
+	return Kernel{make(map[string]ModuleIntf)}
 }
 
 func (k *Kernel) Init() {
