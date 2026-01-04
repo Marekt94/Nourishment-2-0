@@ -3,6 +3,7 @@ package modules
 import (
 	"database/sql"
 	"fmt"
+	_ "nourishment_20/docs"
 	"nourishment_20/internal/AIClient"
 	"nourishment_20/internal/api"
 	"nourishment_20/internal/auth"
@@ -13,12 +14,27 @@ import (
 	"nourishment_20/kernel"
 	"os"
 	"strconv"
+	"strings"
+
+	"github.com/gin-contrib/cors"
+
+	swaggerFiles "github.com/swaggo/files"     // swagger embed files
+	ginSwagger "github.com/swaggo/gin-swagger" // gin-swagger middleware
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
 
-// TODO dodać logowanie
+// @title           Nourishment 2.0 API
+// @version         1.0
+// @contact.email  marekt94@gmail.com
+// @host      localhost:8080
+// @securityDefinitions.apiKey BearerAuth
+// @in header
+// @name Authorization
+// @description Get token from authorization request and place in "Value" field "Bearer {token}"
+
+// DONE dodać logowanie
 type MealKernel struct {
 	kernel.Kernel
 
@@ -65,6 +81,15 @@ func (k *MealKernel) initLogger() {
 func (k *MealKernel) initServer() {
 	log.Global.Infof("Initializing server engine...")
 	k.serverEngine = gin.Default()
+	cfg := cors.DefaultConfig()
+	allowOrigins := os.Getenv("CORS_ALLOW_ORIGINS_LIST")
+	if allowOrigins == "" {
+		allowOrigins = "*"
+	}
+	log.Global.Debugf("CORS allow origins: %s", allowOrigins)
+	cfg.AllowOrigins = strings.Split(allowOrigins, ",")
+	cfg.AllowHeaders = append(cfg.AllowHeaders, "Authorization")
+	k.serverEngine.Use(cors.New(cfg))
 	gin.DefaultWriter = log.Global.Writer()
 	gin.DefaultErrorWriter = log.Global.Writer()
 	log.Global.Infof("Server engine initialized successfully")
@@ -199,5 +224,6 @@ func (k *MealKernel) Run() {
 
 	port := os.Getenv("SERVER_PORT")
 	log.Global.Infof("Starting HTTP server on port %s", port)
+	k.serverEngine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	k.serverEngine.Run(fmt.Sprintf(":%s", port))
 }

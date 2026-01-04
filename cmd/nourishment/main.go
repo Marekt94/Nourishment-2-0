@@ -21,12 +21,8 @@ import (
 	"nourishment_20/internal/modules"
 )
 
-func StartMealServer() {
+func main() {
 	kernel := modules.NewMealKernel()
 	kernel.Init()
 	kernel.Run()
-}
-
-func main() {
-	StartMealServer() // [AI REFACTOR] uruchom serwer
 }

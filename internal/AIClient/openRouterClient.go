@@ -31,7 +31,7 @@ func (c *OpenRouterClient) ExecutePrompt(p string, s AIResponseSchemaIntf) (stri
 		request.ResponseFormat = &openrouter.ChatCompletionResponseFormat{
 			Type: openrouter.ChatCompletionResponseFormatTypeJSONSchema,
 			JSONSchema: &openrouter.ChatCompletionResponseFormatJSONSchema{
-				Name:   "my_json_schema",
+				Name:   "meal_json_schema",
 				Strict: true,
 				Schema: s,
 			},

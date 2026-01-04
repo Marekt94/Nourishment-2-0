@@ -1,6 +1,7 @@
 package api
 
 import (
+	utils "nourishment_20/internal"
 	"nourishment_20/internal/auth"
 
 	"github.com/gin-gonic/gin"
@@ -12,14 +13,30 @@ type AuthServer struct {
 	JWTGenerator *auth.JWTGenerator
 }
 
-func (a *AuthServer) GenerateToken(c *gin.Context) {
-	var loginRequest struct {
-		Login    string `json:"login" binding:"required"`
-		Password string `json:"password" binding:"required"`
-	}
+type GenerateTokenRequest struct {
+	Login    string `json:"login"`
+	Password string `json:"password"`
+}
 
+type GenerateTokenResponse struct {
+	Token string `json:"token"`
+}
+
+// @Summary      Generate Auth Token
+// @Description  Generate JWT token for user
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        request body api.GenerateTokenRequest true "User login and password"
+// @Success      200 {object} api.GenerateTokenResponse
+// @Failure      401 {object} utils.Error
+// @Failure      403 {object} utils.Error
+// @Failure      500 {object} utils.Error
+// @Router       /login [post]
+func (a *AuthServer) GenerateToken(c *gin.Context) {
+	var loginRequest GenerateTokenRequest
 	if err := c.ShouldBindJSON(&loginRequest); err != nil {
-		c.JSON(400, gin.H{"error": "Invalid request format"})
+		c.JSON(400, utils.Error{Error: "Invalid request format"})
 		return
 	}
 
@@ -27,7 +44,7 @@ func (a *AuthServer) GenerateToken(c *gin.Context) {
 	// Check if this method exists in PermissionsIntf
 	exists := a.UserRepo.IsUserExists(loginRequest.Login, loginRequest.Password)
 	if exists == auth.NO_USER_ID {
-		c.JSON(401, gin.H{"error": "Invalid credentials"})
+		c.JSON(401, utils.Error{Error: "Invalid credentials"})
 		return
 	}
 
@@ -35,14 +52,18 @@ func (a *AuthServer) GenerateToken(c *gin.Context) {
 	// Check if this method exists in JWTGenerator
 	tokenRaw, err := a.JWTGenerator.GetJWT(loginRequest.Login)
 	if err != nil {
-		c.JSON(500, gin.H{"error": "Failed to generate token"})
+		c.JSON(500, utils.Error{Error: "Failed to generate token"})
 		return
 	}
 	token, err := a.JWTGenerator.JWTToString(tokenRaw)
 	if err != nil {
-		c.JSON(500, gin.H{"error": "Failed to generate token"})
+		c.JSON(500, utils.Error{Error: "Failed to generate token"})
 		return
 	}
 
-	c.JSON(200, gin.H{"token": token})
+	resp := GenerateTokenResponse{
+		Token: *token,
+	}
+
+	c.JSON(200, resp)
 }

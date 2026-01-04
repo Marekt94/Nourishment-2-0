@@ -1,0 +1,211 @@
+definitions:
+  api.GenerateTokenRequest:
+    properties:
+      login:
+        type: string
+      password:
+        type: string
+    type: object
+  api.GenerateTokenResponse:
+    properties:
+      token:
+        type: string
+    type: object
+  meal.Category:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  utils.Error:
+    properties:
+      error:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: marekt94@gmail.com
+  title: Nourishment 2.0 API
+  version: "1.0"
+paths:
+  /categories:
+    get:
+      consumes:
+      - application/json
+      description: Get list of all categories
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/meal.Category'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: List categories
+      tags:
+      - categories
+    post:
+      consumes:
+      - application/json
+      description: Create a new category from JSON body
+      parameters:
+      - description: Category payload
+        in: body
+        name: category
+        required: true
+        schema:
+          $ref: '#/definitions/meal.Category'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              format: int64
+              type: integer
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Error'
+      security:
+      - BearerAuth: []
+      summary: Create a new category
+      tags:
+      - categories
+    put:
+      consumes:
+      - application/json
+      description: Update category by JSON body (must contain ID)
+      parameters:
+      - description: Category payload
+        in: body
+        name: category
+        required: true
+        schema:
+          $ref: '#/definitions/meal.Category'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Error'
+      security:
+      - BearerAuth: []
+      summary: Update an existing category
+      tags:
+      - categories
+  /categories/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete category by id
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.Error'
+      security:
+      - BearerAuth: []
+      summary: Delete a category
+      tags:
+      - categories
+    get:
+      consumes:
+      - application/json
+      description: Get a single category by its ID
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/meal.Category'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.Error'
+      security:
+      - BearerAuth: []
+      summary: Get category by id
+      tags:
+      - categories
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Generate JWT token for user
+      parameters:
+      - description: User login and password
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/api.GenerateTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.GenerateTokenResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.Error'
+      summary: Generate Auth Token
+      tags:
+      - auth
+securityDefinitions:
+  BearerAuth:
+    description: Get token from authorization request and place in "Value" field "Bearer
+      {token}"
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
