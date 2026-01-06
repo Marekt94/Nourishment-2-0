@@ -14,7 +14,7 @@ TODO: dodać weryfikację uprawnień po danych w bazie danych
 DONE: stworzyc gotowego maina, zeby byl wystawialny w prosty sposób
 TODO: update postmana
 TODO: refactoring globalny
-TODO: swagger
+DONE: swagger
 */
 
 import (
