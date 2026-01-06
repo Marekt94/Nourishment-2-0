@@ -1,7 +1,6 @@
 package api
 
 import (
-	utils "nourishment_20/internal"
 	"nourishment_20/internal/auth"
 
 	"github.com/gin-gonic/gin"
@@ -29,14 +28,14 @@ type GenerateTokenResponse struct {
 // @Produce      json
 // @Param        request body api.GenerateTokenRequest true "User login and password"
 // @Success      200 {object} api.GenerateTokenResponse
-// @Failure      401 {object} utils.Error
-// @Failure      403 {object} utils.Error
-// @Failure      500 {object} utils.Error
+// @Failure      401 {object} Error
+// @Failure      403 {object} Error
+// @Failure      500 {object} Error
 // @Router       /login [post]
 func (a *AuthServer) GenerateToken(c *gin.Context) {
 	var loginRequest GenerateTokenRequest
 	if err := c.ShouldBindJSON(&loginRequest); err != nil {
-		c.JSON(400, utils.Error{Error: "Invalid request format"})
+		c.JSON(400, Error{Error: "Invalid request format"})
 		return
 	}
 
@@ -44,7 +43,7 @@ func (a *AuthServer) GenerateToken(c *gin.Context) {
 	// Check if this method exists in PermissionsIntf
 	exists := a.UserRepo.IsUserExists(loginRequest.Login, loginRequest.Password)
 	if exists == auth.NO_USER_ID {
-		c.JSON(401, utils.Error{Error: "Invalid credentials"})
+		c.JSON(401, Error{Error: "Invalid credentials"})
 		return
 	}
 
@@ -52,12 +51,12 @@ func (a *AuthServer) GenerateToken(c *gin.Context) {
 	// Check if this method exists in JWTGenerator
 	tokenRaw, err := a.JWTGenerator.GetJWT(loginRequest.Login)
 	if err != nil {
-		c.JSON(500, utils.Error{Error: "Failed to generate token"})
+		c.JSON(500, Error{Error: "Failed to generate token"})
 		return
 	}
 	token, err := a.JWTGenerator.JWTToString(tokenRaw)
 	if err != nil {
-		c.JSON(500, utils.Error{Error: "Failed to generate token"})
+		c.JSON(500, Error{Error: "Failed to generate token"})
 		return
 	}
 

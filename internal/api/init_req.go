@@ -6,7 +6,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func DefaultReq(c *gin.Context){
+type Error struct {
+	Error string `json:"error"`
+}
+
+func DefaultReq(c *gin.Context) {
 	str := "{\"status\": \"ok\"}" // [AI REFACTOR]
 	c.IndentedJSON(http.StatusOK, str)
 }

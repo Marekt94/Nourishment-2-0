@@ -1,4 +1,9 @@
 definitions:
+  api.Error:
+    properties:
+      error:
+        type: string
+    type: object
   api.GenerateTokenRequest:
     properties:
       login:
@@ -18,10 +23,111 @@ definitions:
       name:
         type: string
     type: object
-  utils.Error:
+  meal.LooseProductInDay:
     properties:
-      error:
+      dayId:
+        description: ID_DNIA
+        type: integer
+      id:
+        type: integer
+      product:
+        allOf:
+        - $ref: '#/definitions/meal.Product'
+        description: ID_PRODUKTU jako relacja
+      weight:
+        description: ILOSC_W_G
+        type: number
+    type: object
+  meal.Meal:
+    properties:
+      id:
+        type: integer
+      name:
         type: string
+      productsInMeal:
+        items:
+          $ref: '#/definitions/meal.ProductInMeal'
+        type: array
+      recipe:
+        type: string
+    type: object
+  meal.MealInDay:
+    properties:
+      afternoonSnack:
+        $ref: '#/definitions/meal.Meal'
+      breakfast:
+        $ref: '#/definitions/meal.Meal'
+      dinner:
+        $ref: '#/definitions/meal.Meal'
+      factorAfternoonSnack:
+        format: float64
+        type: number
+      factorBreakfast:
+        format: float64
+        type: number
+      factorDinner:
+        format: float64
+        type: number
+      factorLunch:
+        format: float64
+        type: number
+      factorSecondBreakfast:
+        format: float64
+        type: number
+      factorSupper:
+        format: float64
+        type: number
+      for5Days:
+        description: mapowane z CHAR(1) '1' lub '0'
+        type: boolean
+      id:
+        type: integer
+      lunch:
+        $ref: '#/definitions/meal.Meal'
+      name:
+        type: string
+      secondBreakfast:
+        $ref: '#/definitions/meal.Meal'
+      supper:
+        $ref: '#/definitions/meal.Meal'
+    type: object
+  meal.Product:
+    properties:
+      carbohydrates:
+        type: number
+      category:
+        $ref: '#/definitions/meal.Category'
+      fat:
+        type: number
+      fiber:
+        type: number
+      id:
+        type: integer
+      kcalPer100:
+        type: number
+      name:
+        type: string
+      proteins:
+        type: number
+      salt:
+        type: number
+      sugar:
+        type: number
+      sugarAndCarb:
+        type: number
+      unit:
+        type: string
+      weight:
+        type: number
+    type: object
+  meal.ProductInMeal:
+    properties:
+      id:
+        type: integer
+      product:
+        $ref: '#/definitions/meal.Product'
+      weight:
+        type: number
     type: object
 host: localhost:8080
 info:
@@ -73,11 +179,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Error'
+            $ref: '#/definitions/api.Error'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Error'
+            $ref: '#/definitions/api.Error'
       security:
       - BearerAuth: []
       summary: Create a new category
@@ -102,7 +208,7 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Error'
+            $ref: '#/definitions/api.Error'
       security:
       - BearerAuth: []
       summary: Update an existing category
@@ -127,11 +233,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Error'
+            $ref: '#/definitions/api.Error'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/utils.Error'
+            $ref: '#/definitions/api.Error'
       security:
       - BearerAuth: []
       summary: Delete a category
@@ -157,11 +263,11 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/utils.Error'
+            $ref: '#/definitions/api.Error'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/utils.Error'
+            $ref: '#/definitions/api.Error'
       security:
       - BearerAuth: []
       summary: Get category by id
@@ -189,18 +295,648 @@ paths:
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/utils.Error'
+            $ref: '#/definitions/api.Error'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/utils.Error'
+            $ref: '#/definitions/api.Error'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/utils.Error'
+            $ref: '#/definitions/api.Error'
       summary: Generate Auth Token
       tags:
       - auth
+  /looseproductsinday:
+    get:
+      consumes:
+      - application/json
+      description: Get list of loose products in day by day ID
+      parameters:
+      - description: Day ID
+        in: query
+        name: dayId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/meal.LooseProductInDay'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+      security:
+      - BearerAuth: []
+      summary: List loose products in day
+      tags:
+      - looseproductsinday
+    post:
+      consumes:
+      - application/json
+      description: Create a new loose product in day from JSON body
+      parameters:
+      - description: LooseProductInDay payload
+        in: body
+        name: looseproduct
+        required: true
+        schema:
+          $ref: '#/definitions/meal.LooseProductInDay'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              format: int64
+              type: integer
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.Error'
+      security:
+      - BearerAuth: []
+      summary: Create a new loose product in day
+      tags:
+      - looseproductsinday
+    put:
+      consumes:
+      - application/json
+      description: Update loose product in day by JSON body (must contain ID)
+      parameters:
+      - description: LooseProductInDay payload
+        in: body
+        name: looseproduct
+        required: true
+        schema:
+          $ref: '#/definitions/meal.LooseProductInDay'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+      security:
+      - BearerAuth: []
+      summary: Update an existing loose product in day
+      tags:
+      - looseproductsinday
+  /looseproductsinday/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete loose product in day by id
+      parameters:
+      - description: LooseProductInDay ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.Error'
+      security:
+      - BearerAuth: []
+      summary: Delete a loose product in day
+      tags:
+      - looseproductsinday
+    get:
+      consumes:
+      - application/json
+      description: Get a single loose product in day by its ID
+      parameters:
+      - description: LooseProductInDay ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/meal.LooseProductInDay'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.Error'
+      security:
+      - BearerAuth: []
+      summary: Get loose product in day by id
+      tags:
+      - looseproductsinday
+  /meals:
+    get:
+      consumes:
+      - application/json
+      description: Get list of all meals
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/meal.Meal'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: List meals
+      tags:
+      - meals
+    post:
+      consumes:
+      - application/json
+      description: Create a new meal from JSON body
+      parameters:
+      - description: Meal payload
+        in: body
+        name: meal
+        required: true
+        schema:
+          $ref: '#/definitions/meal.Meal'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              format: int64
+              type: integer
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+      security:
+      - BearerAuth: []
+      summary: Create a new meal
+      tags:
+      - meals
+    put:
+      consumes:
+      - application/json
+      description: Update meal by JSON body (must contain ID)
+      parameters:
+      - description: Meal payload
+        in: body
+        name: meal
+        required: true
+        schema:
+          $ref: '#/definitions/meal.Meal'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+      security:
+      - BearerAuth: []
+      summary: Update an existing meal
+      tags:
+      - meals
+  /meals/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete meal by id
+      parameters:
+      - description: Meal ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.Error'
+      security:
+      - BearerAuth: []
+      summary: Delete a meal
+      tags:
+      - meals
+    get:
+      consumes:
+      - application/json
+      description: Get a single meal by its ID
+      parameters:
+      - description: Meal ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/meal.Meal'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+      security:
+      - BearerAuth: []
+      summary: Get meal by id
+      tags:
+      - meals
+  /mealsinday:
+    get:
+      consumes:
+      - application/json
+      description: Get list of all meals in day
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/meal.MealInDay'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: List meals in day
+      tags:
+      - mealsinday
+    post:
+      consumes:
+      - application/json
+      description: Create a new meal in day from JSON body
+      parameters:
+      - description: MealInDay payload
+        in: body
+        name: mealinday
+        required: true
+        schema:
+          $ref: '#/definitions/meal.MealInDay'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              format: int64
+              type: integer
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.Error'
+      security:
+      - BearerAuth: []
+      summary: Create a new meal in day
+      tags:
+      - mealsinday
+    put:
+      consumes:
+      - application/json
+      description: Update meal in day by JSON body (must contain ID)
+      parameters:
+      - description: MealInDay payload
+        in: body
+        name: mealinday
+        required: true
+        schema:
+          $ref: '#/definitions/meal.MealInDay'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+      security:
+      - BearerAuth: []
+      summary: Update an existing meal in day
+      tags:
+      - mealsinday
+  /mealsinday/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete meal in day by id
+      parameters:
+      - description: MealInDay ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.Error'
+      security:
+      - BearerAuth: []
+      summary: Delete a meal in day
+      tags:
+      - mealsinday
+    get:
+      consumes:
+      - application/json
+      description: Get a single meal in day by its ID
+      parameters:
+      - description: MealInDay ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/meal.MealInDay'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.Error'
+      security:
+      - BearerAuth: []
+      summary: Get meal in day by id
+      tags:
+      - mealsinday
+  /optimizemeal:
+    post:
+      consumes:
+      - application/json
+      description: Optimize meal ingredients to match target kcal using AI
+      parameters:
+      - description: Target kcal
+        format: float64
+        in: query
+        name: kcal
+        required: true
+        type: number
+      - description: Meal to optimize
+        in: body
+        name: meal
+        required: true
+        schema:
+          $ref: '#/definitions/meal.Meal'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/meal.Meal'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.Error'
+      security:
+      - BearerAuth: []
+      summary: Optimize meal by AI
+      tags:
+      - ai-optimizer
+  /optimizemeal/{id}:
+    post:
+      consumes:
+      - application/json
+      description: Get meal from repository and optimize its ingredients to match
+        target kcal using AI
+      parameters:
+      - description: Meal ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Target kcal
+        format: float64
+        in: query
+        name: kcal
+        required: true
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/meal.Meal'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.Error'
+      security:
+      - BearerAuth: []
+      summary: Optimize meal from repository by AI
+      tags:
+      - ai-optimizer
+  /products:
+    get:
+      consumes:
+      - application/json
+      description: Get list of all products
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/meal.Product'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: List products
+      tags:
+      - products
+    post:
+      consumes:
+      - application/json
+      description: Create a new product from JSON body
+      parameters:
+      - description: Product payload
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/meal.Product'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              format: int64
+              type: integer
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.Error'
+      security:
+      - BearerAuth: []
+      summary: Create a new product
+      tags:
+      - products
+    put:
+      consumes:
+      - application/json
+      description: Update product by JSON body (must contain ID)
+      parameters:
+      - description: Product payload
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/meal.Product'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+      security:
+      - BearerAuth: []
+      summary: Update an existing product
+      tags:
+      - products
+  /products/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete product by id
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.Error'
+      security:
+      - BearerAuth: []
+      summary: Delete a product
+      tags:
+      - products
+    get:
+      consumes:
+      - application/json
+      description: Get a single product by its ID
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/meal.Product'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.Error'
+      security:
+      - BearerAuth: []
+      summary: Get product by id
+      tags:
+      - products
 securityDefinitions:
   BearerAuth:
     description: Get token from authorization request and place in "Value" field "Bearer
