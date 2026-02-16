@@ -1,12 +1,87 @@
 {
   "info": {
-    "_postman_id": "a367953c-04fb-43db-bf7c-40293dfa7e92",
+    "_postman_id": "b32a5652-6ef3-472e-8059-c53851537458",
     "name": "Nourishment API - Meals",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "30215534",
-    "_collection_link": "https://mt5555-7028.postman.co/workspace/Nourishment-2-0~ac3be09c-bd04-4d0e-9bbb-2ca1ab0efff3/collection/30215534-a367953c-04fb-43db-bf7c-40293dfa7e92?action=share&source=collection_link&creator=30215534"
+    "_collection_link": "https://go.postman.co/collection/30215534-b32a5652-6ef3-472e-8059-c53851537458?source=collection_link"
   },
   "item": [
+    {
+      "name": "Meal optimizer",
+      "item": [
+        {
+          "name": "Optimize meal from repo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{http}}://{{ip}}:{{port}}/optimizemeal/1?kcal=200",
+              "protocol": "{{http}}",
+              "host": [
+                "{{ip}}"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "optimizemeal",
+                "1"
+              ],
+              "query": [
+                {
+                  "key": "kcal",
+                  "value": "200"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Optimize meal",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"id\": 56,\r\n    \"name\": \"chleb z warzywami\",\r\n    \"recipe\": \"\",\r\n    \"productsInMeal\": [\r\n        {\r\n            \"id\": 135,\r\n            \"product\": {\r\n                \"id\": 83,\r\n                \"name\": \"chleb graham\",\r\n                \"kcalPer100\": 231,\r\n                \"weight\": 0,\r\n                \"proteins\": 8.9,\r\n                \"fat\": 1.7,\r\n                \"sugar\": 0,\r\n                \"carbohydrates\": 0,\r\n                \"sugarAndCarb\": 0,\r\n                \"fiber\": 6.4,\r\n                \"salt\": 1.1,\r\n                \"unit\": \"g\",\r\n                \"category\": {\r\n                    \"id\": 2,\r\n                    \"name\": \"pieczywo\"\r\n                }\r\n            },\r\n            \"weight\": 100\r\n        },\r\n        {\r\n            \"id\": 136,\r\n            \"product\": {\r\n                \"id\": 84,\r\n                \"name\": \"papryka\",\r\n                \"kcalPer100\": 32,\r\n                \"weight\": 0,\r\n                \"proteins\": 1.3,\r\n                \"fat\": 0.5,\r\n                \"sugar\": 0,\r\n                \"carbohydrates\": 0,\r\n                \"sugarAndCarb\": 0,\r\n                \"fiber\": 2,\r\n                \"salt\": 0,\r\n                \"unit\": \"g\",\r\n                \"category\": {\r\n                    \"id\": 5,\r\n                    \"name\": \"warzywa\"\r\n                }\r\n            },\r\n            \"weight\": 70\r\n        },\r\n        {\r\n            \"id\": 137,\r\n            \"product\": {\r\n                \"id\": 62,\r\n                \"name\": \"pomidor\",\r\n                \"kcalPer100\": 18,\r\n                \"weight\": 170,\r\n                \"proteins\": 1,\r\n                \"fat\": 0,\r\n                \"sugar\": 0,\r\n                \"carbohydrates\": 0,\r\n                \"sugarAndCarb\": 0,\r\n                \"fiber\": 1,\r\n                \"salt\": 0,\r\n                \"unit\": \"g\",\r\n                \"category\": {\r\n                    \"id\": 5,\r\n                    \"name\": \"warzywa\"\r\n                }\r\n            },\r\n            \"weight\": 108\r\n        },\r\n        {\r\n            \"id\": 138,\r\n            \"product\": {\r\n                \"id\": 85,\r\n                \"name\": \"sałata\",\r\n                \"kcalPer100\": 14,\r\n                \"weight\": 0,\r\n                \"proteins\": 1.4,\r\n                \"fat\": 0.2,\r\n                \"sugar\": 0,\r\n                \"carbohydrates\": 0,\r\n                \"sugarAndCarb\": 0,\r\n                \"fiber\": 1.4,\r\n                \"salt\": 0,\r\n                \"unit\": \"g\",\r\n                \"category\": {\r\n                    \"id\": 5,\r\n                    \"name\": \"warzywa\"\r\n                }\r\n            },\r\n            \"weight\": 12\r\n        },\r\n        {\r\n            \"id\": 139,\r\n            \"product\": {\r\n                \"id\": 86,\r\n                \"name\": \"rzodkiew\",\r\n                \"kcalPer100\": 18,\r\n                \"weight\": 0,\r\n                \"proteins\": 1,\r\n                \"fat\": 0.2,\r\n                \"sugar\": 0,\r\n                \"carbohydrates\": 0,\r\n                \"sugarAndCarb\": 0,\r\n                \"fiber\": 2.5,\r\n                \"salt\": 0,\r\n                \"unit\": \"g\",\r\n                \"category\": {\r\n                    \"id\": 5,\r\n                    \"name\": \"warzywa\"\r\n                }\r\n            },\r\n            \"weight\": 50\r\n        }\r\n    ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{http}}://{{ip}}:{{port}}/optimizemeal?kcal=200",
+              "protocol": "{{http}}",
+              "host": [
+                "{{ip}}"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "optimizemeal"
+              ],
+              "query": [
+                {
+                  "key": "kcal",
+                  "value": "200"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
     {
       "name": "Get all meals",
       "request": {
@@ -15,9 +90,13 @@
         "url": {
           "raw": "{{http}}://{{ip}}:{{port}}/meals",
           "protocol": "{{http}}",
-          "host": ["{{ip}}"],
+          "host": [
+            "{{ip}}"
+          ],
           "port": "{{port}}",
-          "path": ["meals"]
+          "path": [
+            "meals"
+          ]
         }
       },
       "response": []
@@ -30,9 +109,14 @@
         "url": {
           "raw": "{{http}}://{{ip}}:{{port}}/meals/{{id}}",
           "protocol": "{{http}}",
-          "host": ["{{ip}}"],
+          "host": [
+            "{{ip}}"
+          ],
           "port": "{{port}}",
-          "path": ["meals", "{{id}}"]
+          "path": [
+            "meals",
+            "{{id}}"
+          ]
         }
       },
       "response": []
@@ -43,7 +127,9 @@
         {
           "listen": "test",
           "script": {
-            "exec": ["pm.environment.set(\"id\", pm.response.json().id);"],
+            "exec": [
+              "pm.environment.set(\"id\", pm.response.json().id);"
+            ],
             "type": "text/javascript",
             "packages": {}
           }
@@ -64,9 +150,13 @@
         "url": {
           "raw": "{{http}}://{{ip}}:{{port}}/meals",
           "protocol": "{{http}}",
-          "host": ["{{ip}}"],
+          "host": [
+            "{{ip}}"
+          ],
           "port": "{{port}}",
-          "path": ["meals"]
+          "path": [
+            "meals"
+          ]
         }
       },
       "response": []
@@ -88,9 +178,13 @@
         "url": {
           "raw": "{{http}}://{{ip}}:{{port}}/meals",
           "protocol": "{{http}}",
-          "host": ["{{ip}}"],
+          "host": [
+            "{{ip}}"
+          ],
           "port": "{{port}}",
-          "path": ["meals"]
+          "path": [
+            "meals"
+          ]
         }
       },
       "response": []
@@ -103,9 +197,14 @@
         "url": {
           "raw": "{{http}}://{{ip}}:{{port}}/meals/{{id}}",
           "protocol": "{{http}}",
-          "host": ["{{ip}}"],
+          "host": [
+            "{{ip}}"
+          ],
           "port": "{{port}}",
-          "path": ["meals", "{{id}}"]
+          "path": [
+            "meals",
+            "{{id}}"
+          ]
         }
       },
       "response": []
@@ -118,9 +217,13 @@
         "url": {
           "raw": "{{http}}://{{ip}}:{{port}}/categories",
           "protocol": "{{http}}",
-          "host": ["{{ip}}"],
+          "host": [
+            "{{ip}}"
+          ],
           "port": "{{port}}",
-          "path": ["categories"]
+          "path": [
+            "categories"
+          ]
         }
       },
       "response": []
@@ -133,9 +236,14 @@
         "url": {
           "raw": "{{http}}://{{ip}}:{{port}}/categories/{{categoryId}}",
           "protocol": "{{http}}",
-          "host": ["{{ip}}"],
+          "host": [
+            "{{ip}}"
+          ],
           "port": "{{port}}",
-          "path": ["categories", "{{categoryId}}"]
+          "path": [
+            "categories",
+            "{{categoryId}}"
+          ]
         }
       },
       "response": []
@@ -146,7 +254,9 @@
         {
           "listen": "test",
           "script": {
-            "exec": ["pm.environment.set(\"categoryId\", pm.response.json().id);"],
+            "exec": [
+              "pm.environment.set(\"categoryId\", pm.response.json().id);"
+            ],
             "type": "text/javascript"
           }
         }
@@ -166,9 +276,13 @@
         "url": {
           "raw": "{{http}}://{{ip}}:{{port}}/categories",
           "protocol": "{{http}}",
-          "host": ["{{ip}}"],
+          "host": [
+            "{{ip}}"
+          ],
           "port": "{{port}}",
-          "path": ["categories"]
+          "path": [
+            "categories"
+          ]
         }
       },
       "response": []
@@ -190,9 +304,13 @@
         "url": {
           "raw": "{{http}}://{{ip}}:{{port}}/categories",
           "protocol": "{{http}}",
-          "host": ["{{ip}}"],
+          "host": [
+            "{{ip}}"
+          ],
           "port": "{{port}}",
-          "path": ["categories"]
+          "path": [
+            "categories"
+          ]
         }
       },
       "response": []
@@ -205,9 +323,14 @@
         "url": {
           "raw": "{{http}}://{{ip}}:{{port}}/categories/{{categoryId}}",
           "protocol": "{{http}}",
-          "host": ["{{ip}}"],
+          "host": [
+            "{{ip}}"
+          ],
           "port": "{{port}}",
-          "path": ["categories", "{{categoryId}}"]
+          "path": [
+            "categories",
+            "{{categoryId}}"
+          ]
         }
       },
       "response": []
@@ -220,9 +343,13 @@
         "url": {
           "raw": "{{http}}://{{ip}}:{{port}}/products",
           "protocol": "{{http}}",
-          "host": ["{{ip}}"],
+          "host": [
+            "{{ip}}"
+          ],
           "port": "{{port}}",
-          "path": ["products"]
+          "path": [
+            "products"
+          ]
         }
       },
       "response": []
@@ -235,9 +362,14 @@
         "url": {
           "raw": "{{http}}://{{ip}}:{{port}}/products/{{productId}}",
           "protocol": "{{http}}",
-          "host": ["{{ip}}"],
+          "host": [
+            "{{ip}}"
+          ],
           "port": "{{port}}",
-          "path": ["products", "{{productId}}"]
+          "path": [
+            "products",
+            "{{productId}}"
+          ]
         }
       },
       "response": []
@@ -248,7 +380,9 @@
         {
           "listen": "test",
           "script": {
-            "exec": ["pm.environment.set(\"productId\", pm.response.json().id);"],
+            "exec": [
+              "pm.environment.set(\"productId\", pm.response.json().id);"
+            ],
             "type": "text/javascript"
           }
         }
@@ -268,9 +402,13 @@
         "url": {
           "raw": "{{http}}://{{ip}}:{{port}}/products",
           "protocol": "{{http}}",
-          "host": ["{{ip}}"],
+          "host": [
+            "{{ip}}"
+          ],
           "port": "{{port}}",
-          "path": ["products"]
+          "path": [
+            "products"
+          ]
         }
       },
       "response": []
@@ -292,9 +430,13 @@
         "url": {
           "raw": "{{http}}://{{ip}}:{{port}}/products",
           "protocol": "{{http}}",
-          "host": ["{{ip}}"],
+          "host": [
+            "{{ip}}"
+          ],
           "port": "{{port}}",
-          "path": ["products"]
+          "path": [
+            "products"
+          ]
         }
       },
       "response": []
@@ -307,9 +449,14 @@
         "url": {
           "raw": "{{http}}://{{ip}}:{{port}}/products/{{productId}}",
           "protocol": "{{http}}",
-          "host": ["{{ip}}"],
+          "host": [
+            "{{ip}}"
+          ],
           "port": "{{port}}",
-          "path": ["products", "{{productId}}"]
+          "path": [
+            "products",
+            "{{productId}}"
+          ]
         }
       },
       "response": []
@@ -322,9 +469,13 @@
         "url": {
           "raw": "{{http}}://{{ip}}:{{port}}/mealsinday",
           "protocol": "{{http}}",
-          "host": ["{{ip}}"],
+          "host": [
+            "{{ip}}"
+          ],
           "port": "{{port}}",
-          "path": ["mealsinday"]
+          "path": [
+            "mealsinday"
+          ]
         }
       },
       "response": []
@@ -337,9 +488,14 @@
         "url": {
           "raw": "{{http}}://{{ip}}:{{port}}/mealsinday/{{mealsInDayId}}",
           "protocol": "{{http}}",
-          "host": ["{{ip}}"],
+          "host": [
+            "{{ip}}"
+          ],
           "port": "{{port}}",
-          "path": ["mealsinday", "{{mealsInDayId}}"]
+          "path": [
+            "mealsinday",
+            "{{mealsInDayId}}"
+          ]
         }
       },
       "response": []
@@ -350,7 +506,9 @@
         {
           "listen": "test",
           "script": {
-            "exec": ["pm.environment.set(\"mealsInDayId\", pm.response.json().id);"],
+            "exec": [
+              "pm.environment.set(\"mealsInDayId\", pm.response.json().id);"
+            ],
             "type": "text/javascript"
           }
         }
@@ -370,9 +528,13 @@
         "url": {
           "raw": "{{http}}://{{ip}}:{{port}}/mealsinday",
           "protocol": "{{http}}",
-          "host": ["{{ip}}"],
+          "host": [
+            "{{ip}}"
+          ],
           "port": "{{port}}",
-          "path": ["mealsinday"]
+          "path": [
+            "mealsinday"
+          ]
         }
       },
       "response": []
@@ -394,9 +556,13 @@
         "url": {
           "raw": "{{http}}://{{ip}}:{{port}}/mealsinday",
           "protocol": "{{http}}",
-          "host": ["{{ip}}"],
+          "host": [
+            "{{ip}}"
+          ],
           "port": "{{port}}",
-          "path": ["mealsinday"]
+          "path": [
+            "mealsinday"
+          ]
         }
       },
       "response": []
@@ -409,9 +575,14 @@
         "url": {
           "raw": "{{http}}://{{ip}}:{{port}}/mealsinday/{{mealsInDayId}}",
           "protocol": "{{http}}",
-          "host": ["{{ip}}"],
+          "host": [
+            "{{ip}}"
+          ],
           "port": "{{port}}",
-          "path": ["mealsinday", "{{mealsInDayId}}"]
+          "path": [
+            "mealsinday",
+            "{{mealsInDayId}}"
+          ]
         }
       },
       "response": []
@@ -424,10 +595,19 @@
         "url": {
           "raw": "{{http}}://{{ip}}:{{port}}/looseproductsinday?dayId={{mealsInDayId}}",
           "protocol": "{{http}}",
-          "host": ["{{ip}}"],
+          "host": [
+            "{{ip}}"
+          ],
           "port": "{{port}}",
-          "path": ["looseproductsinday"],
-          "query": [{ "key": "dayId", "value": "{{mealsInDayId}}" }]
+          "path": [
+            "looseproductsinday"
+          ],
+          "query": [
+            {
+              "key": "dayId",
+              "value": "{{mealsInDayId}}"
+            }
+          ]
         }
       },
       "response": []
@@ -440,9 +620,14 @@
         "url": {
           "raw": "{{http}}://{{ip}}:{{port}}/looseproductsinday/{{looseProductInDayId}}",
           "protocol": "{{http}}",
-          "host": ["{{ip}}"],
+          "host": [
+            "{{ip}}"
+          ],
           "port": "{{port}}",
-          "path": ["looseproductsinday", "{{looseProductInDayId}}"]
+          "path": [
+            "looseproductsinday",
+            "{{looseProductInDayId}}"
+          ]
         }
       },
       "response": []
@@ -453,7 +638,9 @@
         {
           "listen": "test",
           "script": {
-            "exec": ["pm.environment.set(\"looseProductInDayId\", pm.response.json().id);"],
+            "exec": [
+              "pm.environment.set(\"looseProductInDayId\", pm.response.json().id);"
+            ],
             "type": "text/javascript"
           }
         }
@@ -473,9 +660,13 @@
         "url": {
           "raw": "{{http}}://{{ip}}:{{port}}/looseproductsinday",
           "protocol": "{{http}}",
-          "host": ["{{ip}}"],
+          "host": [
+            "{{ip}}"
+          ],
           "port": "{{port}}",
-          "path": ["looseproductsinday"]
+          "path": [
+            "looseproductsinday"
+          ]
         }
       },
       "response": []
@@ -497,9 +688,13 @@
         "url": {
           "raw": "{{http}}://{{ip}}:{{port}}/looseproductsinday",
           "protocol": "{{http}}",
-          "host": ["{{ip}}"],
+          "host": [
+            "{{ip}}"
+          ],
           "port": "{{port}}",
-          "path": ["looseproductsinday"]
+          "path": [
+            "looseproductsinday"
+          ]
         }
       },
       "response": []
@@ -512,12 +707,91 @@
         "url": {
           "raw": "{{http}}://{{ip}}:{{port}}/looseproductsinday/{{looseProductInDayId}}",
           "protocol": "{{http}}",
-          "host": ["{{ip}}"],
+          "host": [
+            "{{ip}}"
+          ],
           "port": "{{port}}",
-          "path": ["looseproductsinday", "{{looseProductInDayId}}"]
+          "path": [
+            "looseproductsinday",
+            "{{looseProductInDayId}}"
+          ]
         }
       },
       "response": []
+    },
+    {
+      "name": "Login",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.environment.set(\"token\", pm.response.json().token);"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"login\": \"{{login}}\",\r\n    \"password\": \"{{password}}\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{http}}://{{ip}}:{{port}}/login",
+          "protocol": "{{http}}",
+          "host": [
+            "{{ip}}"
+          ],
+          "port": "{{port}}",
+          "path": [
+            "login"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
     }
   ]
 }

@@ -62,6 +62,7 @@ func (s *productDb) ConvertToProduct(p *Product) { // [AI REFACTOR]
 	p.Fat = database.NullFloat64ToFloat(&s.Fat)
 	p.Sugar = database.NullFloat64ToFloat(&s.Sugar)
 	p.Carbohydrates = database.NullFloat64ToFloat(&s.Carbohydrates)
+	p.SugarAndCarbo = database.NullFloat64ToFloat(&s.SugarAndCarbo)
 	p.Fiber = database.NullFloat64ToFloat(&s.Fiber)
 	p.Salt = database.NullFloat64ToFloat(&s.Salt)
 	p.Unit = database.NullStringToString(&s.Unit)

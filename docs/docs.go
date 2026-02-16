@@ -9,9 +9,7 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "contact": {
-            "email": "marekt94@gmail.com"
-        },
+        "contact": {},
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
@@ -730,7 +728,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Get list of all meals in day",
+                "description": "Get list of all meal plans. Each plan contains 6 meals for a day with factor multipliers.",
                 "consumes": [
                     "application/json"
                 ],
@@ -759,7 +757,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Update meal in day by JSON body (must contain ID)",
+                "description": "Update meal plan for a day. Must contain ID and can update any of the 6 meals, their factors, name, or for5Days flag.",
                 "consumes": [
                     "application/json"
                 ],
@@ -772,7 +770,7 @@ const docTemplate = `{
                 "summary": "Update an existing meal in day",
                 "parameters": [
                     {
-                        "description": "MealInDay payload",
+                        "description": "MealInDay payload (must include ID)",
                         "name": "mealinday",
                         "in": "body",
                         "required": true,
@@ -799,7 +797,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Create a new meal in day from JSON body",
+                "description": "Create a new meal plan for a day. Must include 6 meals (breakfast, secondBreakfast, lunch, dinner, supper, afternoonSnack), their factor multipliers, name, and optional for5Days flag.",
                 "consumes": [
                     "application/json"
                 ],
@@ -812,7 +810,7 @@ const docTemplate = `{
                 "summary": "Create a new meal in day",
                 "parameters": [
                     {
-                        "description": "MealInDay payload",
+                        "description": "MealInDay payload with 6 meals and factors",
                         "name": "mealinday",
                         "in": "body",
                         "required": true,
@@ -854,7 +852,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Get a single meal in day by its ID",
+                "description": "Get a single meal plan for a day by its ID. Contains 6 meals (breakfast, second breakfast, lunch, dinner, supper, afternoon snack) with their respective factor multipliers and a name.",
                 "consumes": [
                     "application/json"
                 ],
@@ -901,7 +899,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Delete meal in day by id",
+                "description": "Delete a meal plan for a day by its ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -1376,28 +1374,22 @@ const docTemplate = `{
                     "$ref": "#/definitions/meal.Meal"
                 },
                 "factorAfternoonSnack": {
-                    "type": "number",
-                    "format": "float64"
+                    "type": "number"
                 },
                 "factorBreakfast": {
-                    "type": "number",
-                    "format": "float64"
+                    "type": "number"
                 },
                 "factorDinner": {
-                    "type": "number",
-                    "format": "float64"
+                    "type": "number"
                 },
                 "factorLunch": {
-                    "type": "number",
-                    "format": "float64"
+                    "type": "number"
                 },
                 "factorSecondBreakfast": {
-                    "type": "number",
-                    "format": "float64"
+                    "type": "number"
                 },
                 "factorSupper": {
-                    "type": "number",
-                    "format": "float64"
+                    "type": "number"
                 },
                 "for5Days": {
                     "description": "mapowane z CHAR(1) '1' lub '0'",
@@ -1478,24 +1470,16 @@ const docTemplate = `{
                 }
             }
         }
-    },
-    "securityDefinitions": {
-        "BearerAuth": {
-            "description": "Get token from authorization request and place in \"Value\" field \"Bearer {token}\"",
-            "type": "apiKey",
-            "name": "Authorization",
-            "in": "header"
-        }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.0",
-	Host:             "localhost:8080",
+	Version:          "",
+	Host:             "",
 	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "Nourishment 2.0 API",
+	Title:            "",
 	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

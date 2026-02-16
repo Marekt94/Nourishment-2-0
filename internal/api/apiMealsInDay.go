@@ -17,7 +17,7 @@ type MealsInDayAPI struct {
 // GetMealInDay godoc
 // @Security BearerAuth
 // @Summary      Get meal in day by id
-// @Description  Get a single meal in day by its ID
+// @Description  Get a single meal plan for a day by its ID. Contains 6 meals (breakfast, second breakfast, lunch, dinner, supper, afternoon snack) with their respective factor multipliers and a name.
 // @Tags         mealsinday
 // @Accept       json
 // @Produce      json
@@ -43,7 +43,7 @@ func (ms *MealsInDayAPI) GetMealInDay(c *gin.Context) {
 // GetMealsInDay godoc
 // @Security BearerAuth
 // @Summary      List meals in day
-// @Description  Get list of all meals in day
+// @Description  Get list of all meal plans. Each plan contains 6 meals for a day with factor multipliers.
 // @Tags         mealsinday
 // @Accept       json
 // @Produce      json
@@ -58,11 +58,11 @@ func (ms *MealsInDayAPI) GetMealsInDay(c *gin.Context) {
 // CreateMealInDay godoc
 // @Security BearerAuth
 // @Summary      Create a new meal in day
-// @Description  Create a new meal in day from JSON body
+// @Description  Create a new meal plan for a day. Must include 6 meals (breakfast, secondBreakfast, lunch, dinner, supper, afternoonSnack), their factor multipliers, name, and optional for5Days flag.
 // @Tags         mealsinday
 // @Accept       json
 // @Produce      json
-// @Param        mealinday  body      meal.MealInDay  true  "MealInDay payload"
+// @Param        mealinday  body      meal.MealInDay  true  "MealInDay payload with 6 meals and factors"
 // @Success      200        {object}  map[string]int64
 // @Failure      400        {object}  Error
 // @Failure      500        {object}  Error
@@ -84,11 +84,11 @@ func (ms *MealsInDayAPI) CreateMealInDay(c *gin.Context) {
 // UpdateMealInDay godoc
 // @Security BearerAuth
 // @Summary      Update an existing meal in day
-// @Description  Update meal in day by JSON body (must contain ID)
+// @Description  Update meal plan for a day. Must contain ID and can update any of the 6 meals, their factors, name, or for5Days flag.
 // @Tags         mealsinday
 // @Accept       json
 // @Produce      json
-// @Param        mealinday  body      meal.MealInDay  true  "MealInDay payload"
+// @Param        mealinday  body      meal.MealInDay  true  "MealInDay payload (must include ID)"
 // @Success      200        {object}  nil
 // @Failure      400        {object}  Error
 // @Router       /mealsinday [put]
@@ -105,7 +105,7 @@ func (ms *MealsInDayAPI) UpdateMealInDay(c *gin.Context) {
 // DeleteMealInDay godoc
 // @Security BearerAuth
 // @Summary      Delete a meal in day
-// @Description  Delete meal in day by id
+// @Description  Delete a meal plan for a day by its ID
 // @Tags         mealsinday
 // @Accept       json
 // @Produce      json

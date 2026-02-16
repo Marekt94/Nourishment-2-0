@@ -60,22 +60,16 @@ definitions:
       dinner:
         $ref: '#/definitions/meal.Meal'
       factorAfternoonSnack:
-        format: float64
         type: number
       factorBreakfast:
-        format: float64
         type: number
       factorDinner:
-        format: float64
         type: number
       factorLunch:
-        format: float64
         type: number
       factorSecondBreakfast:
-        format: float64
         type: number
       factorSupper:
-        format: float64
         type: number
       for5Days:
         description: mapowane z CHAR(1) '1' lub '0'
@@ -129,12 +123,8 @@ definitions:
       weight:
         type: number
     type: object
-host: localhost:8080
 info:
-  contact:
-    email: marekt94@gmail.com
-  title: Nourishment 2.0 API
-  version: "1.0"
+  contact: {}
 paths:
   /categories:
     get:
@@ -587,7 +577,8 @@ paths:
     get:
       consumes:
       - application/json
-      description: Get list of all meals in day
+      description: Get list of all meal plans. Each plan contains 6 meals for a day
+        with factor multipliers.
       produces:
       - application/json
       responses:
@@ -605,9 +596,11 @@ paths:
     post:
       consumes:
       - application/json
-      description: Create a new meal in day from JSON body
+      description: Create a new meal plan for a day. Must include 6 meals (breakfast,
+        secondBreakfast, lunch, dinner, supper, afternoonSnack), their factor multipliers,
+        name, and optional for5Days flag.
       parameters:
-      - description: MealInDay payload
+      - description: MealInDay payload with 6 meals and factors
         in: body
         name: mealinday
         required: true
@@ -639,9 +632,10 @@ paths:
     put:
       consumes:
       - application/json
-      description: Update meal in day by JSON body (must contain ID)
+      description: Update meal plan for a day. Must contain ID and can update any
+        of the 6 meals, their factors, name, or for5Days flag.
       parameters:
-      - description: MealInDay payload
+      - description: MealInDay payload (must include ID)
         in: body
         name: mealinday
         required: true
@@ -665,7 +659,7 @@ paths:
     delete:
       consumes:
       - application/json
-      description: Delete meal in day by id
+      description: Delete a meal plan for a day by its ID
       parameters:
       - description: MealInDay ID
         in: path
@@ -693,7 +687,9 @@ paths:
     get:
       consumes:
       - application/json
-      description: Get a single meal in day by its ID
+      description: Get a single meal plan for a day by its ID. Contains 6 meals (breakfast,
+        second breakfast, lunch, dinner, supper, afternoon snack) with their respective
+        factor multipliers and a name.
       parameters:
       - description: MealInDay ID
         in: path
@@ -937,11 +933,4 @@ paths:
       summary: Get product by id
       tags:
       - products
-securityDefinitions:
-  BearerAuth:
-    description: Get token from authorization request and place in "Value" field "Bearer
-      {token}"
-    in: header
-    name: Authorization
-    type: apiKey
 swagger: "2.0"

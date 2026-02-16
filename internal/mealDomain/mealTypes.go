@@ -61,21 +61,21 @@ type ProductInMeal struct { // [AI REFACTOR]
 
 // [API GEN] DTO do API (mapowanie z MealInDayDb)
 type MealInDay struct {
-	Id                    int
-	Breakfast             Meal
-	SecondBreakfast       Meal
-	Lunch                 Meal
-	Dinner                Meal
-	Supper                Meal
-	AfternoonSnack        Meal
-	For5Days              bool // mapowane z CHAR(1) '1' lub '0'
-	FactorBreakfast       float64
-	FactorSecondBreakfast float64
-	FactorLunch           float64
-	FactorDinner          float64
-	FactorSupper          float64
-	FactorAfternoonSnack  float64
-	Name                  string
+	Id                    int     `json:"id"`
+	Breakfast             Meal    `json:"breakfast"`
+	SecondBreakfast       Meal    `json:"secondBreakfast"`
+	Lunch                 Meal    `json:"lunch"`
+	Dinner                Meal    `json:"dinner"`
+	Supper                Meal    `json:"supper"`
+	AfternoonSnack        Meal    `json:"afternoonSnack"`
+	For5Days              bool    `json:"for5Days"` // mapowane z CHAR(1) '1' lub '0'
+	FactorBreakfast       float64 `json:"factorBreakfast"`
+	FactorSecondBreakfast float64 `json:"factorSecondBreakfast"`
+	FactorLunch           float64 `json:"factorLunch"`
+	FactorDinner          float64 `json:"factorDinner"`
+	FactorSupper          float64 `json:"factorSupper"`
+	FactorAfternoonSnack  float64 `json:"factorAfternoonSnack"`
+	Name                  string  `json:"name"`
 }
 
 // [API GEN] Interfejs MealsInDayRepoIntf
