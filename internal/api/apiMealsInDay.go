@@ -68,12 +68,12 @@ func (ms *MealsInDayAPI) GetMealsInDay(c *gin.Context) {
 // @Failure      500        {object}  Error
 // @Router       /mealsinday [post]
 func (ms *MealsInDayAPI) CreateMealInDay(c *gin.Context) {
-	var m meal.MealInDay
-	if err := c.ShouldBindJSON(&m); err != nil {
+	m := meal.NewMealInDay()
+	if err := c.ShouldBindJSON(m); err != nil {
 		c.IndentedJSON(http.StatusBadRequest, Error{Error: err.Error()})
 		return
 	}
-	id := ms.Repo.CreateMealsInDay(&m)
+	id := ms.Repo.CreateMealsInDay(m)
 	if id <= 0 {
 		c.IndentedJSON(http.StatusInternalServerError, Error{Error: "CreateMealInDay failed"})
 		return

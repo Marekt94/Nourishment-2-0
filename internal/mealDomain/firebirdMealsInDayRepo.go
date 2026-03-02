@@ -12,11 +12,6 @@ import (
 // Odpowiada kolumnom zdefiniowanym w firebirdDatabase.go
 // Każde pole odpowiada jednej kolumnie w bazie
 
-var cols = []string{
-	MEAL_IN_DAY_BREAKFAST, MEAL_IN_DAY_SECOND_BREAKFAST, MEAL_IN_DAY_LUNCH, MEAL_IN_DAY_DINNER, MEAL_IN_DAY_SUPPER, MEAL_IN_DAY_AFTERNOON_SNACK,
-	MEAL_IN_DAY_FOR_5_DAYS, MEAL_IN_DAY_FACTOR_BREAKFAST, MEAL_IN_DAY_FACTOR_SECOND_BREAKFAST, MEAL_IN_DAY_FACTOR_LUNCH, MEAL_IN_DAY_FACTOR_DINNER, MEAL_IN_DAY_FACTOR_SUPPER, MEAL_IN_DAY_FACTOR_AFTERNOON_SNACK, MEAL_IN_DAY_NAME,
-}
-
 type MealInDayDb struct { // [API GEN]
 	Id                    sql.NullInt64
 	BreakfastId           sql.NullInt64
@@ -36,22 +31,92 @@ type MealInDayDb struct { // [API GEN]
 }
 
 func (mr *FirebirdRepoAccess) CreateMealsInDay(m *MealInDay) int64 {
-	mealIds := []int{m.Breakfast.Id, m.SecondBreakfast.Id, m.Lunch.Id, m.Dinner.Id, m.Supper.Id, m.AfternoonSnack.Id}
+	// Najpierw sprawdź czy wszystkie niepuste posiłki istnieją w bazie
+	mealIds := []int{}
+	if m.Breakfast.Id > EMPTY_ID {
+		mealIds = append(mealIds, m.Breakfast.Id)
+	}
+	if m.SecondBreakfast.Id > EMPTY_ID {
+		mealIds = append(mealIds, m.SecondBreakfast.Id)
+	}
+	if m.Lunch.Id > EMPTY_ID {
+		mealIds = append(mealIds, m.Lunch.Id)
+	}
+	if m.Dinner.Id > EMPTY_ID {
+		mealIds = append(mealIds, m.Dinner.Id)
+	}
+	if m.Supper.Id > EMPTY_ID {
+		mealIds = append(mealIds, m.Supper.Id)
+	}
+	if m.AfternoonSnack.Id > EMPTY_ID {
+		mealIds = append(mealIds, m.AfternoonSnack.Id)
+	}
+
 	for _, mealId := range mealIds {
 		if mealId > 0 && mr.GetMeal(mealId).Id == 0 {
 			logging.Global.Debugf("CreateMealInDay error: referenced meal does not exist, id: %v", mealId)
 			return -1
 		}
 	}
-	sqlStr := fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s)", MEAL_IN_DAY_TAB, strings.Join(cols, ", "), database.QuestionMarks(len(cols)))
+
+	// Zawsze wstawiaj wszystkie kolumny - ustaw NULL dla EMPTY_ID, wartość dla pozostałych
+	cols := []string{
+		MEAL_IN_DAY_BREAKFAST, MEAL_IN_DAY_SECOND_BREAKFAST, MEAL_IN_DAY_LUNCH,
+		MEAL_IN_DAY_DINNER, MEAL_IN_DAY_SUPPER, MEAL_IN_DAY_AFTERNOON_SNACK,
+		MEAL_IN_DAY_FOR_5_DAYS, MEAL_IN_DAY_FACTOR_BREAKFAST, MEAL_IN_DAY_FACTOR_SECOND_BREAKFAST,
+		MEAL_IN_DAY_FACTOR_LUNCH, MEAL_IN_DAY_FACTOR_DINNER, MEAL_IN_DAY_FACTOR_SUPPER,
+		MEAL_IN_DAY_FACTOR_AFTERNOON_SNACK, MEAL_IN_DAY_NAME,
+	}
+
 	for5DaysChar := sql.NullString{String: "0", Valid: true}
 	if m.For5Days {
 		for5DaysChar.String = "1"
 	}
-	_, err := mr.Database.Exec(sqlStr,
-		m.Breakfast.Id, m.SecondBreakfast.Id, m.Lunch.Id, m.Dinner.Id, m.Supper.Id, m.AfternoonSnack.Id,
-		for5DaysChar, m.FactorBreakfast, m.FactorSecondBreakfast, m.FactorLunch, m.FactorDinner, m.FactorSupper,
+
+	args := []interface{}{}
+
+	// Dodaj ID posiłków lub NULL
+	if m.Breakfast.Id > EMPTY_ID {
+		args = append(args, m.Breakfast.Id)
+	} else {
+		args = append(args, nil)
+	}
+
+	if m.SecondBreakfast.Id > EMPTY_ID {
+		args = append(args, m.SecondBreakfast.Id)
+	} else {
+		args = append(args, nil)
+	}
+
+	if m.Lunch.Id > EMPTY_ID {
+		args = append(args, m.Lunch.Id)
+	} else {
+		args = append(args, nil)
+	}
+
+	if m.Dinner.Id > EMPTY_ID {
+		args = append(args, m.Dinner.Id)
+	} else {
+		args = append(args, nil)
+	}
+
+	if m.Supper.Id > EMPTY_ID {
+		args = append(args, m.Supper.Id)
+	} else {
+		args = append(args, nil)
+	}
+
+	if m.AfternoonSnack.Id > EMPTY_ID {
+		args = append(args, m.AfternoonSnack.Id)
+	} else {
+		args = append(args, nil)
+	}
+
+	args = append(args, for5DaysChar, m.FactorBreakfast, m.FactorSecondBreakfast, m.FactorLunch, m.FactorDinner, m.FactorSupper,
 		m.FactorAfternoonSnack, m.Name)
+
+	sqlStr := fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s)", MEAL_IN_DAY_TAB, strings.Join(cols, ", "), database.QuestionMarks(len(cols)))
+	_, err := mr.Database.Exec(sqlStr, args...)
 	if err != nil {
 		logging.Global.Debugf("CreateMealInDay error: %v", err)
 		return -1
@@ -159,15 +224,67 @@ func (mr *FirebirdRepoAccess) DeleteMealsInDay(id int) bool {
 }
 
 func (mr *FirebirdRepoAccess) UpdateMealsInDay(m *MealInDay) {
-	sqlStr := fmt.Sprintf("UPDATE %s SET %s WHERE %s=?", MEAL_IN_DAY_TAB, database.UpdateValues(cols), MEAL_IN_DAY_ID)
+	cols := []string{}
+	args := []interface{}{}
+
+	// Zawsze aktualizuj wszystkie kolumny posiłków - ustaw NULL dla EMPTY_ID, wartość dla pozostałych
+	cols = append(cols, MEAL_IN_DAY_BREAKFAST)
+	if m.Breakfast.Id > EMPTY_ID {
+		args = append(args, m.Breakfast.Id)
+	} else {
+		args = append(args, nil) // NULL w bazie danych
+	}
+
+	cols = append(cols, MEAL_IN_DAY_SECOND_BREAKFAST)
+	if m.SecondBreakfast.Id > EMPTY_ID {
+		args = append(args, m.SecondBreakfast.Id)
+	} else {
+		args = append(args, nil) // NULL w bazie danych
+	}
+
+	cols = append(cols, MEAL_IN_DAY_LUNCH)
+	if m.Lunch.Id > EMPTY_ID {
+		args = append(args, m.Lunch.Id)
+	} else {
+		args = append(args, nil) // NULL w bazie danych
+	}
+
+	cols = append(cols, MEAL_IN_DAY_DINNER)
+	if m.Dinner.Id > EMPTY_ID {
+		args = append(args, m.Dinner.Id)
+	} else {
+		args = append(args, nil) // NULL w bazie danych
+	}
+
+	cols = append(cols, MEAL_IN_DAY_SUPPER)
+	if m.Supper.Id > EMPTY_ID {
+		args = append(args, m.Supper.Id)
+	} else {
+		args = append(args, nil) // NULL w bazie danych
+	}
+
+	cols = append(cols, MEAL_IN_DAY_AFTERNOON_SNACK)
+	if m.AfternoonSnack.Id > EMPTY_ID {
+		args = append(args, m.AfternoonSnack.Id)
+	} else {
+		args = append(args, nil) // NULL w bazie danych
+	}
+
 	for5DaysChar := sql.NullString{String: "0", Valid: true}
 	if m.For5Days {
 		for5DaysChar.String = "1"
 	}
-	_, err := mr.Database.Exec(sqlStr,
-		m.Breakfast.Id, m.SecondBreakfast.Id, m.Lunch.Id, m.Dinner.Id, m.Supper.Id, m.AfternoonSnack.Id,
-		for5DaysChar, m.FactorBreakfast, m.FactorSecondBreakfast, m.FactorLunch, m.FactorDinner, m.FactorSupper,
-		m.FactorAfternoonSnack, m.Name, m.Id)
+
+	cols = append(cols, MEAL_IN_DAY_FOR_5_DAYS, MEAL_IN_DAY_FACTOR_BREAKFAST, MEAL_IN_DAY_FACTOR_SECOND_BREAKFAST,
+		MEAL_IN_DAY_FACTOR_LUNCH, MEAL_IN_DAY_FACTOR_DINNER, MEAL_IN_DAY_FACTOR_SUPPER,
+		MEAL_IN_DAY_FACTOR_AFTERNOON_SNACK, MEAL_IN_DAY_NAME)
+	args = append(args, for5DaysChar, m.FactorBreakfast, m.FactorSecondBreakfast, m.FactorLunch, m.FactorDinner,
+		m.FactorSupper, m.FactorAfternoonSnack, m.Name)
+
+	args = append(args, m.Id)
+
+	sqlStr := fmt.Sprintf("UPDATE %s SET %s WHERE %s=?", MEAL_IN_DAY_TAB, database.UpdateValues(cols), MEAL_IN_DAY_ID)
+	_, err := mr.Database.Exec(sqlStr, args...)
 	if err != nil {
 		logging.Global.Debugf("UpdateMealInDay error: %v", err)
 	}

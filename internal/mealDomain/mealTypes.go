@@ -103,3 +103,25 @@ type LooseProductsInDayRepoIntf interface {
 	DeleteLooseProductInDay(id int) bool
 	UpdateLooseProductInDay(p *LooseProductInDay)
 }
+
+func NewMealInDay() *MealInDay {
+	emptyMeal := Meal{Id: EMPTY_ID}
+
+	return &MealInDay{
+		Id:                    EMPTY_ID,
+		Name:                  "",
+		Breakfast:             emptyMeal,
+		SecondBreakfast:       emptyMeal,
+		Lunch:                 emptyMeal,
+		Dinner:                emptyMeal,
+		Supper:                emptyMeal,
+		AfternoonSnack:        emptyMeal,
+		FactorBreakfast:       1.0,
+		FactorSecondBreakfast: 1.0,
+		FactorLunch:           1.0,
+		FactorDinner:          1.0,
+		FactorSupper:          1.0,
+		FactorAfternoonSnack:  1.0,
+		For5Days:              false,
+	}
+}
