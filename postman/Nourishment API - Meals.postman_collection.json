@@ -537,7 +537,45 @@
           ]
         }
       },
-      "response": []
+      "response": [
+        {
+          "name": "Create mealsInDay",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test day\",\n  \"for5Days\": true,\n  \"factorBreakfast\": 1.0,\n  \"factorSecondBreakfast\": 1.0,\n  \"factorLunch\": 1.0,\n  \"factorDinner\": 1.0,\n  \"factorSupper\": 1.0,\n  \"factorAfternoonSnack\": 1.0,\n  \"breakfast\": {\"id\": 1},\n  \"secondBreakfast\": {\"id\": 1},\n  \"supper\": {\"id\": 1},\n  \"afternoonSnack\": {\"id\": 1}\n}"
+            },
+            "url": {
+              "raw": "{{http}}://{{ip}}:{{port}}/mealsinday",
+              "protocol": "{{http}}",
+              "host": [
+                "{{ip}}"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "mealsinday"
+              ]
+            }
+          },
+          "_postman_previewlanguage": "",
+          "header": [],
+          "cookie": [
+            {
+              "expires": "Invalid Date",
+              "domain": "",
+              "path": ""
+            }
+          ],
+          "body": ""
+        }
+      ]
     },
     {
       "name": "Update mealsInDay",
