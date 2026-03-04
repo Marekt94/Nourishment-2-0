@@ -223,7 +223,7 @@ func (mr *FirebirdRepoAccess) DeleteMealsInDay(id int) bool {
 	return true
 }
 
-func (mr *FirebirdRepoAccess) UpdateMealsInDay(m *MealInDay) {
+func (mr *FirebirdRepoAccess) UpdateMealsInDay(m *MealInDay) bool {
 	cols := []string{}
 	args := []interface{}{}
 
@@ -288,4 +288,5 @@ func (mr *FirebirdRepoAccess) UpdateMealsInDay(m *MealInDay) {
 	if err != nil {
 		logging.Global.Debugf("UpdateMealInDay error: %v", err)
 	}
+	return err == nil
 }

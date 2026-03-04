@@ -123,8 +123,12 @@ definitions:
       weight:
         type: number
     type: object
+host: localhost:8080
 info:
-  contact: {}
+  contact:
+    email: marekt94@gmail.com
+  title: Nourishment 2.0 API
+  version: "1.0"
 paths:
   /categories:
     get:
@@ -933,4 +937,11 @@ paths:
       summary: Get product by id
       tags:
       - products
+securityDefinitions:
+  BearerAuth:
+    description: Get token from authorization request and place in "Value" field "Bearer
+      {token}"
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

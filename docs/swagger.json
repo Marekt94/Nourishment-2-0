@@ -1,8 +1,13 @@
 {
     "swagger": "2.0",
     "info": {
-        "contact": {}
+        "title": "Nourishment 2.0 API",
+        "contact": {
+            "email": "marekt94@gmail.com"
+        },
+        "version": "1.0"
     },
+    "host": "localhost:8080",
     "paths": {
         "/categories": {
             "get": {
@@ -1458,6 +1463,14 @@
                     "type": "number"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Get token from authorization request and place in \"Value\" field \"Bearer {token}\"",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }

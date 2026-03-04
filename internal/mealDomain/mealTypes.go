@@ -84,7 +84,7 @@ type MealsInDayRepoIntf interface {
 	GetMealsInDay(id int) MealInDay
 	GetMealsInDays() []MealInDay
 	DeleteMealsInDay(id int) bool
-	UpdateMealsInDay(m *MealInDay)
+	UpdateMealsInDay(m *MealInDay) bool
 }
 
 // LooseProductInDay reprezentuje pojedynczy produkt w dniu (tabela PRODUKTY_LUZNE_W_DNIU)
