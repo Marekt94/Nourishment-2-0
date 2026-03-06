@@ -161,6 +161,10 @@ func (mr *FirebirdRepoAccess) ConvertMealsInDayDbToMealsInDay(m *MealInDayDb) Me
 	if m.AfternoonSnackId.Valid {
 		mealInDay.AfternoonSnack = mr.GetMeal(int(m.AfternoonSnackId.Int64))
 	}
+	mealInDay.LooseProducts = mr.GetLooseProductsInDay(int(m.Id.Int64))
+	if mealInDay.LooseProducts == nil {
+		mealInDay.LooseProducts = []LooseProductInDay{}
+	}
 	return mealInDay
 }
 

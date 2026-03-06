@@ -1400,6 +1400,12 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "looseProducts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/meal.LooseProductInDay"
+                    }
+                },
                 "lunch": {
                     "$ref": "#/definitions/meal.Meal"
                 },

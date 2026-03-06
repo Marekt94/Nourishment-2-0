@@ -74,8 +74,9 @@ type MealInDay struct {
 	FactorLunch           float64 `json:"factorLunch"`
 	FactorDinner          float64 `json:"factorDinner"`
 	FactorSupper          float64 `json:"factorSupper"`
-	FactorAfternoonSnack  float64 `json:"factorAfternoonSnack"`
-	Name                  string  `json:"name"`
+	FactorAfternoonSnack  float64             `json:"factorAfternoonSnack"`
+	Name                  string              `json:"name"`
+	LooseProducts         []LooseProductInDay `json:"looseProducts"`
 }
 
 // [API GEN] Interfejs MealsInDayRepoIntf
@@ -123,5 +124,6 @@ func NewMealInDay() *MealInDay {
 		FactorSupper:          1.0,
 		FactorAfternoonSnack:  1.0,
 		For5Days:              false,
+		LooseProducts:         []LooseProductInDay{},
 	}
 }

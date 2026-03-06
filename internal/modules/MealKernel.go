@@ -25,15 +25,6 @@ import (
 	"github.com/joho/godotenv"
 )
 
-// @title           Nourishment 2.0 API
-// @version         1.0
-// @contact.email  marekt94@gmail.com
-// @host      localhost:8080
-// @securityDefinitions.apiKey BearerAuth
-// @in header
-// @name Authorization
-// @description Get token from authorization request and place in "Value" field "Bearer {token}"
-
 // DONE dodać logowanie
 type MealKernel struct {
 	kernel.Kernel

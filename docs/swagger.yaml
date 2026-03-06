@@ -76,6 +76,10 @@ definitions:
         type: boolean
       id:
         type: integer
+      looseProducts:
+        items:
+          $ref: '#/definitions/meal.LooseProductInDay'
+        type: array
       lunch:
         $ref: '#/definitions/meal.Meal'
       name:

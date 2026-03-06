@@ -21,6 +21,15 @@ import (
 	"nourishment_20/internal/modules"
 )
 
+// @title           Nourishment 2.0 API
+// @version         1.0
+// @contact.email   marekt94@gmail.com
+// @host            localhost:8080
+// @securityDefinitions.apiKey BearerAuth
+// @in header
+// @name Authorization
+// @description Get token from authorization request and place in "Value" field "Bearer {token}"
+
 func main() {
 	kernel := modules.NewMealKernel()
 	kernel.Init()
