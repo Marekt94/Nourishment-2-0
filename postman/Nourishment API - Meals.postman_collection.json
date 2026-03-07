@@ -796,6 +796,265 @@
         }
       },
       "response": []
+    },
+    {
+      "name": "Shopping Lists",
+      "item": [
+        {
+          "name": "Get all shopping lists",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{http}}://{{ip}}:{{port}}/shopping-lists",
+              "protocol": "{{http}}",
+              "host": [
+                "{{ip}}"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "shopping-lists"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get shopping list by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{http}}://{{ip}}:{{port}}/shopping-lists/{{shoppingListId}}",
+              "protocol": "{{http}}",
+              "host": [
+                "{{ip}}"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "shopping-lists",
+                "{{shoppingListId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create shopping list",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.environment.set(\"shoppingListId\", pm.response.json().id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Shopping List\",\n  \"products\": []\n}"
+            },
+            "url": {
+              "raw": "{{http}}://{{ip}}:{{port}}/shopping-lists",
+              "protocol": "{{http}}",
+              "host": [
+                "{{ip}}"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "shopping-lists"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update shopping list",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": {{shoppingListId}},\n  \"name\": \"Updated Shopping List Name\"\n}"
+            },
+            "url": {
+              "raw": "{{http}}://{{ip}}:{{port}}/shopping-lists",
+              "protocol": "{{http}}",
+              "host": [
+                "{{ip}}"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "shopping-lists"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete shopping list",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{http}}://{{ip}}:{{port}}/shopping-lists/{{shoppingListId}}",
+              "protocol": "{{http}}",
+              "host": [
+                "{{ip}}"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "shopping-lists",
+                "{{shoppingListId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Products in Shopping List",
+      "item": [
+        {
+          "name": "Add product to list",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.environment.set(\"productInShoppingListId\", pm.response.json().id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"listId\": {{shoppingListId}},\n  \"product\": {\n    \"id\": {{productId}}\n  },\n  \"weight\": 200,\n  \"bought\": false\n}"
+            },
+            "url": {
+              "raw": "{{http}}://{{ip}}:{{port}}/shopping-list-products",
+              "protocol": "{{http}}",
+              "host": [
+                "{{ip}}"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "shopping-list-products"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update product on list",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": {{productInShoppingListId}},\n  \"listId\": {{shoppingListId}},\n  \"product\": {\n    \"id\": {{productId}}\n  },\n  \"weight\": 250,\n  \"bought\": true\n}"
+            },
+            "url": {
+              "raw": "{{http}}://{{ip}}:{{port}}/shopping-list-products",
+              "protocol": "{{http}}",
+              "host": [
+                "{{ip}}"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "shopping-list-products"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete product from list",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{http}}://{{ip}}:{{port}}/shopping-list-products/{{productInShoppingListId}}",
+              "protocol": "{{http}}",
+              "host": [
+                "{{ip}}"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "shopping-list-products",
+                "{{productInShoppingListId}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
     }
   ],
   "auth": {

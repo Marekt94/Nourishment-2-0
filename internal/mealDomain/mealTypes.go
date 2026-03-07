@@ -1,5 +1,7 @@
 package meal
 
+import "time"
+
 type MealsRepoIntf interface {
 	GetMeal(i int) Meal
 	GetMeals() []Meal
@@ -103,6 +105,40 @@ type LooseProductsInDayRepoIntf interface {
 	GetLooseProductsInDay(dayId int) []LooseProductInDay
 	DeleteLooseProductInDay(id int) bool
 	UpdateLooseProductInDay(p *LooseProductInDay)
+}
+
+// ShoppingListRepoIntf defines operations for shopping lists
+type ShoppingListRepoIntf interface {
+	CreateShoppingList(s *ShoppingList) int64
+	GetShoppingList(id int) ShoppingList
+	GetShoppingLists() []ShoppingList
+	UpdateShoppingList(s *ShoppingList)
+	DeleteShoppingList(id int) bool
+
+	AddProductToShoppingList(p *ProductInShoppingList) int64
+	UpdateProductInShoppingList(p *ProductInShoppingList)
+	DeleteProductFromShoppingList(id int) bool
+}
+
+type ShoppingList struct {
+	Id        int                     `json:"id"`
+	Name      string                  `json:"name"`
+	CreatedAt time.Time               `json:"createdAt"`
+	EditDate  time.Time               `json:"editDate"`
+	Products  []ProductInShoppingList `json:"products"`
+}
+
+type ProductInShoppingList struct {
+	Id           int       `json:"id"`
+	ListId       int       `json:"listId"`
+	ProductId    int       `json:"productId"`    // Used in POST/PUT (Point 1, 3)
+	ProductName  string    `json:"productName"`  // Used in GET (Point 2)
+	CategoryName string    `json:"categoryName"` // For frontend grouping
+	ProductUnit  string    `json:"productUnit"`  // For display
+	Weight       float64   `json:"weight"`       // ILOSC
+	Quantity     float64   `json:"quantity"`     // ILOSC / WAGA_JEDNOSTKI
+	Bought       bool      `json:"bought"`       // KUPIONE
+	EditDate     time.Time `json:"editDate"`
 }
 
 func NewMealInDay() *MealInDay {

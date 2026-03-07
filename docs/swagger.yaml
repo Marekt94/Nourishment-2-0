@@ -127,6 +127,41 @@ definitions:
       weight:
         type: number
     type: object
+  meal.ProductInShoppingList:
+    properties:
+      bought:
+        description: KUPIONE
+        type: boolean
+      editDate:
+        type: string
+      id:
+        type: integer
+      listId:
+        type: integer
+      product:
+        $ref: '#/definitions/meal.Product'
+      quantity:
+        description: ILOSC / WAGA_JEDNOSTKI
+        type: number
+      weight:
+        description: This corresponds to ILOSC (total weight)
+        type: number
+    type: object
+  meal.ShoppingList:
+    properties:
+      createdAt:
+        type: string
+      editDate:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      products:
+        items:
+          $ref: '#/definitions/meal.ProductInShoppingList'
+        type: array
+    type: object
 host: localhost:8080
 info:
   contact:
@@ -941,6 +976,204 @@ paths:
       summary: Get product by id
       tags:
       - products
+  /shopping-list-products:
+    post:
+      consumes:
+      - application/json
+      description: Add a product to an existing shopping list
+      parameters:
+      - description: Product payload
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/meal.ProductInShoppingList'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              format: int64
+              type: integer
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+      security:
+      - BearerAuth: []
+      summary: Add product to list
+      tags:
+      - shopping-list-products
+    put:
+      consumes:
+      - application/json
+      description: Update weight or bought status of a product on a list
+      parameters:
+      - description: Product payload
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/meal.ProductInShoppingList'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+      security:
+      - BearerAuth: []
+      summary: Update product on list
+      tags:
+      - shopping-list-products
+  /shopping-list-products/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Remove a product entry from a shopping list
+      parameters:
+      - description: Product Entry ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: Remove product from list
+      tags:
+      - shopping-list-products
+  /shopping-lists:
+    get:
+      consumes:
+      - application/json
+      description: Get all shopping lists (without products)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/meal.ShoppingList'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: List shopping lists
+      tags:
+      - shopping-lists
+    post:
+      consumes:
+      - application/json
+      description: Create a shopping list, optionally with products
+      parameters:
+      - description: Shopping List payload
+        in: body
+        name: list
+        required: true
+        schema:
+          $ref: '#/definitions/meal.ShoppingList'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              format: int64
+              type: integer
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+      security:
+      - BearerAuth: []
+      summary: Create a shopping list
+      tags:
+      - shopping-lists
+    put:
+      consumes:
+      - application/json
+      description: Update shopping list metadata (name)
+      parameters:
+      - description: Shopping List payload
+        in: body
+        name: list
+        required: true
+        schema:
+          $ref: '#/definitions/meal.ShoppingList'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Error'
+      security:
+      - BearerAuth: []
+      summary: Update a shopping list
+      tags:
+      - shopping-lists
+  /shopping-lists/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete shopping list and all its products
+      parameters:
+      - description: Shopping List ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      security:
+      - BearerAuth: []
+      summary: Delete a shopping list
+      tags:
+      - shopping-lists
+    get:
+      consumes:
+      - application/json
+      description: Get a single shopping list with its products
+      parameters:
+      - description: Shopping List ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/meal.ShoppingList'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/api.Error'
+      security:
+      - BearerAuth: []
+      summary: Get shopping list by id
+      tags:
+      - shopping-lists
 securityDefinitions:
   BearerAuth:
     description: Get token from authorization request and place in "Value" field "Bearer

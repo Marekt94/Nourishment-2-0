@@ -177,6 +177,20 @@ func (k *MealKernel) initProductsModule() kernel.ModuleIntf {
 	return &ModuleProducts{Repo: k.mealsRepo, Engine: k.serverEngine, AuthValidator: k.authValidator, PermRepo: k.permissionsRepo, MethodExposer: productsAPI}
 }
 
+func (k *MealKernel) initShoppingListModule() kernel.ModuleIntf {
+	slRepo := k.mealsRepo // FirebirdRepoAccess implements ShoppingListRepoIntf
+	listAPI := &api.ShoppingListAPI{Repo: slRepo}
+	prodAPI := &api.ProductsInShoppingListAPI{Repo: slRepo}
+	return &ModuleShoppingList{
+		Repo:          slRepo,
+		Engine:        k.serverEngine,
+		AuthValidator: k.authValidator,
+		ListExposer:   listAPI,
+		ProdExposer:   prodAPI,
+		PermRepo:      k.permissionsRepo,
+	}
+}
+
 func (k *MealKernel) Init() {
 	log.Global.Infof("Starting MealKernel initialization...")
 
@@ -202,6 +216,7 @@ func (k *MealKernel) Init() {
 	k.RegisterModule(k.initLooseProductsInDayModule())
 	k.RegisterModule(k.initMealsInDayModule())
 	k.RegisterModule(k.initOptimizeMealModule())
+	k.RegisterModule(k.initShoppingListModule())
 
 	log.Global.Infof("MealKernel initialization completed successfully")
 }
