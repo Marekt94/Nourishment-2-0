@@ -23,6 +23,7 @@ func (m *ModuleShoppingList) ExposeMethods() {
 	m.Engine.GET(api.PATH_SHOPPINGLISTS, m.AuthValidator.Middleware, m.ListExposer.GetShoppingLists)
 	m.Engine.GET(api.PATH_SHOPPINGLISTS_WITH_ID, m.AuthValidator.Middleware, m.ListExposer.GetShoppingList)
 	m.Engine.POST(api.PATH_SHOPPINGLISTS, m.AuthValidator.Middleware, m.ListExposer.CreateShoppingList)
+	m.Engine.POST(api.PATH_SHOPPINGLISTS_GENERATE, m.AuthValidator.Middleware, m.ListExposer.GenerateShoppingList)
 	m.Engine.PUT(api.PATH_SHOPPINGLISTS, m.AuthValidator.Middleware, m.ListExposer.UpdateShoppingList)
 	m.Engine.DELETE(api.PATH_SHOPPINGLISTS_WITH_ID, m.AuthValidator.Middleware, m.ListExposer.DeleteShoppingList)
 

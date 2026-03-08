@@ -179,7 +179,11 @@ func (k *MealKernel) initProductsModule() kernel.ModuleIntf {
 
 func (k *MealKernel) initShoppingListModule() kernel.ModuleIntf {
 	slRepo := k.mealsRepo // FirebirdRepoAccess implements ShoppingListRepoIntf
-	listAPI := &api.ShoppingListAPI{Repo: slRepo}
+	listAPI := &api.ShoppingListAPI{
+		Repo:           slRepo,
+		MealsInDayRepo: slRepo,
+		ProductsRepo:   slRepo,
+	}
 	prodAPI := &api.ProductsInShoppingListAPI{Repo: slRepo}
 	return &ModuleShoppingList{
 		Repo:          slRepo,

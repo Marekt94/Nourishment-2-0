@@ -9,7 +9,9 @@ import (
 )
 
 type ShoppingListAPI struct {
-	Repo meal.ShoppingListRepoIntf
+	Repo           meal.ShoppingListRepoIntf
+	MealsInDayRepo meal.MealsInDayRepoIntf
+	ProductsRepo   meal.ProductsRepoIntf
 }
 
 // GetShoppingLists godoc
@@ -65,6 +67,34 @@ func (api *ShoppingListAPI) CreateShoppingList(c *gin.Context) {
 		return
 	}
 	id := api.Repo.CreateShoppingList(&list)
+	c.IndentedJSON(http.StatusOK, gin.H{"id": id})
+}
+
+// GenerateShoppingList godoc
+// @Security BearerAuth
+// @Summary      Generate shopping list from meal plans
+// @Description  Create a shopping list based on meal plans and loose products
+// @Tags         shopping-lists
+// @Accept       json
+// @Produce      json
+// @Param        request body     meal.GenerateShoppingListRequest true "Generation Request"
+// @Success      200     {object} map[string]int64
+// @Failure      400     {object} Error
+// @Failure      500     {object} Error
+// @Router       /shopping-lists/generate [post]
+func (api *ShoppingListAPI) GenerateShoppingList(c *gin.Context) {
+	var req meal.GenerateShoppingListRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, Error{Error: err.Error()})
+		return
+	}
+
+	id, err := meal.GenerateShoppingList(&req, api.MealsInDayRepo, api.Repo, api.ProductsRepo)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, Error{Error: err.Error()})
+		return
+	}
+
 	c.IndentedJSON(http.StatusOK, gin.H{"id": id})
 }
 

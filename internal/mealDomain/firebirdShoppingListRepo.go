@@ -228,6 +228,10 @@ func (mr *FirebirdRepoAccess) DeleteShoppingList(id int) bool {
 }
 
 func (mr *FirebirdRepoAccess) AddProductToShoppingList(p *ProductInShoppingList) int64 {
+	if p.ProductId <= 0 {
+		return -1 // Invalid product ID, prevent FK constraint violation
+	}
+
 	bought := 0
 	if p.Bought {
 		bought = 1
