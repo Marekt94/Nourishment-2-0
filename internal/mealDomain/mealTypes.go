@@ -117,6 +117,7 @@ type ShoppingListRepoIntf interface {
 
 	AddProductToShoppingList(p *ProductInShoppingList) int64
 	UpdateProductInShoppingList(p *ProductInShoppingList)
+	BulkUpdateProductsInShoppingList(products []ProductInShoppingList)
 	DeleteProductFromShoppingList(id int) bool
 }
 

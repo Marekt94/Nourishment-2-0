@@ -30,6 +30,7 @@ func (m *ModuleShoppingList) ExposeMethods() {
 	// Products in Shopping Lists
 	m.Engine.POST(api.PATH_SHOPPINGLIST_PRODS, m.AuthValidator.Middleware, m.ProdExposer.AddProduct)
 	m.Engine.PUT(api.PATH_SHOPPINGLIST_PRODS, m.AuthValidator.Middleware, m.ProdExposer.UpdateProduct)
+	m.Engine.PUT(api.PATH_SHOPPINGLIST_PRODS_BULK, m.AuthValidator.Middleware, m.ProdExposer.BulkUpdateProducts)
 	m.Engine.DELETE(api.PATH_SHOPPINGLIST_PRODS_WITH_ID, m.AuthValidator.Middleware, m.ProdExposer.DeleteProduct)
 }
 

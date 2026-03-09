@@ -181,6 +181,27 @@ func (api *ProductsInShoppingListAPI) UpdateProduct(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
+// BulkUpdateProducts godoc
+// @Security BearerAuth
+// @Summary      Update multiple products on list
+// @Description  Update weight or bought status of multiple products in a bulk transaction
+// @Tags         shopping-list-products
+// @Accept       json
+// @Produce      json
+// @Param        products  body      []meal.ProductInShoppingList  true  "Array of Products payload"
+// @Success      200      {object}  nil
+// @Failure      400      {object}  Error
+// @Router       /shopping-list-products/bulk [put]
+func (api *ProductsInShoppingListAPI) BulkUpdateProducts(c *gin.Context) {
+	var products []meal.ProductInShoppingList
+	if err := c.ShouldBindJSON(&products); err != nil {
+		c.IndentedJSON(http.StatusBadRequest, Error{Error: err.Error()})
+		return
+	}
+	api.Repo.BulkUpdateProductsInShoppingList(products)
+	c.Status(http.StatusOK)
+}
+
 // DeleteProduct godoc
 // @Security BearerAuth
 // @Summary      Remove product from list

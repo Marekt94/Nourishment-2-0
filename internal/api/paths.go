@@ -9,7 +9,8 @@ const (
 	RESOURCE_CATEGORIES         = "categories"
 	RESOURCE_OPTIMIZEMEAL       = "optimizemeal"
 	RESOURCE_SHOPPINGLISTS      = "shopping-lists"
-	RESOURCE_SHOPPINGLIST_PRODS = "shopping-list-products"
+	RESOURCE_SHOPPINGLIST_PRODS      = "shopping-list-products"
+	RESOURCE_SHOPPINGLIST_PRODS_BULK = "shopping-list-products/bulk"
 )
 
 const (
@@ -38,4 +39,5 @@ const (
 	PATH_SHOPPINGLISTS_GENERATE    = "/" + RESOURCE_SHOPPINGLISTS + "/generate"
 	PATH_SHOPPINGLIST_PRODS         = "/" + RESOURCE_SHOPPINGLIST_PRODS
 	PATH_SHOPPINGLIST_PRODS_WITH_ID = "/" + RESOURCE_SHOPPINGLIST_PRODS + "/:id"
+	PATH_SHOPPINGLIST_PRODS_BULK    = "/" + RESOURCE_SHOPPINGLIST_PRODS_BULK
 )

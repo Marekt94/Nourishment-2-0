@@ -278,3 +278,50 @@ func (mr *FirebirdRepoAccess) DeleteProductFromShoppingList(id int) bool {
 	}
 	return true
 }
+
+func (mr *FirebirdRepoAccess) BulkUpdateProductsInShoppingList(products []ProductInShoppingList) {
+	if len(products) == 0 {
+		return
+	}
+
+	tx, err := mr.Database.Begin()
+	if err != nil {
+		logging.Global.Panicf("Failed to begin transaction: %v", err)
+	}
+
+	defer func() {
+		if p := recover(); p != nil {
+			tx.Rollback()
+			panic(p) // re-throw panic after rollback
+		} else if err != nil {
+			tx.Rollback()
+		} else {
+			err = tx.Commit()
+			if err != nil {
+				logging.Global.Panicf("Failed to commit bulk update: %v", err)
+			}
+		}
+	}()
+
+	sql := fmt.Sprintf("UPDATE %s SET %s=?, %s=?, %s=?, %s=CURRENT_TIMESTAMP WHERE %s=?",
+		PRODUCTS_IN_SHOPPING_LIST_TAB,
+		PRODUCTS_IN_SHOPPING_LIST_PRODUCT_ID, PRODUCTS_IN_SHOPPING_LIST_WEIGHT,
+		PRODUCTS_IN_SHOPPING_LIST_BOUGHT, PRODUCTS_IN_SHOPPING_LIST_EDIT_DATE,
+		PRODUCTS_IN_SHOPPING_LIST_ID)
+
+	stmt, err := tx.Prepare(sql)
+	if err != nil {
+		logging.Global.Panicf("Failed to prepare bulk update statement: %v", err)
+	}
+	defer stmt.Close()
+
+	for _, p := range products {
+		bought := 0
+		if p.Bought {
+			bought = 1
+		}
+		if _, err := stmt.Exec(p.ProductId, p.Weight, bought, p.Id); err != nil {
+			logging.Global.Panicf("Error during bulk exec: %v", err)
+		}
+	}
+}

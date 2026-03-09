@@ -1063,6 +1063,39 @@
           "response": []
         },
         {
+          "name": "Bulk update products on list",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"id\": {{productInShoppingListId}},\n    \"listId\": {{shoppingListId}},\n    \"productId\": {{productId}},\n    \"weight\": 250,\n    \"bought\": true\n  }\n]"
+            },
+            "url": {
+              "raw": "{{http}}://{{ip}}:{{port}}/shopping-list-products/bulk",
+              "protocol": "{{http}}",
+              "host": [
+                "{{ip}}"
+              ],
+              "port": "{{port}}",
+              "path": [
+                "shopping-list-products",
+                "bulk"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Delete product from list",
           "request": {
             "method": "DELETE",
