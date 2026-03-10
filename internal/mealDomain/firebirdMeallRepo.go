@@ -207,27 +207,29 @@ func (mr *FirebirdRepoAccess) updateProductsInMeal(m *Meal, r ProductsRepoIntf) 
 	}
 
 	//delete producte from db
-	tabs := []string{PRODUCTS_IN_MEAL_ID, PRODUCTS_IN_MEAL_PRODUCT_ID}
-	res, err := mr.Database.Query(`SELECT `+strings.Join(tabs, ", ")+` FROM `+PRODUCTS_IN_MEAL_TAB+` WHERE `+PRODUCTS_IN_MEAL_MEAL_ID+` = ?`, m.Id)
+	res, err := mr.Database.Query(`SELECT `+PRODUCTS_IN_MEAL_ID+` FROM `+PRODUCTS_IN_MEAL_TAB+` WHERE `+PRODUCTS_IN_MEAL_MEAL_ID+` = ?`, m.Id)
 	if err != nil {
 		logging.Global.Panicf("%v", err)
 	}
 
-	prodInMealIds := make(map[int]int)
-	var key, value sql.NullInt64
+	prodInMealIds := make(map[int]bool)
+	var value sql.NullInt64
 	for res.Next() {
-		err := res.Scan(&value, &key)
+		err := res.Scan(&value)
 		if err != nil {
 			logging.Global.Panicf("%v", err)
 		}
-		prodInMealIds[int(key.Int64)] = int(value.Int64)
+		prodInMealIds[int(value.Int64)] = true
 	}
+	
 	for _, el := range m.ProductsInMeal {
-		delete(prodInMealIds, el.Product.Id)
+		if el.Id > 0 {
+			delete(prodInMealIds, el.Id)
+		}
 	}
 
-	for _, v := range prodInMealIds {
-		mr.Database.Exec(`DELETE FROM `+PRODUCTS_IN_MEAL_TAB+` WHERE `+PRODUCTS_IN_MEAL_ID+` = ?`, v)
+	for k := range prodInMealIds {
+		mr.Database.Exec(`DELETE FROM `+PRODUCTS_IN_MEAL_TAB+` WHERE `+PRODUCTS_IN_MEAL_ID+` = ?`, k)
 	}
 }
 
