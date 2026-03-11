@@ -69,7 +69,7 @@ func (repo *FirebirdRepoAccess) CreateLooseProductInDay(p *LooseProductInDay) in
 func (repo *FirebirdRepoAccess) GetLooseProductInDay(id int) LooseProductInDay {
 	sqlStr := generateGetLooseProductsQuery()
 	sqlStr = fmt.Sprintf("%s WHERE pld.ID = ?", sqlStr)
-	logging.Global.Debugf("SQL: %s", sqlStr)
+
 
 	row := repo.Database.QueryRow(sqlStr, id)
 	var product LooseProductsInDayDb
@@ -83,7 +83,7 @@ func (repo *FirebirdRepoAccess) GetLooseProductsInDay(dayId int) []LooseProductI
 	var products []LooseProductInDay
 	sqlStr := generateGetLooseProductsQuery()
 	sqlStr = fmt.Sprintf("%s WHERE pld.ID_DNIA = ?", sqlStr)
-	logging.Global.Debugf("SQL: %s", sqlStr)
+
 
 	rows, err := repo.Database.Query(sqlStr, dayId)
 	if err != nil {

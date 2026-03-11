@@ -117,7 +117,7 @@ func ConvertToMeal(m []MealDb) Meal { // [AI] poprawka: Meal zamiast meal
 func (mr *FirebirdRepoAccess) GetMeal(i int) Meal { // [AI] poprawka: Meal zamiast meal
 	sqlStr := generateGetMealsQuery()
 	sqlStr = fmt.Sprintf(sqlStr+` WHERE %s = ?`, MealPrefix+`.`+MEAL_ID)
-	logging.Global.Debugf(`SQL: %s`, sqlStr)
+
 
 	var meals []MealDb
 	rows, err := mr.Database.Query(sqlStr, i)
@@ -252,7 +252,7 @@ func (mr *FirebirdRepoAccess) CreateMeal(m *Meal) int64 { // [AI] poprawka: *Mea
 
 func (mr *FirebirdRepoAccess) UpdateMeal(m *Meal) { // [AI] poprawka: *Meal zamiast *meal
 	sql := fmt.Sprintf(`UPDATE %s SET %s=?, %s=? WHERE ID=?`, MEAL_TAB, MEAL_NAME, MEAL_RECIPE)
-	logging.Global.Debugf(sql)
+
 
 	_, err := mr.Database.Exec(sql, m.Name, m.Recipe, m.Id)
 	if err == nil {

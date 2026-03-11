@@ -24,7 +24,6 @@ import (
 // @title           Nourishment 2.0 API
 // @version         1.0
 // @contact.email   marekt94@gmail.com
-// @host            localhost:8080
 // @securityDefinitions.apiKey BearerAuth
 // @in header
 // @name Authorization

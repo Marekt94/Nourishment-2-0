@@ -39,7 +39,13 @@ func (e *BaseEngine) Connect(dbType string, connstr string, dbName string) (*sql
 		TimeFormat: `2006/01/02 15:04:05`,
 	}
 	zlogger := zerolog.New(consoleWriter).With().Timestamp().Logger()
-	db = sqldblogger.OpenDriver(connstr, db.Driver(), zerologadapter.New(zlogger))
+	
+	// Instruct the adapter to be controlled by the `LOG_LEVEL` configuration
+	logAdapter := zerologadapter.New(zlogger)
+	logOptions := []sqldblogger.Option{
+		sqldblogger.WithMinimumLevel(sqldblogger.LevelDebug), // Route whatever comes below the adapter
+	}
+	db = sqldblogger.OpenDriver(connstr, db.Driver(), logAdapter, logOptions...)
 
 	logging.Global.Debugf("connected to %s", dbName)
 	return db

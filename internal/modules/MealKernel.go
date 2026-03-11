@@ -71,15 +71,29 @@ func (k *MealKernel) initLogger() {
 
 func (k *MealKernel) initServer() {
 	log.Global.Infof("Initializing server engine...")
+
+	ginMode := os.Getenv("SERVER_MODE")
+	logLevelStr := os.Getenv("LOG_LEVEL")
+	if ginMode == "" {
+		if strings.ToLower(logLevelStr) == "debug" {
+			gin.SetMode(gin.DebugMode)
+		} else {
+			gin.SetMode(gin.ReleaseMode)
+		}
+	} else {
+		gin.SetMode(ginMode)
+	}
+
 	k.serverEngine = gin.Default()
 	cfg := cors.DefaultConfig()
 	allowOrigins := os.Getenv("CORS_ALLOW_ORIGINS_LIST")
-	if allowOrigins == "" {
-		allowOrigins = "*"
+	if allowOrigins == "" || allowOrigins == "*" {
+		cfg.AllowAllOrigins = true
+	} else {
+		cfg.AllowOrigins = strings.Split(allowOrigins, ",")
 	}
-	log.Global.Debugf("CORS allow origins: %s", allowOrigins)
-	cfg.AllowOrigins = strings.Split(allowOrigins, ",")
-	cfg.AllowHeaders = append(cfg.AllowHeaders, "Authorization")
+	cfg.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"}
+	cfg.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
 	k.serverEngine.Use(cors.New(cfg))
 	gin.DefaultWriter = log.Global.Writer()
 	gin.DefaultErrorWriter = log.Global.Writer()
@@ -200,9 +214,10 @@ func (k *MealKernel) Init() {
 
 	err := godotenv.Load()
 	if err != nil {
-		log.Global.Panicf("Error loading .env file: %v", err)
+		log.Global.Infof("Warning: .env file not found or couldn't completely load: %v", err)
+	} else {
+		log.Global.Infof("Environment variables loaded from .env successfully")
 	}
-	log.Global.Infof("Environment variables loaded successfully")
 
 	k.initLogger()
 	k.initServer()
@@ -233,6 +248,27 @@ func (k *MealKernel) Run() {
 	log.Global.Infof("All modules initialized successfully")
 
 	port := os.Getenv("SERVER_PORT")
+	if port == "" {
+		port = "8080"
+		log.Global.Infof("SERVER_PORT not defined, defaulting to %s", port)
+	}
+	logLevelStr := os.Getenv("LOG_LEVEL")
+	if logLevelStr == "" {
+		logLevelStr = "info"
+	}
+	corsList := os.Getenv("CORS_ALLOW_ORIGINS_LIST")
+	if corsList == "" || corsList == "*" {
+		corsList = "ALL (*)"
+	}
+	log.Global.Infof("========================")
+	log.Global.Infof("ACTIVE CONFIGURATION")
+	log.Global.Infof("Port: %s", port)
+	log.Global.Infof("Log Level: %s", logLevelStr)
+	log.Global.Infof("CORS Allowed Origins: %s", corsList)
+	log.Global.Infof("Database Host: %s", os.Getenv("DB_ADDRESS"))
+	log.Global.Infof("Database Path/Name: %s", os.Getenv("DB_NAME"))
+	log.Global.Infof("========================")
+
 	log.Global.Infof("Starting HTTP server on port %s", port)
 	k.serverEngine.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	k.serverEngine.Run(fmt.Sprintf(":%s", port))

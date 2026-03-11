@@ -2,6 +2,7 @@ package logging
 
 import (
 	"io"
+	"os"
 	"strings"
 
 	"github.com/rs/zerolog"
@@ -54,8 +55,24 @@ func NewZerologLogger() *ZerologLogger {
 		Out:        getLogWriter(),
 		TimeFormat: "2006/01/02 15:04:05",
 	}
+	
+	levelStr := os.Getenv("LOG_LEVEL")
+	var level zerolog.Level
+	if levelStr == "" {
+		level = zerolog.InfoLevel // Default to info completely
+	} else {
+		parsedLevel, err := zerolog.ParseLevel(strings.ToLower(levelStr))
+		if err != nil {
+			// fallback cleanly
+			level = zerolog.InfoLevel
+		} else {
+			level = parsedLevel
+		}
+	}
+
+	zerolog.SetGlobalLevel(level)
 	logger := zerolog.New(consoleWriter).With().Timestamp().Logger()
-	logger.Info().Msg("[ZERLOGGER] ZerologLogger initialized and connected!")
+	logger.Info().Msgf("[ZERLOGGER] ZerologLogger initialized at level: %s", level.String())
 	return &ZerologLogger{
 		logger: logger,
 	}
