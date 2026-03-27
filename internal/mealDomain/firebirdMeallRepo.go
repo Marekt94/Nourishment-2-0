@@ -203,6 +203,12 @@ func (mr *FirebirdRepoAccess) updateProductsInMeal(m *Meal, r ProductsRepoIntf) 
 			row.Scan(&id)
 			prod.Id = id
 			m.ProductsInMeal[i].Id = id
+		} else {
+			sql := fmt.Sprintf(`UPDATE %s SET %s=? WHERE %s=?`, PRODUCTS_IN_MEAL_TAB, PRODUCTS_IN_MEAL_WEIGHT, PRODUCTS_IN_MEAL_ID)
+			_, err := mr.Database.Exec(sql, prod.Weight, prod.Id)
+			if err != nil {
+				logging.Global.Panicf("%v", err)
+			}
 		}
 	}
 
