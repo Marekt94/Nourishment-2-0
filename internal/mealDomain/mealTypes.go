@@ -63,19 +63,19 @@ type ProductInMeal struct { // [AI REFACTOR]
 
 // [API GEN] DTO do API (mapowanie z MealInDayDb)
 type MealInDay struct {
-	Id                    int     `json:"id"`
-	Breakfast             Meal    `json:"breakfast"`
-	SecondBreakfast       Meal    `json:"secondBreakfast"`
-	Lunch                 Meal    `json:"lunch"`
-	Dinner                Meal    `json:"dinner"`
-	Supper                Meal    `json:"supper"`
-	AfternoonSnack        Meal    `json:"afternoonSnack"`
-	For5Days              bool    `json:"for5Days"` // mapowane z CHAR(1) '1' lub '0'
-	FactorBreakfast       float64 `json:"factorBreakfast"`
-	FactorSecondBreakfast float64 `json:"factorSecondBreakfast"`
-	FactorLunch           float64 `json:"factorLunch"`
-	FactorDinner          float64 `json:"factorDinner"`
-	FactorSupper          float64 `json:"factorSupper"`
+	Id                    int                 `json:"id"`
+	Breakfast             Meal                `json:"breakfast"`
+	SecondBreakfast       Meal                `json:"secondBreakfast"`
+	Lunch                 Meal                `json:"lunch"`
+	Dinner                Meal                `json:"dinner"`
+	Supper                Meal                `json:"supper"`
+	AfternoonSnack        Meal                `json:"afternoonSnack"`
+	For5Days              bool                `json:"for5Days"` // mapowane z CHAR(1) '1' lub '0'
+	FactorBreakfast       float64             `json:"factorBreakfast"`
+	FactorSecondBreakfast float64             `json:"factorSecondBreakfast"`
+	FactorLunch           float64             `json:"factorLunch"`
+	FactorDinner          float64             `json:"factorDinner"`
+	FactorSupper          float64             `json:"factorSupper"`
 	FactorAfternoonSnack  float64             `json:"factorAfternoonSnack"`
 	Name                  string              `json:"name"`
 	LooseProducts         []LooseProductInDay `json:"looseProducts"`

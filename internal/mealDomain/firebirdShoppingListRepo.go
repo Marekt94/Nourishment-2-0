@@ -211,12 +211,53 @@ func (mr *FirebirdRepoAccess) CreateShoppingList(s *ShoppingList) int64 {
 	return id
 }
 
+func (mr *FirebirdRepoAccess) syncProductsInShoppingList(s *ShoppingList) {
+	for i, prod := range s.Products {
+		if prod.Id <= 0 {
+			prod.ListId = s.Id
+			id := mr.AddProductToShoppingList(&prod)
+			s.Products[i].Id = int(id)
+			s.Products[i].ListId = s.Id
+		} else {
+			prod.ListId = s.Id
+			mr.UpdateProductInShoppingList(&prod)
+		}
+	}
+
+	res, err := mr.Database.Query(fmt.Sprintf(`SELECT %s FROM %s WHERE %s = ?`, PRODUCTS_IN_SHOPPING_LIST_ID, PRODUCTS_IN_SHOPPING_LIST_TAB, PRODUCTS_IN_SHOPPING_LIST_LIST_ID), s.Id)
+	if err != nil {
+		logging.Global.Panicf("%v", err)
+	}
+
+	prodInListIds := make(map[int]bool)
+	var value sql.NullInt64
+	for res.Next() {
+		err := res.Scan(&value)
+		if err != nil {
+			logging.Global.Panicf("%v", err)
+		}
+		prodInListIds[int(value.Int64)] = true
+	}
+	res.Close()
+	
+	for _, el := range s.Products {
+		if el.Id > 0 {
+			delete(prodInListIds, el.Id)
+		}
+	}
+
+	for k := range prodInListIds {
+		mr.DeleteProductFromShoppingList(k)
+	}
+}
+
 func (mr *FirebirdRepoAccess) UpdateShoppingList(s *ShoppingList) {
 	sql := fmt.Sprintf("UPDATE %s SET %s=?, %s=CURRENT_TIMESTAMP WHERE %s=?",
 		SHOPPING_LIST_TAB, SHOPPING_LIST_NAME, SHOPPING_LIST_EDIT_DATE, SHOPPING_LIST_ID)
 	if _, err := mr.Database.Exec(sql, s.Name, s.Id); err != nil {
 		logging.Global.Panicf("%v", err)
 	}
+	mr.syncProductsInShoppingList(s)
 }
 
 func (mr *FirebirdRepoAccess) DeleteShoppingList(id int) bool {
