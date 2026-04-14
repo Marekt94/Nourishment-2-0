@@ -77,6 +77,7 @@ func (m *AuthMiddleware) Middleware(c *gin.Context) {
 	// 2) Parsuj i zweryfikuj sygnaturę z białą listą algorytmów
 	token, err := jwt.ParseWithClaims(raw, &auth.InternalClaims{}, m.JwtGenerator.Validate,
 		jwt.WithAudience(audience), jwt.WithIssuer(issuer),
+		jwt.WithExpirationRequired(),
 		jwt.WithLeeway(time.Duration(clockSkew)*time.Second))
 	if err != nil || !token.Valid {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})

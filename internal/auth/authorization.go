@@ -38,7 +38,7 @@ func (j *JWTGenerator) GetJWT(subject string) (*jwt.Token, error) {
 			Issuer:    os.Getenv("JWT_ISSUER"),
 			Subject:   subject,
 			Audience:  jwt.ClaimStrings{os.Getenv("JWT_AUDIENCE")},
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(24 * time.Hour)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(1 * time.Hour)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
 	}
