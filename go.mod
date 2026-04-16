@@ -3,7 +3,7 @@ module nourishment_20
 go 1.24.3
 
 require (
-	github.com/Marekt94/go-kernel-mt v0.1.0
+	github.com/Marekt94/go-kernel-mt v0.2.0
 	github.com/gin-gonic/gin v1.10.1
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/revrost/go-openrouter v0.1.8
@@ -71,5 +71,3 @@ require (
 	google.golang.org/protobuf v1.36.6 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
-
-replace github.com/Marekt94/go-kernel-mt => c:\Repo\go-kernel-mt
