@@ -77,4 +77,4 @@ http://localhost:8080/swagger/index.html
 
 ## Powiązane repozytoria
 
-- [Frontend (React)](../nourishment_20_frontend) — interfejs użytkownika
+- [Frontend (React)](https://github.com/Marekt94/Nourishment-2-0-Frontend) — interfejs użytkownika
