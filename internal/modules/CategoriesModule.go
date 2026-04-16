@@ -4,7 +4,6 @@ import (
 	"nourishment_20/internal/api"
 	"nourishment_20/internal/auth"
 	meal "nourishment_20/internal/mealDomain"
-	"github.com/Marekt94/go-kernel-mt"
 
 	"github.com/gin-gonic/gin"
 )
@@ -27,9 +26,9 @@ func (m *ModuleCategories) ExposeMethods() {
 
 func (m *ModuleCategories) RegisterPermissions() {
 	m.PermRepo.RegisterPermissions(api.RESOURCE_CATEGORIES, []string{"read", "write"})
-	m.PermRepo.RegisterUserPermission(kernel.ADMIN_USER_NAME, api.RESOURCE_CATEGORIES, "read")
-	m.PermRepo.RegisterUserPermission(kernel.ADMIN_USER_NAME, api.RESOURCE_CATEGORIES, "write")
-	m.PermRepo.RegisterUserPermission(kernel.READER_USER_NAME, api.RESOURCE_CATEGORIES, "read")
+	m.PermRepo.RegisterUserPermission(ADMIN_USER_NAME, api.RESOURCE_CATEGORIES, "read")
+	m.PermRepo.RegisterUserPermission(ADMIN_USER_NAME, api.RESOURCE_CATEGORIES, "write")
+	m.PermRepo.RegisterUserPermission(READER_USER_NAME, api.RESOURCE_CATEGORIES, "read")
 }
 
 func (m *ModuleCategories) GetName() string {

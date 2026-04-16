@@ -25,6 +25,9 @@ import (
 	"github.com/joho/godotenv"
 )
 
+const ADMIN_USER_NAME = "ADMIN"
+const READER_USER_NAME = "READER"
+
 // DONE dodać logowanie
 type MealKernel struct {
 	kernel.Kernel

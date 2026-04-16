@@ -3,7 +3,6 @@ package modules
 import (
 	"nourishment_20/internal/api"
 	"nourishment_20/internal/auth"
-	"github.com/Marekt94/go-kernel-mt"
 
 	"github.com/gin-gonic/gin"
 )
@@ -22,7 +21,7 @@ func (m *ModuleOptimizeMeal) ExposeMethods() {
 
 func (m *ModuleOptimizeMeal) RegisterPermissions() {
 	m.PermRepo.RegisterPermissions(api.RESOURCE_OPTIMIZEMEAL, []string{"write"})
-	m.PermRepo.RegisterUserPermission(kernel.ADMIN_USER_NAME, api.RESOURCE_OPTIMIZEMEAL, "write")
+	m.PermRepo.RegisterUserPermission(ADMIN_USER_NAME, api.RESOURCE_OPTIMIZEMEAL, "write")
 }
 
 func (m *ModuleOptimizeMeal) GetName() string {

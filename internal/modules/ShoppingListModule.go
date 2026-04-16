@@ -4,7 +4,6 @@ import (
 	"nourishment_20/internal/api"
 	"nourishment_20/internal/auth"
 	meal "nourishment_20/internal/mealDomain"
-	"github.com/Marekt94/go-kernel-mt"
 
 	"github.com/gin-gonic/gin"
 )
@@ -36,12 +35,12 @@ func (m *ModuleShoppingList) ExposeMethods() {
 
 func (m *ModuleShoppingList) RegisterPermissions() {
 	m.PermRepo.RegisterPermissions(api.RESOURCE_SHOPPINGLISTS, []string{"read", "write"})
-	m.PermRepo.RegisterUserPermission(kernel.ADMIN_USER_NAME, api.RESOURCE_SHOPPINGLISTS, "read")
-	m.PermRepo.RegisterUserPermission(kernel.ADMIN_USER_NAME, api.RESOURCE_SHOPPINGLISTS, "write")
+	m.PermRepo.RegisterUserPermission(ADMIN_USER_NAME, api.RESOURCE_SHOPPINGLISTS, "read")
+	m.PermRepo.RegisterUserPermission(ADMIN_USER_NAME, api.RESOURCE_SHOPPINGLISTS, "write")
 
 	m.PermRepo.RegisterPermissions(api.RESOURCE_SHOPPINGLIST_PRODS, []string{"read", "write"})
-	m.PermRepo.RegisterUserPermission(kernel.ADMIN_USER_NAME, api.RESOURCE_SHOPPINGLIST_PRODS, "read")
-	m.PermRepo.RegisterUserPermission(kernel.ADMIN_USER_NAME, api.RESOURCE_SHOPPINGLIST_PRODS, "write")
+	m.PermRepo.RegisterUserPermission(ADMIN_USER_NAME, api.RESOURCE_SHOPPINGLIST_PRODS, "read")
+	m.PermRepo.RegisterUserPermission(ADMIN_USER_NAME, api.RESOURCE_SHOPPINGLIST_PRODS, "write")
 }
 
 func (m *ModuleShoppingList) GetName() string {
