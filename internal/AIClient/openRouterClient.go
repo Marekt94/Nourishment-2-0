@@ -3,7 +3,7 @@ package AIClient
 import (
 	"context"
 	"encoding/json"
-	"nourishment_20/internal/logging"
+	"github.com/Marekt94/go-kernel-mt/logging"
 
 	"github.com/revrost/go-openrouter"
 )

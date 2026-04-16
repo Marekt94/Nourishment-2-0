@@ -2,7 +2,7 @@ package database
 
 import (
 	"database/sql"
-	"nourishment_20/internal/logging"
+	"github.com/Marekt94/go-kernel-mt/logging"
 )
 
 type MySQLDBEngine struct {

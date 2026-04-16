@@ -2,7 +2,7 @@ package testHelper
 
 import (
 	db "nourishment_20/internal/database"
-	log "nourishment_20/internal/logging"
+	log "github.com/Marekt94/go-kernel-mt/logging"
 	"os"
 
 	"database/sql"

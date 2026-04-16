@@ -1,7 +1,7 @@
 package auth
 
 import (
-	log "nourishment_20/internal/logging"
+	log "github.com/Marekt94/go-kernel-mt/logging"
 	h "nourishment_20/internal/testHelper"
 	"testing"
 )

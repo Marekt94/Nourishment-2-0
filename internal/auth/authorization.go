@@ -2,7 +2,7 @@ package auth
 
 import (
 	"fmt"
-	"nourishment_20/internal/logging"
+	"github.com/Marekt94/go-kernel-mt/logging"
 	"os"
 	"strings"
 	"time"

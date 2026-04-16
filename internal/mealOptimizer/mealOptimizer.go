@@ -5,7 +5,7 @@ import (
 	"fmt"
 	utils "nourishment_20/internal"
 	"nourishment_20/internal/AIClient"
-	"nourishment_20/internal/logging"
+	"github.com/Marekt94/go-kernel-mt/logging"
 	meal "nourishment_20/internal/mealDomain"
 	"os"
 	"strconv"

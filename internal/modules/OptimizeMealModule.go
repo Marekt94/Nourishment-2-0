@@ -3,7 +3,7 @@ package modules
 import (
 	"nourishment_20/internal/api"
 	"nourishment_20/internal/auth"
-	"nourishment_20/kernel"
+	"github.com/Marekt94/go-kernel-mt"
 
 	"github.com/gin-gonic/gin"
 )

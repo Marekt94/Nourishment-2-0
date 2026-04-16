@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"nourishment_20/internal/database"
-	"nourishment_20/internal/logging"
+	"github.com/Marekt94/go-kernel-mt/logging"
 	"strings"
 )
 
