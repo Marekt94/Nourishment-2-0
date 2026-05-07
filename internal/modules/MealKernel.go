@@ -8,13 +8,14 @@ import (
 	"nourishment_20/internal/api"
 	"nourishment_20/internal/auth"
 	db "nourishment_20/internal/database"
-	log "github.com/Marekt94/go-kernel-mt/logging"
 	meal "nourishment_20/internal/mealDomain"
 	"nourishment_20/internal/mealOptimizer"
-	"github.com/Marekt94/go-kernel-mt"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/Marekt94/go-kernel-mt"
+	log "github.com/Marekt94/go-kernel-mt/logging"
 
 	"github.com/gin-contrib/cors"
 
@@ -68,7 +69,7 @@ func (k *MealKernel) initDB() {
 
 func (k *MealKernel) initLogger() {
 	log.Global.Infof("Initializing logger...")
-	log.SetGlobalLogger(log.NewZerologLogger())
+	log.SetGlobalLogger(log.NewZerologLoggerWithGinWritter())
 	log.Global.Infof("Logger initialized successfully")
 }
 

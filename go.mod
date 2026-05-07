@@ -3,7 +3,7 @@ module nourishment_20
 go 1.24.3
 
 require (
-	github.com/Marekt94/go-kernel-mt v0.2.0
+	github.com/Marekt94/go-kernel-mt v0.3.0
 	github.com/gin-gonic/gin v1.10.1
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/revrost/go-openrouter v0.1.8
